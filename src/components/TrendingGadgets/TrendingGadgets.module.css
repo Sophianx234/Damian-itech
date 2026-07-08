@@ -45,13 +45,11 @@
 
 .card {
   position: relative;
-  width: 65%;
+  width: 90%;
   height: 250px;
-  transform: skewX(-25deg);
-  overflow: hidden; /* Clips the image cleanly to the slant! */
+  overflow: hidden;
   border-radius: 12px;
   cursor: pointer;
-  /* box-shadow: 0 10px 30px rgba(0,0,0,0.05); */
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
 }
 
@@ -71,9 +69,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -60px; /* Mathematically exact offset for 25deg skew over 250px height (tan(25) * 250 / 2) */
-  right: -60px;
-  transform: skewX(25deg); /* Must exactly mirror the -25deg card skew to keep photo upright */
+  left: 0;
+  right: 0;
 }
 
 .image {
