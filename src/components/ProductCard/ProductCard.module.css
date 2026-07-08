@@ -46,7 +46,7 @@
 }
 
 .tagSale {
-  background-color: var(--red-accent);
+  background-color: var(--primary-color);
 }
 
 .tagCondition {
@@ -95,7 +95,7 @@
 .salePrice {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--red-accent);
+  color: var(--primary-color);
 }
 
 .oldPrice {

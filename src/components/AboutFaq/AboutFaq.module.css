@@ -34,26 +34,29 @@
 .seoGrid {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  max-width: 65rem;
+  gap: 64px; /* Generous, luxurious whitespace between blocks */
+  max-width: 65rem; /* Optimal reading width for typography (approx 65 chars per line) */
   margin: 0 auto;
 }
 
 .seoBlock {
-  /* Removed card backgrounds, borders, and hover effects for a clean text layout */
+  position: relative;
+  /* Clean text layout */
 }
 
+/* Elegant, minimalist separator line between blocks */
+
 .seoBlockTitle {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 12px;
-  letter-spacing: 0.03em; /* wide tracking for premium feel */
+  margin-bottom: 16px;
+  letter-spacing: 0.02em; /* Subtle wide tracking */
 }
 
 .seoBlockDesc {
-  font-size: 1.05rem;
-  line-height: 1.8; /* clean line-height */
+  font-size: 1.1rem;
+  line-height: 1.8; /* Perfect line-height for readability */
   color: var(--text-muted, var(--text-secondary));
 }
 
