@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from '../components/Header/Header';
-import Hero from '../components/Hero/Hero';
+import HeroCarousel from '../components/HeroCarousel/HeroCarousel';
 import FeaturesBar from '../components/FeaturesBar/FeaturesBar';
 import FeaturedProducts from '../components/FeaturedProducts/FeaturedProducts';
 import PromoBanner from '../components/PromoBanner/PromoBanner';
@@ -12,7 +12,7 @@ export default function Home() {
     <>
       <Header />
       <main>
-        <Hero />
+        <HeroCarousel />
         <FeaturesBar />
         <FeaturedProducts />
         <PromoBanner />
