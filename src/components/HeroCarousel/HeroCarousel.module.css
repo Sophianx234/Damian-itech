@@ -1,6 +1,7 @@
 .heroSection {
   position: relative;
   width: 100%;
+  height: calc(100vh - 4.5rem - 3.5rem); /* Adjust for the height of the FeaturesBar */
   overflow: hidden;
   background-color: var(--bg-primary); /* Fallback */
 }
@@ -25,7 +26,7 @@
 .slideBackground {
   position: relative;
   width: 100%;
-  height: 70vh; /* Adjust height based on viewport */
+  height: 100vh; /* Adjust height based on viewport */
   min-height: 500px;
   background-size: cover;
   background-position: center;
