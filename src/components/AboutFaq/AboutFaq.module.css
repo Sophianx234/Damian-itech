@@ -1,59 +1,85 @@
 .section {
-  padding: 100px 0;
-  background-color: var(--bg-primary);
-  border-top: 1px solid var(--border-primary);
+  padding: 120px 0;
+  background-color: var(--bg-light); /* using light background for premium contrast */
 }
 
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: flex-start;
+/* --- Showcase / SEO Layout --- */
+.showcaseWrapper {
+  margin-bottom: 100px;
 }
 
-/* About Styling */
-.aboutWrapper {
-  display: flex;
-  flex-direction: column;
+.showcaseHeader {
+  text-align: center;
+  margin-bottom: 80px;
 }
 
-.aboutTag {
+.showcaseTag {
+  display: inline-block;
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.2em;
   color: var(--brand-primary, var(--primary-color));
   margin-bottom: 24px;
 }
 
-.aboutTitle {
-  font-size: 3rem;
+.showcaseTitle {
+  font-size: 3.5rem;
   font-weight: 800;
   line-height: 1.1;
   color: var(--text-primary);
-  margin-bottom: 32px;
   letter-spacing: -0.03em;
 }
 
-.aboutDescription {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: var(--text-muted, var(--text-secondary));
-  margin-bottom: 24px;
-}
-
-/* FAQ Styling */
-.faqWrapper {
+.seoGrid {
   display: flex;
   flex-direction: column;
+  gap: 40px;
+  max-width: 65rem;
+  margin: 0 auto;
+}
+
+.seoBlock {
+  /* Removed card backgrounds, borders, and hover effects for a clean text layout */
+}
+
+.seoBlockTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: 0.03em; /* wide tracking for premium feel */
+}
+
+.seoBlockDesc {
+  font-size: 1.05rem;
+  line-height: 1.8; /* clean line-height */
+  color: var(--text-muted, var(--text-secondary));
+}
+
+
+/* --- FAQ Section --- */
+.faqWrapper {
+  max-width: 65rem;
+  margin: 0 auto;
+}
+
+.faqHeader {
+  text-align: center;
+  margin-bottom: 48px;
 }
 
 .faqTitle {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 40px;
+  margin-bottom: 16px;
   letter-spacing: -0.02em;
+}
+
+.faqSubtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted, var(--text-secondary));
 }
 
 .accordion {
@@ -66,7 +92,7 @@
   border: 1px solid var(--border-primary);
   border-radius: 12px;
   overflow: hidden;
-  background: var(--bg-light);
+  background: var(--bg-primary);
   transition: border-color 0.3s ease;
 }
 
@@ -117,25 +143,21 @@
   line-height: 1.6;
 }
 
-/* Responsive */
+/* --- Responsive --- */
 @media (max-width: 1024px) {
-  .container {
-    gap: 48px;
-  }
-  .aboutTitle {
-    font-size: 2.5rem;
+  .showcaseTitle {
+    font-size: 3rem;
   }
 }
 
 @media (max-width: 768px) {
-  .container {
-    grid-template-columns: 1fr;
-    gap: 64px;
-  }
-  .aboutTitle {
+  .showcaseTitle {
     font-size: 2.2rem;
   }
   .faqTitle {
-    font-size: 1.8rem;
+    font-size: 2rem;
+  }
+  .seoGrid {
+    gap: 24px;
   }
 }

@@ -7,31 +7,42 @@ import styles from './AboutFaq.module.css';
 const faqs = [
   {
     question: "How can I place an order?",
-    answer: "Simply browse our catalog, add your desired items to the cart, and proceed to checkout. You can check out as a guest or create an account to easily track your orders and save your preferences."
+    answer: "Browse our premium catalog, select your desired products, add them to your cart, and proceed to our secure checkout for a seamless experience."
   },
   {
     question: "What payment methods do you accept?",
-    answer: "We accept all major credit and debit cards (Visa, MasterCard, American Express), Apple Pay, Google Pay, and secure local payment gateways. We also offer flexible financing options on eligible orders."
+    answer: "We accept all major credit and debit cards, secure Mobile Money transfers, and leading digital wallets to provide you with ultimate flexibility."
   },
   {
     question: "How long does delivery take?",
-    answer: "Standard delivery typically takes 3-5 business days. We also offer expedited 1-2 day shipping at checkout for urgent orders. Once your order ships, you will receive a tracking link via email."
+    answer: "Delivery timeframes vary based on your location. A precise, dynamically calculated delivery estimate is provided at checkout before you finalize your order."
   },
   {
     question: "Do you offer refunds or returns?",
-    answer: "Yes, we offer a hassle-free 30-day return policy. If you are not completely satisfied with your purchase, you can return it in its original condition for a full refund or exchange."
+    answer: "Yes, we uphold a hassle-free return policy. Eligible items can be returned or exchanged effortlessly to ensure your complete satisfaction."
   },
   {
     question: "Is my personal information safe?",
-    answer: "Absolutely. Our platform utilizes bank-level SSL encryption to ensure that all your personal and payment information is securely processed and strictly protected."
+    answer: "Absolutely. We implement robust data security measures, including bank-grade encryption, to ensure your privacy and payment data remain strictly protected."
+  }
+];
+
+const seoBlocks = [
+  {
+    title: "The Ultimate Tech Hub",
+    desc: "Experience the pinnacle of digital commerce. AncoreXHub bridges the gap between cutting-edge technology and unparalleled convenience, offering a frictionless ecosystem for premium shopping and trading."
   },
   {
-    question: "How does the device swap program work?",
-    answer: "Our tech swap program allows you to trade in your pre-loved electronics for store credit or direct exchanges. Simply list your device, receive an estimated valuation, and finalize the swap with our team."
+    title: "Gadgets & Electronics",
+    desc: "From flagship smartphones to high-performance computing and immersive audio, discover a curated selection of devices engineered for modern, high-speed living."
   },
   {
-    question: "How can I contact customer support?",
-    answer: "Our dedicated support team is available 24/7. You can reach out via the live chat widget on our website, or email us at support@ancorexhub.com. We typically respond within an hour."
+    title: "Home & Appliances",
+    desc: "Elevate your living space with intelligent home appliances designed for uncompromising efficiency, sustainability, and effortless control over your environment."
+  },
+  {
+    title: "Lifestyle & Beauty",
+    desc: "Explore our refined collection of lifestyle accessories and wellness tools that seamlessly complement your sophisticated aesthetic and daily routines."
   }
 ];
 
@@ -44,23 +55,32 @@ const AboutFaq = () => {
 
   return (
     <section className={styles.section}>
-      <div className={`container ${styles.container}`}>
+      <div className="container">
         
-        {/* About Section */}
-        <div className={styles.aboutWrapper}>
-          <div className={styles.aboutTag}>About AncoreXHub</div>
-          <h2 className={styles.aboutTitle}>Empowering Your Tech Lifestyle.</h2>
-          <p className={styles.aboutDescription}>
-            AncoreXHub is your premier destination for high-end electronics, immersive gadgets, and seamless tech-trading. We believe technology should be accessible, sustainable, and empowering. 
-          </p>
-          <p className={styles.aboutDescription}>
-            Whether you're upgrading to the latest smartphone, finding the perfect smart home integration, or swapping your pre-loved devices, AncoreXHub delivers unparalleled quality, transparent pricing, and a frictionless shopping experience. Elevate your digital world with us today.
-          </p>
+        {/* Asymmetric SEO / Category Showcase */}
+        <div className={styles.showcaseWrapper}>
+          <div className={styles.showcaseHeader}>
+            <span className={styles.showcaseTag}>The Best Online Shopping Site in Ghana</span>
+            {/* <h2 className={styles.showcaseTitle}>Curating the Future of Retail.</h2> */}
+          </div>
+          
+          <div className={styles.seoGrid}>
+            {seoBlocks.map((block, index) => (
+              <div key={index} className={styles.seoBlock}>
+                <h3 className={styles.seoBlockTitle}>{block.title}</h3>
+                <p className={styles.seoBlockDesc}>{block.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* FAQ Section */}
         <div className={styles.faqWrapper}>
-          <h2 className={styles.faqTitle}>Frequently Asked Questions</h2>
+          <div className={styles.faqHeader}>
+            <h2 className={styles.faqTitle}>Frequently Asked Questions</h2>
+            <p className={styles.faqSubtitle}>Everything you need to know about shopping with us.</p>
+          </div>
+          
           <div className={styles.accordion}>
             {faqs.map((faq, index) => {
               const isActive = activeIndex === index;
@@ -79,7 +99,7 @@ const AboutFaq = () => {
                     <span className={styles.iconWrapper}>
                       <motion.svg
                         animate={{ rotate: isActive ? 45 : 0 }}
-                        transition={{ duration: 0.3, ease: "circOut" }}
+                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
                         width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                       >
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -93,7 +113,7 @@ const AboutFaq = () => {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        transition={{ type: "spring", stiffness: 200, damping: 25, mass: 1 }}
                         className={styles.accordionContentWrapper}
                       >
                         <div className={styles.accordionContent}>
