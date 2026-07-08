@@ -3,7 +3,7 @@ import { ThemeProvider } from "../components/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TechNest - Top Tech Gear",
+  title: "Damian iTech - Top Tech Gear",
   description: "Explore the latest gadgets and accessories.",
 };
 

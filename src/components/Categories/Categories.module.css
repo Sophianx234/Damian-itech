@@ -1,6 +1,6 @@
 .categoriesSection {
   padding: 40px 0 80px;
-  background-color: #fff;
+  background-color: calc(var(--bg-primary));
 }
 
 .grid {
@@ -10,7 +10,8 @@
 }
 
 .categoryCard {
-  background-color: #f0f0f0; /* light gray to match image */
+  background-color: #a9a9aa; /* light gray to match image */
+  /* background-color: #c2c2c2; light gray to match image */
   border-radius: 8px;
   padding: 40px;
   display: flex;
