@@ -33,7 +33,8 @@
   /* Legacy variable updates */
   --card-bg: #09090b;
   --bg-light: #09090b;
-  --text-dark: #fafafa;
+  --text-dark: #171717;
+  /* --text-dark: #fafafa; */
   /* --text-light: #171717; */
   --border-color: rgba(255, 255, 255, 0.1);
 }

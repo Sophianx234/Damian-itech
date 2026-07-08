@@ -30,6 +30,15 @@ const products = [
     tagType: null
   },
   {
+    id: 5,
+    name: 'Portable Bluetooth Speaker',
+    price: '$129.00',
+    oldPrice: null,
+    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+    tag: null,
+    tagType: null
+  },
+  {
     id: 4,
     name: 'Gaming Mouse',
     price: '$49.99',
