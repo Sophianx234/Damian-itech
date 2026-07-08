@@ -1,0 +1,36 @@
+.featuresBar {
+  background-color: #1a1c20;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 20px 0;
+  color: var(--text-light);
+}
+
+.featuresInner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
