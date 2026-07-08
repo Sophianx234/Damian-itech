@@ -1,14 +1,25 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
 import styles from './Header.module.css';
 
 const Header = () => {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
         <div className={styles.logo}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.logoIcon}>
             <path d="M12 2L2 22H22L12 2Z" fill="var(--primary-color)"/>
-            <path d="M12 8L7 18H17L12 8Z" fill="#fff"/>
+            <path d="M12 8L7 18H17L12 8Z" className={styles.logoInnerPath} />
           </svg>
           TechNest
         </div>
@@ -22,6 +33,14 @@ const Header = () => {
         </nav>
 
         <div className={styles.icons}>
+          <button aria-label="Toggle Theme" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className={styles.themeToggle}>
+            {mounted && (
+              <>
+                <Sun className={`${styles.icon} ${styles.sun}`} size={20} />
+                <Moon className={`${styles.icon} ${styles.moon}`} size={20} />
+              </>
+            )}
+          </button>
           <button aria-label="Search">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
           </button>
