@@ -125,11 +125,11 @@
 .swapBtn {
   margin-top: auto;
   width: 100%;
-  background-color: #171717;
+  background-color: var(--primary-color);
 }
 
 :global([data-theme='dark']) .swapBtn {
-  background-color: #fafafa;
+  background-color: var(--primary-color);
   color: #171717;
 }
 

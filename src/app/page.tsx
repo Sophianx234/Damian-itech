@@ -7,6 +7,7 @@ import FeaturedProducts from '../components/FeaturedProducts/FeaturedProducts';
 import SwapItems from '../components/SwapItems/SwapItems';
 import PromoBanner from '../components/PromoBanner/PromoBanner';
 import Categories from '../components/Categories/Categories';
+import AboutFaq from '../components/AboutFaq/AboutFaq';
 import Footer from '../components/Footer/Footer';
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <SwapItems />
         <PromoBanner />
         <Categories />
+        <AboutFaq />
       </main>
       <Footer />
     </>

@@ -1,0 +1,141 @@
+.section {
+  padding: 100px 0;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-primary);
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: flex-start;
+}
+
+/* About Styling */
+.aboutWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.aboutTag {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-primary, var(--primary-color));
+  margin-bottom: 24px;
+}
+
+.aboutTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 32px;
+  letter-spacing: -0.03em;
+}
+
+.aboutDescription {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-muted, var(--text-secondary));
+  margin-bottom: 24px;
+}
+
+/* FAQ Styling */
+.faqWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.faqTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accordionItem {
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-light);
+  transition: border-color 0.3s ease;
+}
+
+.accordionItem:hover {
+  border-color: var(--text-muted);
+}
+
+.accordionItem.active {
+  border-color: var(--text-primary);
+}
+
+.accordionHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding-right: 24px;
+  line-height: 1.4;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+
+.accordionContentWrapper {
+  overflow: hidden;
+}
+
+.accordionContent {
+  padding: 0 24px 24px 24px;
+  color: var(--text-muted, var(--text-secondary));
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .container {
+    gap: 48px;
+  }
+  .aboutTitle {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 64px;
+  }
+  .aboutTitle {
+    font-size: 2.2rem;
+  }
+  .faqTitle {
+    font-size: 1.8rem;
+  }
+}
