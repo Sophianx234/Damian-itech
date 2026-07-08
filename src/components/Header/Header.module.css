@@ -1,18 +1,12 @@
 .header {
-  background-color: var(--card-bg);
-  color: var(--text-dark);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   padding: 20px 0;
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-primary);
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-:global([data-theme='dark']) .header {
-  background-color: var(--bg-dark);
-  color: var(--text-light);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .headerInner {
@@ -35,12 +29,8 @@
 }
 
 .logoInnerPath {
-  fill: var(--card-bg);
+  fill: var(--bg-primary);
   transition: fill 0.3s ease;
-}
-
-:global([data-theme='dark']) .logoInnerPath {
-  fill: var(--bg-dark);
 }
 
 .nav {
@@ -55,10 +45,6 @@
   transition: color 0.3s ease;
 }
 
-:global([data-theme='dark']) .navLink {
-  color: #e0e0e0;
-}
-
 .navLink:hover {
   color: var(--primary-color);
 }
@@ -71,15 +57,11 @@
 
 .icons button {
   background: none;
-  color: var(--text-dark);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.3s ease;
-}
-
-:global([data-theme='dark']) .icons button {
-  color: #e0e0e0;
 }
 
 .icons button:hover {

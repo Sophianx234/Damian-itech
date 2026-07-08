@@ -1,19 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 :root {
-  --primary-color: #3ca33b; /* green from image */
-  --primary-hover: #2f872f;
-  --bg-dark: #121417; /* dark section backgrounds */
-  --bg-light: #f5f5f5; /* light backgrounds like featured products */
-  --text-dark: #1e1e1e;
-  --text-light: #ffffff;
-  --text-gray: #a3a3a3;
+  --primary-color: #8b5cf6;
+  --primary-hover: #7c3aed;
+  
+  --bg-primary: #fafafa;
+  --text-primary: #171717;
+  --border-primary: #e5e5e5;
   --text-muted: #6b6b6b;
+
+  /* Legacy variables mapped to new brand colors if needed by other components */
+  --bg-dark: #09090b;
+  --bg-light: #fafafa;
+  --text-dark: #171717;
+  --text-light: #fafafa;
+  --text-gray: #a3a3a3;
   --border-color: #e5e5e5;
-  --card-bg: #ffffff;
+  --card-bg: #fafafa;
   --red-accent: #e53935;
+  
   --font-family: 'Inter', sans-serif;
   --transition: all 0.3s ease;
+}
+
+[data-theme='dark'] {
+  --bg-primary: #09090b;
+  --text-primary: #fafafa;
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --text-muted: #a0a0a0;
+
+  /* Legacy variable updates */
+  --card-bg: #09090b;
+  --bg-light: #09090b;
+  --text-dark: #fafafa;
+  /* --text-light: #171717; */
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -24,10 +46,11 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--card-bg);
-  color: var(--text-dark);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -60,7 +83,7 @@ img {
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: var(--text-light);
+  color: #ffffff; /* Primary buttons should always have white text for contrast on purple */
   padding: 12px 32px;
   border-radius: 4px;
   font-weight: 600;
