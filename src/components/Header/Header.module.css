@@ -4,6 +4,7 @@
   padding: 20px 0;
   position: sticky;
   top: 0;
+  height: 4.5rem; /* Adjusted height to match FeaturesBar */
   z-index: 100;
   border-bottom: 1px solid var(--border-primary);
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
@@ -25,6 +26,22 @@
 }
 
 .logoIcon {
+  display: block;
+}
+
+.logoLight {
+  display: block;
+}
+
+.logoDark {
+  display: none;
+}
+
+:global([data-theme='dark']) .logoLight {
+  display: none;
+}
+
+:global([data-theme='dark']) .logoDark {
   display: block;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 import styles from './Header.module.css';
@@ -17,11 +18,24 @@ const Header = () => {
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
         <div className={styles.logo}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.logoIcon}>
-            <path d="M12 2L2 22H22L12 2Z" fill="var(--primary-color)"/>
-            <path d="M12 8L7 18H17L12 8Z" className={styles.logoInnerPath} />
-          </svg>
-          TechNest
+          <Image 
+            src="/imgs/logo-1.png" 
+            alt="TechNest Logo" 
+            width={160} 
+            height={48} 
+            className={`${styles.logoIcon} ${styles.logoLight}`} 
+            style={{ objectFit: "contain", width: "auto", height: "40px" }}
+            priority
+          />
+          <Image 
+            src="/imgs/logo-3.png" 
+            alt="TechNest Logo Dark" 
+            width={160} 
+            height={48} 
+            className={`${styles.logoIcon} ${styles.logoDark}`} 
+            style={{ objectFit: "contain", width: "auto", height: "40px" }}
+            priority
+          />
         </div>
         
         <nav className={styles.nav}>
