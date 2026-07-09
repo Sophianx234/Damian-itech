@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
       >
         {/* Left: Form Section */}
         <div className={styles.formSection}>
-          <div className={styles.logoWrapper}>
+          <Link href='/' className={styles.logoWrapper}>
             <Image 
               src="/imgs/logo-1.png" 
               alt="TechNest Logo" 
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
-          </div>
+          </Link>
 
           <div className={styles.header}>
             <h1 className={styles.title}>Forgot Password?</h1>

@@ -242,26 +242,7 @@ function ResetPasswordForm() {
             {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
           </button>
           
-          <div className={styles.infoContent}>
-            <h2 className={styles.infoTitle}>Secure Account</h2>
-            <p className={styles.infoSubtitle}>Almost there! Create a new strong password.</p>
-          </div>
-
-          <div className={styles.stepsContainer}>
-            <div className={`${styles.stepCard} ${styles.stepCardActive}`}>
-              <div className={styles.stepNum}>1</div>
-              <div className={styles.stepText}>Verify<br/>code</div>
-            </div>
-            <div className={styles.stepCard}>
-              <div className={styles.stepNum}>2</div>
-              <div className={styles.stepText}>New<br/>password</div>
-            </div>
-            <div className={styles.stepCard}>
-              <div className={styles.stepNum}>3</div>
-              <div className={styles.stepText}>Login<br/>successfully</div>
-            </div>
-          </div>
-
+          
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
