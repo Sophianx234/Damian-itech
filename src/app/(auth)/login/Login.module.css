@@ -1,0 +1,376 @@
+.authContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+}
+
+.splitWrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  min-height: 700px;
+}
+
+[data-theme='dark'] .splitWrapper {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Section (Left) */
+.formSection {
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--card-bg);
+  max-width: 550px;
+}
+
+.logoWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.logoIcon {
+  display: block;
+}
+
+.logoLight {
+  display: block;
+}
+
+.logoDark {
+  display: none;
+}
+
+[data-theme='dark'] .logoLight {
+  display: none;
+}
+
+[data-theme='dark'] .logoDark {
+  display: block;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Social Buttons */
+.socialGroup {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.socialBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.socialBtn:hover {
+  background: var(--border-primary);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.divider::before { margin-right: 16px; }
+.divider::after { margin-left: 16px; }
+
+/* Form Elements */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.inputHint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: -12px;
+}
+
+.submitBtn {
+  margin-top: 8px;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.submitBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.link {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 6px;
+  transition: opacity 0.2s;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Info Section (Right) */
+.infoSection {
+  display: relative;
+  position: relative;
+  padding: 64px 48px;
+  color: #fff;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.carouselContainer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+}
+
+.carouselSlide {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 900px) {
+  .splitWrapper {
+    grid-template-columns: 1fr 1fr;
+  }
+  .infoSection {
+    display: flex;
+    position: relative;
+  }
+}
+
+.infoBgGradient {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.infoContent {
+  position: relative;
+  z-index: 2;
+  max-width: 400px;
+}
+
+.infoTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+
+.infoSubtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin-bottom: 48px;
+}
+
+.stepsContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.stepCard {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px 20px;
+  backdrop-filter: blur(10px);
+  transition: background 0.3s;
+}
+
+.stepCardActive {
+  background: #fff;
+  color: var(--text-dark);
+}
+
+.stepCardActive .stepNum {
+  background: var(--text-dark);
+  color: #fff;
+}
+
+.stepNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.stepText {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  position: fixed;
+  bottom: 32px;
+  right: 19.4rem;
+  z-index: 10;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--border-primary);
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  background-color: var(--text-muted);
+}
+
+.dotActive {
+  background-color: var(--primary-color);
+  width: 24px;
+  border-radius: 12px;
+}
+
+:global([data-theme='dark']) .dot {
+  background-color: rgba(255,255,255,0.2);
+}
+
+:global([data-theme='dark']) .dot:hover {
+  background-color: rgba(255,255,255,0.5);
+}
+
+:global([data-theme='dark']) .dotActive {
+  background-color: var(--primary-color);
+}
+
+@media (max-width: 900px) {
+  .formSection {
+    padding: 48px 32px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .formSection {
+    padding: 32px 20px;
+  }
+}
