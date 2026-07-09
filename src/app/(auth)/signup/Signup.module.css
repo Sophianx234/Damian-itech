@@ -213,14 +213,27 @@
 
 /* Info Section (Right) */
 .infoSection {
-  display: none;
+  display: relative;
   position: relative;
-  background: url("/imgs/person-3.jpeg") center/cover no-repeat;
-  /* padding: 64px 48px; */
+  padding: 64px 48px;
   color: #fff;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
+}
+
+.carouselContainer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+}
+
+.carouselSlide {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 @media (min-width: 900px) {
@@ -229,19 +242,21 @@
   }
   .infoSection {
     display: flex;
+    position: relative;
   }
 }
 
 .infoBgGradient {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.3));
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
   pointer-events: none;
+  z-index: 1;
 }
 
 .infoContent {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 400px;
 }
 
@@ -261,9 +276,10 @@
 
 .stepsContainer {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   gap: 16px;
+  margin-top: 48px;
 }
 
 .stepCard {
@@ -304,6 +320,47 @@
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.4;
+}
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  position: fixed;
+  bottom: 32px;
+  right: 19.4rem;
+  z-index: 10;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--border-primary);
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  background-color: var(--text-muted);
+}
+
+.dotActive {
+  background-color: var(--primary-color);
+  width: 24px;
+  border-radius: 12px;
+}
+
+:global([data-theme='dark']) .dot {
+  background-color: rgba(255,255,255,0.2);
+}
+
+:global([data-theme='dark']) .dot:hover {
+  background-color: rgba(255,255,255,0.5);
+}
+
+:global([data-theme='dark']) .dotActive {
+  background-color: var(--primary-color);
 }
 
 @media (max-width: 900px) {

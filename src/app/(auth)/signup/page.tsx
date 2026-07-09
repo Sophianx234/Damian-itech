@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Loader2,GitBranchIcon } from 'lucide-react';
+import { Loader2} from 'lucide-react';
 import styles from './Signup.module.css';
 
 export default function SignupPage() {
@@ -14,6 +14,20 @@ export default function SignupPage() {
     phone: '',
     password: ''
   });
+
+  const carouselImages = [
+    "/imgs/person-10.jpeg",
+    "/imgs/person-8.jpeg",  
+    "/imgs/person-7.jpeg",
+  ];
+  const [activeImage, setActiveImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % carouselImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -67,8 +81,7 @@ export default function SignupPage() {
             <p className={styles.subtitle}>Enter your personal data to create your account.</p>
           </div>
 
-         
-
+          
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
               <label htmlFor="fullName" className={styles.label}>Full Name</label>
@@ -133,9 +146,36 @@ export default function SignupPage() {
 
         {/* Right: Info Section */}
         <div className={styles.infoSection}>
+          <div className={styles.carouselContainer}>
+            {carouselImages.map((img, idx) => (
+              <motion.div
+                key={idx}
+                className={styles.carouselSlide}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: idx === activeImage ? 1 : 0 }}
+                transition={{ duration: 1 }}
+                style={{ backgroundImage: `url(${img})` }}
+              />
+            ))}
+          </div>
           <div className={styles.infoBgGradient} />
           
           
+
+          <div className={styles.dotx}>
+
+            <div className={styles.dots}>
+            {carouselImages.map((_, idx) => (
+              <button
+              key={idx}
+              type="button"
+              className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ''}`}
+              onClick={() => setActiveImage(idx)}
+              aria-label={`Go to image ${idx + 1}`}
+              />
+            ))}
+            </div>
+          </div>
         </div>
       </motion.div>
     </main>
