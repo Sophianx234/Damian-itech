@@ -1,6 +1,7 @@
 .main {
   padding: 40px 0;
   min-height: calc(100vh - 150px);
+  background-color: var(--bg-primary);
 }
 
 .checkoutGrid {
@@ -23,11 +24,11 @@
 }
 
 .formSection {
-  background-color: var(--bg-primary);
+  background-color: var(--card-bg, #ffffff);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid var(--border-color, #eaeaea);
+  border: 1px solid var(--border-primary);
 }
 
 .sectionTitle {
@@ -37,13 +38,14 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 24px;
+  color: var(--text-primary);
 }
 
 .stepNumber {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background-color: var(--primary-color, #000);
+  background-color: var(--primary-color);
   color: #fff;
   display: flex;
   align-items: center;
@@ -76,30 +78,30 @@
 .label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary, #4b5563);
+  color: var(--text-primary);
 }
 
 .input, .select {
   padding: 12px;
-  border: 1px solid var(--border-color, #d1d5db);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s;
-  background-color: transparent;
-  color: inherit;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .input:focus, .select:focus {
-  border-color: var(--primary-color, #000);
+  border-color: var(--primary-color);
 }
 
 .summaryPanel {
-  background-color: var(--bg-primary);
+  background-color: var(--card-bg, #ffffff);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid var(--border-color, #eaeaea);
+  border: 1px solid var(--border-primary);
   position: sticky;
   top: 24px;
 }
@@ -122,8 +124,8 @@
   width: 64px;
   height: 64px;
   border-radius: 8px;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .summaryItemImg {
@@ -140,7 +142,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #6b7280;
+  background-color: var(--primary-color);
   color: #fff;
   font-size: 0.75rem;
   display: flex;
@@ -155,17 +157,18 @@
 .summaryItemName {
   font-weight: 500;
   font-size: 0.875rem;
+  color: var(--text-primary);
 }
 
 .summaryItemPrice {
-  color: var(--text-secondary, #4b5563);
+  color: var(--text-muted);
   font-size: 0.875rem;
   margin-top: 4px;
 }
 
 .summaryDivider {
   height: 1px;
-  background-color: var(--border-color, #e5e7eb);
+  background-color: var(--border-primary);
   margin: 16px 0;
 }
 
@@ -174,13 +177,13 @@
   justify-content: space-between;
   margin-bottom: 12px;
   font-size: 0.875rem;
-  color: var(--text-secondary, #4b5563);
+  color: var(--text-muted);
 }
 
 .totalRow {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-primary, #111827);
+  color: var(--text-primary);
   margin-top: 16px;
   margin-bottom: 24px;
 }
@@ -188,8 +191,8 @@
 .placeOrderBtn {
   width: 100%;
   padding: 16px;
-  background-color: var(--primary-color, #000);
-  color: #fff;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -225,7 +228,7 @@
 }
 
 .successModal {
-  background-color: var(--bg-card, #ffffff);
+  background-color: var(--card-bg, #ffffff);
   padding: 40px;
   border-radius: 16px;
   text-align: center;
@@ -250,10 +253,11 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 16px;
+  color: var(--text-primary);
 }
 
 .successDesc {
-  color: var(--text-secondary, #4b5563);
+  color: var(--text-muted);
   margin-bottom: 32px;
   line-height: 1.5;
 }
