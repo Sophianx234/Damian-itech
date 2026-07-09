@@ -172,6 +172,25 @@
   color: var(--text-primary);
 }
 
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotPassword {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.forgotPassword:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 .input {
   width: 100%;
   padding: 14px 16px;

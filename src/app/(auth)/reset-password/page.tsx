@@ -1,27 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2, Github, User, Phone, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Loader2, Lock, Eye, EyeOff, Sun, Moon, KeyRound } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import styles from './Signup.module.css';
+import styles from './ResetPassword.module.css';
 
-export default function SignupPage() {
+function ResetPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const phoneParam = searchParams.get('phone') || '';
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
+    otp: '',
     password: '',
     confirmPassword: ''
   });
-  const [apiError, setApiError] = useState<string | null>(null);
 
   const carouselImages = [
-    "/imgs/person-10.jpeg",
-    "/imgs/person-12.jpg",  
+    "/imgs/person-6.jpeg",
     "/imgs/person-7.jpeg",
+    "/imgs/person-8.jpeg",
   ];
   const [activeImage, setActiveImage] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +51,12 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setApiError("Passwords do not match!");
+      setApiError("Passwords do not match.");
+      return;
+    }
+
+    if (!phoneParam) {
+      setApiError("Phone number is missing. Please restart the password reset process.");
       return;
     }
 
@@ -55,26 +64,24 @@ export default function SignupPage() {
     setApiError(null);
 
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          phone: formData.phone,
-          password: formData.password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          phone: phoneParam,
+          otp: formData.otp,
+          password: formData.password
+        })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to sign up');
+        throw new Error(data.error || 'Failed to reset password');
       }
 
-      alert('Account created successfully! Redirecting to login...');
-      window.location.href = '/login';
+      alert('Password updated successfully!');
+      router.push('/login');
     } catch (err: any) {
       setApiError(err.message);
     } finally {
@@ -114,48 +121,31 @@ export default function SignupPage() {
           </div>
 
           <div className={styles.header}>
-            <h1 className={styles.title}>Sign Up Account</h1>
-            <p className={styles.subtitle}>Enter your personal data to create your account.</p>
+            <h1 className={styles.title}>Reset Password</h1>
+            <p className={styles.subtitle}>Enter the 6-digit code sent to your phone and your new password.</p>
           </div>
 
-          
-          <form className={styles.form} onSubmit={handleSubmit}>
+          <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '24px' }}>
             <div className={styles.inputGroup}>
-              <label htmlFor="fullName" className={styles.label}>Full Name</label>
+              <label htmlFor="otp" className={styles.label}>Verification Code</label>
               <div className={styles.inputWrapper}>
-                <User className={styles.inputIcon} size={18} />
+                <KeyRound className={styles.inputIcon} size={18} />
                 <input 
                   type="text" 
-                  id="fullName"
-                  name="fullName"
+                  id="otp"
+                  name="otp"
                   required
+                  maxLength={6}
                   className={`${styles.input} ${styles.inputWithIcon}`}
-                  placeholder="eg. John Francisco"
-                  value={formData.fullName}
+                  placeholder="Enter 6-digit code"
+                  value={formData.otp}
                   onChange={handleChange}
                 />
               </div>
             </div>
 
             <div className={styles.inputGroup}>
-              <label htmlFor="phone" className={styles.label}>Phone Number</label>
-              <div className={styles.inputWrapper}>
-                <Phone className={styles.inputIcon} size={18} />
-                <input 
-                  type="tel" 
-                  id="phone"
-                  name="phone"
-                  required
-                  className={`${styles.input} ${styles.inputWithIcon}`}
-                  placeholder="eg. 024 123 4567"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="password" className={styles.label}>Password</label>
+              <label htmlFor="password" className={styles.label}>New Password</label>
               <div className={styles.inputWrapper}>
                 <Lock className={styles.inputIcon} size={18} />
                 <input 
@@ -164,7 +154,7 @@ export default function SignupPage() {
                   name="password"
                   required
                   className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
-                  placeholder="Enter your password"
+                  placeholder="Enter new password"
                   value={formData.password}
                   onChange={handleChange}
                 />
@@ -188,7 +178,7 @@ export default function SignupPage() {
                   name="confirmPassword"
                   required
                   className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
-                  placeholder="Confirm your password"
+                  placeholder="Confirm new password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                 />
@@ -210,7 +200,7 @@ export default function SignupPage() {
               {isSubmitting ? (
                 <Loader2 className="animate-spin" size={20} />
               ) : (
-                "Sign Up"
+                "Update Password"
               )}
             </button>
 
@@ -220,7 +210,7 @@ export default function SignupPage() {
           </form>
 
           <div className={styles.footer}>
-            Already have an account? 
+            Remembered your password? 
             <Link href="/login" className={styles.link}>Log in</Link>
           </div>
         </div>
@@ -240,7 +230,7 @@ export default function SignupPage() {
             ))}
           </div>
           <div className={styles.infoBgGradient} />
-
+          
           <button 
             className={styles.themeToggle} 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -249,7 +239,26 @@ export default function SignupPage() {
             {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
           </button>
           
-         
+          <div className={styles.infoContent}>
+            <h2 className={styles.infoTitle}>Secure Account</h2>
+            <p className={styles.infoSubtitle}>Almost there! Create a new strong password.</p>
+          </div>
+
+          <div className={styles.stepsContainer}>
+            <div className={`${styles.stepCard} ${styles.stepCardActive}`}>
+              <div className={styles.stepNum}>1</div>
+              <div className={styles.stepText}>Verify<br/>code</div>
+            </div>
+            <div className={styles.stepCard}>
+              <div className={styles.stepNum}>2</div>
+              <div className={styles.stepText}>New<br/>password</div>
+            </div>
+            <div className={styles.stepCard}>
+              <div className={styles.stepNum}>3</div>
+              <div className={styles.stepText}>Login<br/>successfully</div>
+            </div>
+          </div>
+
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
@@ -264,5 +273,13 @@ export default function SignupPage() {
         </div>
       </motion.div>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={40} /></div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

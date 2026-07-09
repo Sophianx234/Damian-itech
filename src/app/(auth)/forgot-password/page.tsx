@@ -3,29 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2, Github, User, Phone, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Loader2, Phone, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import styles from './Signup.module.css';
+import styles from './ForgotPassword.module.css';
 
-export default function SignupPage() {
+export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
-  });
   const [apiError, setApiError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    phone: '',
+  });
 
   const carouselImages = [
-    "/imgs/person-10.jpeg",
-    "/imgs/person-12.jpg",  
-    "/imgs/person-7.jpeg",
+    "/imgs/person-12.jpg",
   ];
   const [activeImage, setActiveImage] = useState(0);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -46,35 +41,26 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setApiError("Passwords do not match!");
-      return;
-    }
+    if (!formData.phone) return;
 
     setIsSubmitting(true);
     setApiError(null);
 
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/auth/send-otp', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          phone: formData.phone,
-          password: formData.password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to sign up');
+        throw new Error(data.error || 'Failed to send reset code');
       }
 
-      alert('Account created successfully! Redirecting to login...');
-      window.location.href = '/login';
+      // Success
+      router.push(`/reset-password?phone=${encodeURIComponent(formData.phone)}`);
     } catch (err: any) {
       setApiError(err.message);
     } finally {
@@ -114,29 +100,11 @@ export default function SignupPage() {
           </div>
 
           <div className={styles.header}>
-            <h1 className={styles.title}>Sign Up Account</h1>
-            <p className={styles.subtitle}>Enter your personal data to create your account.</p>
+            <h1 className={styles.title}>Forgot Password?</h1>
+            <p className={styles.subtitle}>Enter your phone number to receive a reset code.</p>
           </div>
 
-          
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.inputGroup}>
-              <label htmlFor="fullName" className={styles.label}>Full Name</label>
-              <div className={styles.inputWrapper}>
-                <User className={styles.inputIcon} size={18} />
-                <input 
-                  type="text" 
-                  id="fullName"
-                  name="fullName"
-                  required
-                  className={`${styles.input} ${styles.inputWithIcon}`}
-                  placeholder="eg. John Francisco"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
+          <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '24px' }}>
             <div className={styles.inputGroup}>
               <label htmlFor="phone" className={styles.label}>Phone Number</label>
               <div className={styles.inputWrapper}>
@@ -154,54 +122,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="password" className={styles.label}>Password</label>
-              <div className={styles.inputWrapper}>
-                <Lock className={styles.inputIcon} size={18} />
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  id="password"
-                  name="password"
-                  required
-                  className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-                <button 
-                  type="button" 
-                  className={styles.passwordToggle}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="confirmPassword" className={styles.label}>Confirm Password</label>
-              <div className={styles.inputWrapper}>
-                <Lock className={styles.inputIcon} size={18} />
-                <input 
-                  type={showConfirmPassword ? "text" : "password"} 
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  required
-                  className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
-                <button 
-                  type="button" 
-                  className={styles.passwordToggle}
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
             <button 
               type="submit" 
               className={styles.submitBtn}
@@ -210,7 +130,7 @@ export default function SignupPage() {
               {isSubmitting ? (
                 <Loader2 className="animate-spin" size={20} />
               ) : (
-                "Sign Up"
+                "Send Reset Code"
               )}
             </button>
 
@@ -220,7 +140,7 @@ export default function SignupPage() {
           </form>
 
           <div className={styles.footer}>
-            Already have an account? 
+            Remember your password? 
             <Link href="/login" className={styles.link}>Log in</Link>
           </div>
         </div>
@@ -240,7 +160,7 @@ export default function SignupPage() {
             ))}
           </div>
           <div className={styles.infoBgGradient} />
-
+          
           <button 
             className={styles.themeToggle} 
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -249,7 +169,7 @@ export default function SignupPage() {
             {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
           </button>
           
-         
+          
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
