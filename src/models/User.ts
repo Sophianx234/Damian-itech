@@ -21,6 +21,12 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  resetPasswordOTP: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 // Check if the model exists before creating a new one (prevents overwrite errors in hot reloading)
