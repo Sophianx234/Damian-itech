@@ -1,0 +1,161 @@
+.section {
+  padding: 100px 0;
+  background-color: var(--bg-light); /* Assuming white/light grey or black depending on theme */
+  overflow: hidden;
+  position: relative;
+}
+
+.sectionTitle {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 64px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.embla {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.emblaContainer {
+  display: flex;
+  margin-left: -40px; /* Offset for the slide gap and skew jut */
+  padding: 20px 0; /* Padding so hover shadow/transform isn't clipped */
+}
+
+.emblaSlide {
+  flex: 0 0 calc(25%);
+  min-width: 0;
+  padding-left: 40px;
+}
+
+.cardWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.card {
+  position: relative;
+  width: 70%;
+  height: 250px;
+  transform: skewX(-25deg);
+  overflow: hidden; /* Clips everything outside the slant! */
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+}
+
+:global([data-theme='dark']) .card {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.card:hover {
+  transform: skewX(-15deg) translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+:global([data-theme='dark']) .card:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
+/* 
+  The inner wrapper is un-skewed back to normal and made wider 
+  so that it fully covers the slanted clipping bounds of the parent.
+*/
+.cardInner {
+  position: absolute;
+  top: 0;
+  left: -20%; /* extend left to cover the corners revealed by un-skewing */
+  width: 140%; /* wider to cover corners */
+  height: 100%;
+  transform: skewX(15deg);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+
+.deviceName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin-top: 24px;
+  letter-spacing: -0.01em;
+}
+
+/* Dots styling */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--border-primary);
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  background-color: var(--text-muted);
+}
+
+.dotActive {
+  background-color: var(--primary-color);
+  width: 24px;
+  border-radius: 12px;
+}
+
+:global([data-theme='dark']) .dot {
+  background-color: rgba(255,255,255,0.2);
+}
+
+:global([data-theme='dark']) .dot:hover {
+  background-color: rgba(255,255,255,0.5);
+}
+
+:global([data-theme='dark']) .dotActive {
+  background-color: var(--primary-color);
+}
+
+@media (max-width: 1024px) {
+  .emblaSlide {
+    flex: 0 0 calc(33.333%);
+  }
+}
+
+@media (max-width: 768px) {
+  .emblaSlide {
+    flex: 0 0 calc(50%);
+  }
+  .card {
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emblaSlide {
+    flex: 0 0 100%;
+  }
+}
