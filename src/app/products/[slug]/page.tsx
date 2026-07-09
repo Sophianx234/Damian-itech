@@ -1,55 +1,62 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../../../components/Header/Header';
 import Footer from '../../../components/Footer/Footer';
 import ProductCard from '../../../components/ProductCard/ProductCard';
 import styles from './ProductDetails.module.css';
+import { getProductBySlug, getShopProducts, Product } from '../../../data/products';
+import { useCart } from '../../../context/CartContext';
 
-const mockProduct = {
-  title: "Visionary VR Headset Pro",
-  price: "$499.00",
-  rating: 4.8,
-  reviewsCount: 124,
-  description: "Experience the next level of immersive digital environments with the Visionary VR Headset Pro. Engineered with ultra-low latency tracking, custom OLED displays, and a breathtaking 120Hz refresh rate, it bridges the gap between reality and the virtual world. Designed for both professional creators and dedicated gamers, its ergonomic balance ensures hours of fatigue-free use.",
-  specs: [
-    { label: "Display", value: "Dual Custom OLED (2000x2040 per eye)" },
-    { label: "Refresh Rate", value: "90Hz, 120Hz" },
-    { label: "Field of View", value: "110 degrees" },
-    { label: "Tracking", value: "Inside-out 6DoF tracking" },
-    { label: "Audio", value: "Integrated 3D spatial audio" },
-    { label: "Weight", value: "520g" }
-  ],
-  images: [
-    "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=800&auto=format&fit=crop", // VR Headset
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop", // Headphones
-    "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=800&auto=format&fit=crop", // Smartwatch
-    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=800&auto=format&fit=crop"  // Laptop
-  ]
-};
+export default function ProductDetails({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const product = getProductBySlug(slug);
+  const relatedProducts = getShopProducts().filter(p => p.slug !== slug).slice(0, 4);
 
-const relatedProducts = [
-  { id: 1, name: "Next-Gen Console", price: "$499", image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?q=80&w=800&auto=format&fit=crop", tag: "Sale", tagType: "sale" },
-  { id: 2, name: "Premium Soundbar", price: "$299", image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=800&auto=format&fit=crop" },
-  { id: 3, name: "Pro Smartphone 15", price: "$999", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=800&auto=format&fit=crop", tag: "New", tagType: "new" },
-  { id: 4, name: "Creator Tablet Pro", price: "$799", image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop", tag: "Sale", tagType: "sale" }
-];
-
-export default function ProductDetails() {
+  const { addToCart } = useCart();
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
+  const [isAdded, setIsAdded] = useState(false);
+
+  if (!product) {
+    return (
+      <>
+        <Header />
+        <main className={styles.main}>
+          <div className={`container ${styles.container}`} style={{ textAlign: 'center', paddingTop: '100px' }}>
+            <h1>Product Not Found</h1>
+            <p>The product you are looking for does not exist.</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   const incrementQty = () => setQuantity(prev => prev + 1);
   const decrementQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
   const nextImage = () => {
-    setActiveImage((prev) => (prev === mockProduct.images.length - 1 ? 0 : prev + 1));
+    setActiveImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
   };
 
   const prevImage = () => {
-    setActiveImage((prev) => (prev === 0 ? mockProduct.images.length - 1 : prev - 1));
+    setActiveImage((prev) => (prev === 0 ? product.images.length - 1 : prev - 1));
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price || "$0.00",
+      image: product.images[0],
+      quantity: quantity,
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
   };
 
   return (
@@ -60,7 +67,7 @@ export default function ProductDetails() {
           
           {/* Breadcrumbs */}
           <nav className={styles.breadcrumbs}>
-            Home / Electronics / VR & AR / <span className={styles.currentCrumb}>{mockProduct.title}</span>
+            Home / Electronics / VR & AR / <span className={styles.currentCrumb}>{product.name}</span>
           </nav>
 
           {/* Hero Section */}
@@ -72,7 +79,7 @@ export default function ProductDetails() {
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={activeImage}
-                    src={mockProduct.images[activeImage]}
+                    src={product.images[activeImage]}
                     alt={`Product view ${activeImage + 1}`}
                     className={styles.mainImage}
                     initial={{ opacity: 0 }}
@@ -88,7 +95,7 @@ export default function ProductDetails() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 
-                {mockProduct.images.map((img, idx) => (
+                {product.images.map((img, idx) => (
                   <button 
                     key={idx} 
                     className={`${styles.thumbnailBtn} ${activeImage === idx ? styles.activeThumb : ''}`}
@@ -112,14 +119,14 @@ export default function ProductDetails() {
 
             {/* Right: Info */}
             <div className={styles.infoColumn}>
-              <h1 className={styles.title}>{mockProduct.title}</h1>
+              <h1 className={styles.title}>{product.name}</h1>
               <div className={styles.ratingRow}>
                 <div className={styles.stars}>
                   ★★★★★
                 </div>
-                <span className={styles.reviewsCount}>({mockProduct.reviewsCount} reviews)</span>
+                <span className={styles.reviewsCount}>({product.reviewsCount} reviews)</span>
               </div>
-              <div className={styles.price}>{mockProduct.price}</div>
+              <div className={styles.price}>{product.price}</div>
               
               <div className={styles.divider} />
 
@@ -134,8 +141,11 @@ export default function ProductDetails() {
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   className={styles.addToCartBtn}
+                  onClick={handleAddToCart}
+                  disabled={isAdded}
+                  style={{ backgroundColor: isAdded ? 'var(--brand-primary)' : '' }}
                 >
-                  Add to Cart
+                  {isAdded ? "Added ✓" : "Add to Cart"}
                 </motion.button>
               </div>
 
@@ -183,11 +193,11 @@ export default function ProductDetails() {
                   transition={{ duration: 0.2 }}
                 >
                   {activeTab === 'description' && (
-                    <p className={styles.descriptionText}>{mockProduct.description}</p>
+                    <p className={styles.descriptionText}>{product.description}</p>
                   )}
                   {activeTab === 'specs' && (
                     <div className={styles.specsList}>
-                      {mockProduct.specs.map((spec, i) => (
+                      {product.specs.map((spec, i) => (
                         <div key={i} className={styles.specRow}>
                           <span className={styles.specLabel}>{spec.label}</span>
                           <span className={styles.specValue}>{spec.value}</span>
@@ -211,8 +221,9 @@ export default function ProductDetails() {
                 <ProductCard
                   key={prod.id}
                   id={prod.id}
+                  slug={prod.slug}
                   name={prod.name}
-                  image={prod.image}
+                  image={prod.images[0]}
                   price={prod.price}
                   tag={prod.tag}
                   tagType={prod.tagType}

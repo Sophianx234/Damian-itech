@@ -1,8 +1,10 @@
 import React from 'react';
+import Link from 'next/link';
 import styles from './ProductCard.module.css';
 
 export interface ProductCardProps {
   id: number | string;
+  slug: string;
   name: string;
   image: string;
   tag?: string | null;
@@ -19,6 +21,7 @@ export interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+  slug,
   name,
   image,
   tag,
@@ -41,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className={styles.card}>
+    <Link href={`/products/${slug}`} className={styles.card}>
       <div className={styles.imageWrapper}>
         {tag && (
           <span className={`${styles.tag} ${getTagClass()}`}>
@@ -72,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

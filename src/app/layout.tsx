@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "../components/ThemeProvider";
+import { CartProvider } from "../context/CartContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
