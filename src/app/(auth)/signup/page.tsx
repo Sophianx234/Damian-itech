@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Loader2} from 'lucide-react';
+import { Loader2, Github, User, Phone, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import styles from './Signup.module.css';
 
 export default function SignupPage() {
@@ -12,17 +13,23 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
 
   const carouselImages = [
     "/imgs/person-10.jpeg",
-    "/imgs/person-8.jpeg",  
+    "/imgs/person-12.jpg",  
     "/imgs/person-7.jpeg",
   ];
   const [activeImage, setActiveImage] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const interval = setInterval(() => {
       setActiveImage((prev) => (prev + 1) % carouselImages.length);
     }, 4000);
@@ -38,6 +45,10 @@ export default function SignupPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
@@ -85,44 +96,84 @@ export default function SignupPage() {
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
               <label htmlFor="fullName" className={styles.label}>Full Name</label>
-              <input 
-                type="text" 
-                id="fullName"
-                name="fullName"
-                required
-                className={styles.input}
-                placeholder="eg. John Francisco"
-                value={formData.fullName}
-                onChange={handleChange}
-              />
+              <div className={styles.inputWrapper}>
+                <User className={styles.inputIcon} size={18} />
+                <input 
+                  type="text" 
+                  id="fullName"
+                  name="fullName"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon}`}
+                  placeholder="eg. John Francisco"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
             <div className={styles.inputGroup}>
               <label htmlFor="phone" className={styles.label}>Phone Number</label>
-              <input 
-                type="tel" 
-                id="phone"
-                name="phone"
-                required
-                className={styles.input}
-                placeholder="eg. 024 123 4567"
-                value={formData.phone}
-                onChange={handleChange}
-              />
+              <div className={styles.inputWrapper}>
+                <Phone className={styles.inputIcon} size={18} />
+                <input 
+                  type="tel" 
+                  id="phone"
+                  name="phone"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon}`}
+                  placeholder="eg. 024 123 4567"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
             <div className={styles.inputGroup}>
               <label htmlFor="password" className={styles.label}>Password</label>
-              <input 
-                type="password" 
-                id="password"
-                name="password"
-                required
-                className={styles.input}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div className={styles.inputWrapper}>
+                <Lock className={styles.inputIcon} size={18} />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  id="password"
+                  name="password"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <button 
+                  type="button" 
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="confirmPassword" className={styles.label}>Confirm Password</label>
+              <div className={styles.inputWrapper}>
+                <Lock className={styles.inputIcon} size={18} />
+                <input 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+                <button 
+                  type="button" 
+                  className={styles.passwordToggle}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button 
@@ -131,7 +182,11 @@ export default function SignupPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
+                <div className={styles.btnContent}>
                 <Loader2 className="animate-spin" size={20} />
+                Creating Account...
+                </div>
+
               ) : (
                 "Sign Up"
               )}
@@ -159,22 +214,26 @@ export default function SignupPage() {
             ))}
           </div>
           <div className={styles.infoBgGradient} />
-          
-          
 
-          <div className={styles.dotx}>
-
-            <div className={styles.dots}>
+          <button 
+            className={styles.themeToggle} 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle Theme"
+          >
+            {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
+          </button>
+          
+         
+          <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
-              key={idx}
-              type="button"
-              className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ''}`}
-              onClick={() => setActiveImage(idx)}
-              aria-label={`Go to image ${idx + 1}`}
+                key={idx}
+                type="button"
+                className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ''}`}
+                onClick={() => setActiveImage(idx)}
+                aria-label={`Go to image ${idx + 1}`}
               />
             ))}
-            </div>
           </div>
         </div>
       </motion.div>

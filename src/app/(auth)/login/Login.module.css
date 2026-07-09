@@ -134,6 +134,38 @@
   gap: 8px;
 }
 
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: color 0.2s ease;
+}
+
+.passwordToggle:hover {
+  color: var(--text-primary);
+}
+
 .label {
   font-size: 0.85rem;
   font-weight: 600;
@@ -152,6 +184,14 @@
   transition: all 0.2s ease;
 }
 
+.inputWithIcon {
+  padding-left: 44px;
+}
+
+.inputWithRightIcon {
+  padding-right: 44px;
+}
+
 .input:focus {
   outline: none;
   border-color: var(--primary-color);
@@ -166,8 +206,8 @@
 
 .submitBtn {
   margin-top: 8px;
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
+  background-color: var(--primary-color);
+  color: var(--text-primary);
   border: none;
   border-radius: 12px;
   padding: 16px;
@@ -184,6 +224,11 @@
 .submitBtn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+.btnContent{
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .submitBtn:disabled {
@@ -321,6 +366,31 @@
   font-weight: 600;
   line-height: 1.4;
 }
+
+.themeToggle {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.themeToggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
 .dots {
   display: flex;
   justify-content: center;

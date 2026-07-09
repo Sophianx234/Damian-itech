@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Loader2, Github } from 'lucide-react';
+import { Loader2, Github, Phone, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import styles from './Login.module.css';
 
 export default function LoginPage() {
@@ -19,8 +20,12 @@ export default function LoginPage() {
     "/imgs/person-13.jpg",
   ];
   const [activeImage, setActiveImage] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const interval = setInterval(() => {
       setActiveImage((prev) => (prev + 1) % carouselImages.length);
     }, 4000);
@@ -83,30 +88,43 @@ export default function LoginPage() {
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
               <label htmlFor="phone" className={styles.label}>Phone Number</label>
-              <input 
-                type="tel" 
-                id="phone"
-                name="phone"
-                required
-                className={styles.input}
-                placeholder="eg. 024 123 4567"
-                value={formData.phone}
-                onChange={handleChange}
-              />
+              <div className={styles.inputWrapper}>
+                <Phone className={styles.inputIcon} size={18} />
+                <input 
+                  type="tel" 
+                  id="phone"
+                  name="phone"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon}`}
+                  placeholder="eg. 024 123 4567"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
             <div className={styles.inputGroup}>
               <label htmlFor="password" className={styles.label}>Password</label>
-              <input 
-                type="password" 
-                id="password"
-                name="password"
-                required
-                className={styles.input}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div className={styles.inputWrapper}>
+                <Lock className={styles.inputIcon} size={18} />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  id="password"
+                  name="password"
+                  required
+                  className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <button 
+                  type="button" 
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button 
@@ -115,7 +133,10 @@ export default function LoginPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
+                <div className={styles.btnContent}>
                 <Loader2 className="animate-spin" size={20} />
+                Logging In...
+                </div>
               ) : (
                 "Log In"
               )}
@@ -143,6 +164,15 @@ export default function LoginPage() {
             ))}
           </div>
           <div className={styles.infoBgGradient} />
+
+          <button 
+            className={styles.themeToggle} 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle Theme"
+          >
+            {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
+          </button>
+          
           
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
