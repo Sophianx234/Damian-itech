@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [region, setRegion] = useState("Greater Accra");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("paystack");
 
   useEffect(() => {
     setMounted(true);
@@ -100,8 +101,17 @@ export default function CheckoutPage() {
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    // Trigger Paystack popup
-    initializePayment({ onSuccess, onClose });
+    if (paymentMethod === 'paystack') {
+      // Trigger Paystack popup
+      initializePayment({ onSuccess, onClose });
+    } else {
+      // Simulate order processing for Delivery / Pickup
+      setTimeout(() => {
+        setIsProcessing(false);
+        setOrderSuccess(true);
+        clearCart();
+      }, 1500);
+    }
   };
 
   return (
@@ -177,6 +187,48 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>
+                  <span className={styles.stepNumber}>3</span> Payment Method
+                </h2>
+                <div className={styles.cardGrid}>
+                  
+                  <div 
+                    className={`${styles.deliveryCard} ${paymentMethod === 'delivery' ? styles.deliveryCardActive : ''}`}
+                    onClick={() => setPaymentMethod('delivery')}
+                  >
+                    <div className={styles.cardTitle}>
+                      <span>Pay on Delivery</span>
+                      <div className={styles.radioCircle} />
+                    </div>
+                    <div className={styles.cardDesc}>Pay with cash or mobile money upon delivery.</div>
+                  </div>
+
+                  <div 
+                    className={`${styles.deliveryCard} ${paymentMethod === 'pickup' ? styles.deliveryCardActive : ''}`}
+                    onClick={() => setPaymentMethod('pickup')}
+                  >
+                    <div className={styles.cardTitle}>
+                      <span>Pay on Pickup</span>
+                      <div className={styles.radioCircle} />
+                    </div>
+                    <div className={styles.cardDesc}>Pay at our physical store when you pick up.</div>
+                  </div>
+
+                  <div 
+                    className={`${styles.deliveryCard} ${paymentMethod === 'paystack' ? styles.deliveryCardActive : ''}`}
+                    onClick={() => setPaymentMethod('paystack')}
+                  >
+                    <div className={styles.cardTitle}>
+                      <span>Pay via Momo / Card</span>
+                      <div className={styles.radioCircle} />
+                    </div>
+                    <div className={styles.cardDesc}>Securely online using Mobile Money or Card.</div>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
 
             {/* Right Column: Summary */}
@@ -230,7 +282,10 @@ export default function CheckoutPage() {
                 ) : (
                   <Lock size={18} />
                 )}
-                {isProcessing ? "Connecting to Paystack..." : `Pay with Paystack`}
+                {isProcessing 
+                  ? "Processing..." 
+                  : (paymentMethod === 'paystack' ? "Pay with Paystack" : "Confirm Order")
+                }
               </button>
 
               <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
