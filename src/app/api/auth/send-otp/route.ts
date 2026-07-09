@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import OTP from '@/models/OTP';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
@@ -23,50 +22,54 @@ export async function POST(request: Request) {
     // 1. Generate a secure 6-digit OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 2. Hash OTP and store in DB for industry-standard security
+    // 2. Hash OTP and store securely in the User document with a 5-minute expiration
     const salt = await bcrypt.genSalt(10);
     const hashedOtp = await bcrypt.hash(otpCode, salt);
 
-    // Delete any existing OTPs for this phone to prevent conflicts
-    await OTP.deleteMany({ phone });
+    user.resetPasswordOTP = hashedOtp;
+    user.resetPasswordExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    await user.save();
 
-    // Save new OTP
-    await OTP.create({
-      phone,
-      otp: hashedOtp,
-    });
-
-    // 3. Fetch Arkesel API Key
-    const arkeselApiKey = process.env.ARKESEL_API_KEY;
+    // 3. Format phone number for WhatsApp (@c.us)
+    // Assuming the phone number is provided correctly, if it has a leading 0, replace with country code or keep as is if user provides full number.
+    // Assuming user phone is something like +233... or 233...
+    // Let's strip any non-digit characters
+    let formattedPhone = phone.replace(/\D/g, '');
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '233' + formattedPhone.substring(1);
+    }
     
-    if (!arkeselApiKey) {
-      console.error('ARKESEL_API_KEY is missing from environment variables');
-      return NextResponse.json({ error: 'Server SMS configuration error' }, { status: 500 });
+    // Simple check: if it starts with 0, you might need to append country code. 
+    // Usually WhatsApp requires country code without '+'.
+    // Here we'll just append @c.us as requested.
+    if (!formattedPhone.includes('@c.us')) {
+      formattedPhone = `${formattedPhone}@c.us`;
     }
 
-    // 4. Send SMS using Arkesel v2 API
-    const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
-      method: 'POST',
-      headers: {
-        'api-key': arkeselApiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        sender: 'TechNest', // Must be an approved Sender ID on Arkesel (max 11 chars)
-        message: `Your TechNest password reset code is ${otpCode}. It is valid for 10 minutes. Do not share this code with anyone.`,
-        recipients: [phone]
-      })
-    });
+    const message = `Your TechNest password reset code is ${otpCode}. It is valid for 5 minutes. Do not share this code with anyone.`;
 
-    const data = await response.json();
+    // 4. Send WhatsApp message using the local microservice
+    try {
+      const response = await fetch('http://localhost:3001/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: formattedPhone,
+          message: message,
+        }),
+      });
 
-    // Handle Arkesel Response
-    if (!response.ok || data.status === 'error') {
-      console.error('Arkesel API Error:', data);
-      return NextResponse.json({ error: 'Failed to send SMS to this number' }, { status: 500 });
+      if (!response.ok) {
+        throw new Error('Microservice returned an error');
+      }
+    } catch (microserviceError) {
+      console.error('WhatsApp Microservice Error:', microserviceError);
+      return NextResponse.json({ error: 'Our notification service is currently down. Please try again later.' }, { status: 503 });
     }
 
-    return NextResponse.json({ success: true, message: 'OTP sent successfully' }, { status: 200 });
+    return NextResponse.json({ success: true, message: 'OTP sent successfully via WhatsApp' }, { status: 200 });
   } catch (error) {
     console.error('Send OTP Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
