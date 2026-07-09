@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
+import OTP from '@/models/OTP';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
@@ -8,15 +12,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Phone number is required' }, { status: 400 });
     }
 
+    await dbConnect();
+
+    // Check if user exists before sending OTP
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return NextResponse.json({ error: 'No account associated with this phone number' }, { status: 404 });
+    }
+
     // 1. Generate a secure 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // INDUSTRY STANDARD NOTE: 
-    // In a production environment, you would hash this OTP and store it in your database 
-    // (e.g., Redis or PostgreSQL) associated with the phone number and an expiration timestamp (e.g., 10 mins).
-    console.log(`[DB MOCK] Storing OTP ${otp} for phone ${phone}`);
+    // 2. Hash OTP and store in DB for industry-standard security
+    const salt = await bcrypt.genSalt(10);
+    const hashedOtp = await bcrypt.hash(otpCode, salt);
 
-    // 2. Fetch Arkesel API Key
+    // Delete any existing OTPs for this phone to prevent conflicts
+    await OTP.deleteMany({ phone });
+
+    // Save new OTP
+    await OTP.create({
+      phone,
+      otp: hashedOtp,
+    });
+
+    // 3. Fetch Arkesel API Key
     const arkeselApiKey = process.env.ARKESEL_API_KEY;
     
     if (!arkeselApiKey) {
@@ -24,7 +44,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Server SMS configuration error' }, { status: 500 });
     }
 
-    // 3. Send SMS using Arkesel v2 API
+    // 4. Send SMS using Arkesel v2 API
     const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
       method: 'POST',
       headers: {
@@ -33,14 +53,14 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         sender: 'TechNest', // Must be an approved Sender ID on Arkesel (max 11 chars)
-        message: `Your TechNest password reset code is ${otp}. It is valid for 10 minutes. Do not share this code with anyone.`,
+        message: `Your TechNest password reset code is ${otpCode}. It is valid for 10 minutes. Do not share this code with anyone.`,
         recipients: [phone]
       })
     });
 
     const data = await response.json();
 
-    // 4. Handle Arkesel Response
+    // Handle Arkesel Response
     if (!response.ok || data.status === 'error') {
       console.error('Arkesel API Error:', data);
       return NextResponse.json({ error: 'Failed to send SMS to this number' }, { status: 500 });

@@ -64,7 +64,6 @@ export default function LoginPage() {
       // Store the user session in localStorage
       localStorage.setItem('techNestUser', JSON.stringify(data.user));
 
-      alert('Logged in successfully!');
       window.location.href = '/'; // Change to your desired dashboard route later
     } catch (err: any) {
       setApiError(err.message);
@@ -83,7 +82,7 @@ export default function LoginPage() {
       >
         {/* Left: Form Section */}
         <div className={styles.formSection}>
-          <div className={styles.logoWrapper}>
+          <Link href="/" className={styles.logoWrapper}>
             <Image 
               src="/imgs/logo-1.png" 
               alt="TechNest Logo" 
@@ -102,7 +101,7 @@ export default function LoginPage() {
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
-          </div>
+          </Link>
 
           <div className={styles.header}>
             <h1 className={styles.title}>Log In to Your Account</h1>

@@ -100,6 +100,11 @@ const Header = () => {
                 ) : (
                   <>
                     <Link href="/login" className={styles.dropdownItemx}> Log In</Link>
+                    <>
+                    <Link href="/login" className={styles.dropdownItem}><User size={16} /> My Account</Link>
+                    <Link href="/login" className={styles.dropdownItem}><Package size={16} /> Orders</Link>
+                    <Link href="/login" className={styles.dropdownItem}><Heart size={16} /> Wishlist</Link>
+                  </>
                   </>
                 )}
               </div>

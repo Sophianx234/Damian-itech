@@ -237,7 +237,7 @@
 .submitBtn {
   margin-top: 8px;
   background-color: var(--primary-color);
-  color: var(--text-primary);
+  color: white;
   border: none;
   border-radius: 12px;
   padding: 16px;

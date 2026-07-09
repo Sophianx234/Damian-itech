@@ -99,7 +99,7 @@ function ResetPasswordForm() {
       >
         {/* Left: Form Section */}
         <div className={styles.formSection}>
-          <div className={styles.logoWrapper}>
+          <Link href="/" className={styles.logoWrapper}>
             <Image 
               src="/imgs/logo-1.png" 
               alt="TechNest Logo" 
@@ -118,7 +118,7 @@ function ResetPasswordForm() {
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
-          </div>
+          </Link>
 
           <div className={styles.header}>
             <h1 className={styles.title}>Reset Password</h1>
