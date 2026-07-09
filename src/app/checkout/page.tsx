@@ -33,6 +33,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("paystack");
+  const [pickupLocation, setPickupLocation] = useState("Main Store, Accra");
 
   useEffect(() => {
     setMounted(true);
@@ -46,7 +47,7 @@ export default function CheckoutPage() {
   }
 
   // Delivery within Ghana (e.g. Free delivery for Greater Accra, fixed for outside)
-  const deliveryFee = region === "Greater Accra" ? 20 : 50;
+  const deliveryFee = paymentMethod === 'pickup' ? 0 : (region === "Greater Accra" ? 20 : 50);
   // Let's assume the cart total is in GHS for this Ghanaian store, or USD converted.
   // For simplicity, we keep the numbers as they are and format as GHS.
   const tax = cartTotal * 0.05; // 5% VAT
@@ -137,6 +138,14 @@ export default function CheckoutPage() {
                 </h2>
                 <div className={styles.inputGrid}>
                   <div className={styles.inputGroup}>
+                    <label className={styles.label}>First Name</label>
+                    <input type="text" required className={styles.input} placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Last Name</label>
+                    <input type="text" required className={styles.input} placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+                  </div>
+                  <div className={styles.inputGroup}>
                     <label className={styles.label}>Email Address</label>
                     <input type="email" required className={styles.input} placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
                   </div>
@@ -149,47 +158,7 @@ export default function CheckoutPage() {
 
               <div className={styles.formSection}>
                 <h2 className={styles.sectionTitle}>
-                  <span className={styles.stepNumber}>2</span> Delivery Details (Ghana)
-                </h2>
-                <div className={styles.inputGrid}>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>First Name</label>
-                    <input type="text" required className={styles.input} placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Last Name</label>
-                    <input type="text" required className={styles.input} placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
-                  </div>
-                  
-                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <label className={styles.label}>Region</label>
-                    <select required className={styles.select} value={region} onChange={e => setRegion(e.target.value)}>
-                      {GHANA_REGIONS.map(r => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>City / Town</label>
-                    <input type="text" required className={styles.input} placeholder="Kumasi" value={city} onChange={e => setCity(e.target.value)} />
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Digital Address (GhanaPostGPS)</label>
-                    <input type="text" className={styles.input} placeholder="AK-039-5028" />
-                  </div>
-
-                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <label className={styles.label}>Street Name / Detailed Address</label>
-                    <input type="text" required className={styles.input} placeholder="123 Independence Ave" value={address} onChange={e => setAddress(e.target.value)} />
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.formSection}>
-                <h2 className={styles.sectionTitle}>
-                  <span className={styles.stepNumber}>3</span> Payment Method
+                  <span className={styles.stepNumber}>2</span> Payment Method
                 </h2>
                 <div className={styles.cardGrid}>
                   
@@ -229,6 +198,58 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {paymentMethod !== 'pickup' && (
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>
+                  <span className={styles.stepNumber}>3</span> Delivery Details (Ghana)
+                </h2>
+                <div className={styles.inputGrid}>
+                  
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>Region</label>
+                    <select required className={styles.select} value={region} onChange={e => setRegion(e.target.value)}>
+                      {GHANA_REGIONS.map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>City / Town</label>
+                    <input type="text" required className={styles.input} placeholder="Kumasi" value={city} onChange={e => setCity(e.target.value)} />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Digital Address (GhanaPostGPS)</label>
+                    <input type="text" className={styles.input} placeholder="AK-039-5028" />
+                  </div>
+
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>Street Name / Detailed Address</label>
+                    <input type="text" required className={styles.input} placeholder="123 Independence Ave" value={address} onChange={e => setAddress(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              )}
+
+              {paymentMethod === 'pickup' && (
+                <div className={styles.formSection}>
+                  <h2 className={styles.sectionTitle}>
+                    <span className={styles.stepNumber}>3</span> Pickup Details
+                  </h2>
+                  <div className={styles.inputGrid}>
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                      <label className={styles.label}>Select Pickup Location</label>
+                      <select required className={styles.select} value={pickupLocation} onChange={e => setPickupLocation(e.target.value)}>
+                        <option value="Main Store, Accra">Main Store, Accra</option>
+                        <option value="Branch Office, Kumasi">Branch Office, Kumasi</option>
+                        <option value="Outlet, Tema">Outlet, Tema</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
 
             {/* Right Column: Summary */}
@@ -261,7 +282,7 @@ export default function CheckoutPage() {
                 <span>{formatCurrency(tax)}</span>
               </div>
               <div className={styles.summaryRow}>
-                <span>Delivery ({region})</span>
+                <span>{paymentMethod === 'pickup' ? 'Pickup' : `Delivery (${region})`}</span>
                 <span>{formatCurrency(deliveryFee)}</span>
               </div>
               

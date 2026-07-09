@@ -1,5 +1,5 @@
 .main {
-  padding-top: 120px;
+  padding-top: 15px;
   padding-bottom: 80px;
   background-color: var(--bg-light);
   min-height: 100vh;
@@ -199,8 +199,13 @@
   transition: background-color 0.2s;
 }
 
-.qtyBtn:hover {
+.qtyBtn:hover:not(:disabled) {
   background-color: var(--bg-primary);
+}
+
+.qtyBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .qtyValue {

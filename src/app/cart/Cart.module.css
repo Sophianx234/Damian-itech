@@ -147,8 +147,13 @@
   border-radius: 50%;
   transition: background-color 0.2s ease;
 }
-.qtyBtn:hover {
+.qtyBtn:hover:not(:disabled) {
   background-color: var(--bg-secondary);
+}
+
+.qtyBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .qtyValue {

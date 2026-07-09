@@ -35,7 +35,12 @@ export default function ProductDetails({ params }: { params: Promise<{ slug: str
     );
   }
 
-  const incrementQty = () => setQuantity(prev => prev + 1);
+  const incrementQty = () => setQuantity(prev => {
+    if (product.stock !== undefined && prev >= product.stock) {
+      return product.stock;
+    }
+    return prev + 1;
+  });
   const decrementQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
   const nextImage = () => {
@@ -54,6 +59,7 @@ export default function ProductDetails({ params }: { params: Promise<{ slug: str
       price: product.price || "$0.00",
       image: product.images[0],
       quantity: quantity,
+      stock: product.stock,
     });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -128,24 +134,33 @@ export default function ProductDetails({ params }: { params: Promise<{ slug: str
               </div>
               <div className={styles.price}>{product.price}</div>
               
+              
               <div className={styles.divider} />
 
               {/* Call to Action */}
               <div className={styles.ctaRow}>
                 <div className={styles.quantitySelector}>
-                  <button onClick={decrementQty} className={styles.qtyBtn}>-</button>
+                  <button onClick={decrementQty} className={styles.qtyBtn} disabled={quantity <= 1}>-</button>
                   <span className={styles.qtyValue}>{quantity}</span>
-                  <button onClick={incrementQty} className={styles.qtyBtn}>+</button>
+                  <button onClick={incrementQty} className={styles.qtyBtn} disabled={product.stock !== undefined && quantity >= product.stock}>+</button>
                 </div>
+                {product.stock !== undefined && (
+                <div style={{ marginTop: '12px', display:'flex',alignItems: 'center', flexDirection: 'column', fontSize: '0.8rem', color: product.stock > 0 ? 'var(--brand-primary)' : 'red', fontWeight: 500 }}>
+                  {product.stock > 0 ? `${product.stock}` : 'Out of stock'}
+                  <span>
+                    {product.stock > 0 && `in stock` }
+                  </span>
+                </div>
+              )}
                 <motion.button 
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   className={styles.addToCartBtn}
                   onClick={handleAddToCart}
-                  disabled={isAdded}
+                  disabled={isAdded || (product.stock !== undefined && product.stock === 0)}
                   style={{ backgroundColor: isAdded ? 'var(--brand-primary)' : '' }}
                 >
-                  {isAdded ? "Added ✓" : "Add to Cart"}
+                  {isAdded ? "Added ✓" : (product.stock === 0 ? "Out of Stock" : "Add to Cart")}
                 </motion.button>
               </div>
 

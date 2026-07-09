@@ -18,6 +18,9 @@ export interface ProductCardProps {
   // Swap props
   estValue?: string;
   lookingFor?: string;
+  
+  // Inventory
+  stock?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -30,7 +33,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   price,
   oldPrice,
   estValue,
-  lookingFor
+  lookingFor,
+  stock
 }) => {
   
   const getTagClass = () => {
@@ -73,6 +77,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
             <button className={`btn-primary ${styles.swapBtn}`}>Propose Swap</button>
           </>
+        )}
+        {stock !== undefined && (
+          <div style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            {stock > 0 ? `${stock} in stock` : 'Out of stock'}
+          </div>
         )}
       </div>
     </Link>

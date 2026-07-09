@@ -9,6 +9,7 @@ export interface CartItem {
   price: string;
   image: string;
   quantity: number;
+  stock?: number;
 }
 
 interface CartContextType {
@@ -68,7 +69,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(id);
       return;
     }
-    setCart(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        if (item.stock !== undefined && quantity > item.stock) {
+          return { ...item, quantity: item.stock };
+        }
+        return { ...item, quantity };
+      }
+      return item;
+    }));
   };
 
   const clearCart = () => {

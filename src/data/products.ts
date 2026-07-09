@@ -12,6 +12,7 @@ export interface Product {
   oldPrice?: string | null;
   estValue?: string;
   lookingFor?: string;
+  stock: number;
   rating: number;
   reviewsCount: number;
   images: string[];
@@ -25,6 +26,7 @@ export const products: Product[] = [
   // --- SHOP PRODUCTS (12 items) ---
   {
     id: "s1",
+    stock: 25,
     slug: "visionary-vr-headset-pro",
     name: "Visionary VR Headset Pro",
     description: "Experience the next level of immersive digital environments with the Visionary VR Headset Pro. Engineered with ultra-low latency tracking, custom OLED displays, and a breathtaking 120Hz refresh rate.",
@@ -47,6 +49,7 @@ export const products: Product[] = [
   },
   {
     id: "s2",
+    stock: 26,
     slug: "pro-smartphone-15",
     name: "Pro Smartphone 15",
     description: "The ultimate flagship device featuring a titanium chassis, cutting-edge AI processing, and a revolutionary triple-lens camera system.",
@@ -69,6 +72,7 @@ export const products: Product[] = [
   },
   {
     id: "s3",
+    stock: 9,
     slug: "noise-cancelling-headphones-x",
     name: "Noise-Cancelling Headphones X",
     description: "Immerse yourself in pure studio sound with industry-leading active noise cancellation and 40 hours of battery life.",
@@ -90,6 +94,7 @@ export const products: Product[] = [
   },
   {
     id: "s4",
+    stock: 11,
     slug: "creator-tablet-pro",
     name: "Creator Tablet Pro",
     description: "Your digital canvas. Featuring a breathtaking liquid retina display and seamless stylus integration for unmatched creative workflows.",
@@ -111,6 +116,7 @@ export const products: Product[] = [
   },
   {
     id: "s5",
+    stock: 13,
     slug: "next-gen-console-elite",
     name: "Next-Gen Console Elite",
     description: "Push the boundaries of gaming with 4K resolution at 120fps, ray tracing, and ultra-high-speed SSD loading.",
@@ -130,6 +136,7 @@ export const products: Product[] = [
   },
   {
     id: "s6",
+    stock: 50,
     slug: "premium-home-soundbar",
     name: "Premium Home Soundbar",
     description: "Cinematic audio in your living room. Featuring Dolby Atmos and adaptive sound technology for immersive movie nights.",
@@ -152,6 +159,7 @@ export const products: Product[] = [
   },
   {
     id: "s7",
+    stock: 24,
     slug: "ultralight-laptop-m2",
     name: "Ultralight Laptop M2",
     description: "Feather-light design meets heavy-weight performance. The ultimate machine for professionals on the move.",
@@ -173,6 +181,7 @@ export const products: Product[] = [
   },
   {
     id: "s8",
+    stock: 43,
     slug: "titanium-smartwatch-series-9",
     name: "Titanium Smartwatch Series 9",
     description: "Advanced health tracking, cellular connectivity, and a rugged titanium case designed for extreme adventures.",
@@ -192,6 +201,7 @@ export const products: Product[] = [
   },
   {
     id: "s9",
+    stock: 9,
     slug: "smart-home-hub",
     name: "Smart Home Hub Gen 3",
     description: "Control your entire house from one central hub. Featuring a 10-inch touchscreen and smart voice assistant integration.",
@@ -214,6 +224,7 @@ export const products: Product[] = [
   },
   {
     id: "s10",
+    stock: 49,
     slug: "mechanical-keyboard-pro",
     name: "Mechanical Keyboard Pro",
     description: "Precision-engineered mechanical keyboard with tactile switches, hot-swappable PCB, and full RGB backlighting.",
@@ -233,6 +244,7 @@ export const products: Product[] = [
   },
   {
     id: "s11",
+    stock: 15,
     slug: "4k-mirrorless-camera",
     name: "4K Mirrorless Camera Alpha",
     description: "Capture the world in stunning detail. Fast autofocus, robust in-body stabilization, and uncropped 4K video.",
@@ -254,6 +266,7 @@ export const products: Product[] = [
   },
   {
     id: "s12",
+    stock: 17,
     slug: "portable-ssd-2tb",
     name: "Portable SSD 2TB Extreme",
     description: "Rugged, ultra-fast external storage. Drop resistant and featuring speeds up to 2000MB/s.",
@@ -278,6 +291,7 @@ export const products: Product[] = [
   // --- SWAP PRODUCTS (8 items) ---
   {
     id: "w1",
+    stock: 8,
     slug: "swap-iphone-13-pro-max",
     name: "iPhone 13 Pro Max (Pristine)",
     description: "Well cared for iPhone 13 Pro Max. Battery health at 92%. Looking to swap for an equivalent Android flagship.",
@@ -300,6 +314,7 @@ export const products: Product[] = [
   },
   {
     id: "w2",
+    stock: 38,
     slug: "swap-macbook-pro-m1",
     name: "MacBook Pro M1 2020",
     description: "Excellent condition M1 MacBook Pro. Used strictly for light coding. Need a lighter machine for travel.",
@@ -322,6 +337,7 @@ export const products: Product[] = [
   },
   {
     id: "w3",
+    stock: 50,
     slug: "swap-dji-mini-3-pro",
     name: "DJI Mini 3 Pro Drone",
     description: "Flown less than 10 times. Comes with Fly More kit and ND filters. Want to trade for camera gear.",
@@ -343,6 +359,7 @@ export const products: Product[] = [
   },
   {
     id: "w4",
+    stock: 21,
     slug: "swap-ipad-air-4th-gen",
     name: "iPad Air 4th Gen + Pencil",
     description: "Perfect drawing tablet setup. Has a paper-like screen protector applied since day one.",
@@ -364,6 +381,7 @@ export const products: Product[] = [
   },
   {
     id: "w5",
+    stock: 45,
     slug: "swap-nintendo-switch-oled",
     name: "Nintendo Switch OLED",
     description: "Comes with pro controller and 3 physical games (Zelda, Mario Kart, Smash).",
@@ -383,6 +401,7 @@ export const products: Product[] = [
   },
   {
     id: "w6",
+    stock: 45,
     slug: "swap-sony-wh-1000xm4",
     name: "Sony WH-1000XM4",
     description: "Excellent noise-cancelling headphones. Used primarily at the desk. Earpads recently replaced.",
@@ -402,6 +421,7 @@ export const products: Product[] = [
   },
   {
     id: "w7",
+    stock: 14,
     slug: "swap-rtx-3080-gpu",
     name: "NVIDIA RTX 3080 10GB",
     description: "Never mined on, strictly used for gaming (mostly weekend racing sims). Excellent thermals.",
@@ -423,6 +443,7 @@ export const products: Product[] = [
   },
   {
     id: "w8",
+    stock: 24,
     slug: "swap-keychron-q1",
     name: "Keychron Q1 Custom Keyboard",
     description: "Fully modded Keychron Q1. Lubed Gateron Oil Kings, tape mod, force break mod. Sounds incredible.",
