@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Loader2, Github, Phone, Lock, Eye, EyeOff, Sun, Moon } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Moon, Phone, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import styles from './Login.module.css';
 
 export default function LoginPage() {
@@ -14,6 +14,7 @@ export default function LoginPage() {
     phone: '',
     password: ''
   });
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const carouselImages = [
     "/imgs/person-11.jpg",
@@ -39,13 +40,37 @@ export default function LoginPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setApiError(null);
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: formData.phone,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to log in');
+      }
+
+      // Store the user session in localStorage
+      localStorage.setItem('techNestUser', JSON.stringify(data.user));
+
       alert('Logged in successfully!');
-    }, 1500);
+      window.location.href = '/'; // Change to your desired dashboard route later
+    } catch (err: any) {
+      setApiError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -137,13 +162,17 @@ export default function LoginPage() {
             >
               {isSubmitting ? (
                 <div className={styles.btnContent}>
-                <Loader2 className="animate-spin" size={20} />
-                Logging In...
+                  <Loader2 className="animate-spin" size={20} />
+                  Logging In...
                 </div>
               ) : (
                 "Log In"
               )}
             </button>
+
+            {apiError && (
+              <div className={styles.errorMessage}>{apiError}</div>
+            )}
           </form>
 
           <div className={styles.footer}>

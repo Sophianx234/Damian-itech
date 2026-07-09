@@ -128,7 +128,10 @@ export default function ForgotPasswordPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loader2 className="animate-spin" size={20} />
+                <div className={styles.btnContent}>
+                  <Loader2 className="animate-spin" size={20} />
+                  Sending Code...
+                </div>
               ) : (
                 "Send Reset Code"
               )}

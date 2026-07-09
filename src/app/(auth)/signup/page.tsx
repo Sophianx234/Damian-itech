@@ -208,7 +208,10 @@ export default function SignupPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loader2 className="animate-spin" size={20} />
+                <div className={styles.btnContent}>
+                  <Loader2 className="animate-spin" size={20} />
+                  Signing Up...
+                </div>
               ) : (
                 "Sign Up"
               )}

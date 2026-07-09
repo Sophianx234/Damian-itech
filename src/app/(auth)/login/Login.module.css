@@ -191,6 +191,17 @@
   text-decoration: underline;
 }
 
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  text-align: center;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
 .input {
   width: 100%;
   padding: 14px 16px;
@@ -254,6 +265,13 @@
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
+}
+
+.btnContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .footer {

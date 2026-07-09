@@ -198,7 +198,10 @@ function ResetPasswordForm() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <Loader2 className="animate-spin" size={20} />
+                <div className={styles.btnContent}>
+                  <Loader2 className="animate-spin" size={20} />
+                  Updating Password...
+                </div>
               ) : (
                 "Update Password"
               )}
