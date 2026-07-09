@@ -71,10 +71,10 @@
 .cardInner {
   position: absolute;
   top: 0;
-  left: -20%; /* extend left to cover the corners revealed by un-skewing */
-  width: 140%; /* wider to cover corners */
-  height: 100%;
-  transform: skewX(15deg);
+  bottom: 0;
+  left: -35px; /* Mathematically exact offset for 15deg skew over 250px height */
+  right: -35px;
+  transform: skewX(15deg); /* Counter-skew keeps the photo upright */
 }
 
 .image {
