@@ -1,96 +1,177 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
-import { DollarSign, ShoppingBag, Users, TrendingUp } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 import styles from "./AdminDashboard.module.css";
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "GH₵ 45,231.89",
-    trend: "+20.1%",
-    isUp: true,
-    icon: DollarSign,
-    color: "#10b981",
-    bgColor: "rgba(16, 185, 129, 0.1)",
-  },
-  {
-    title: "Active Users",
-    value: "+2350",
-    trend: "+180.1%",
-    isUp: true,
-    icon: Users,
-    color: "#3b82f6",
-    bgColor: "rgba(59, 130, 246, 0.1)",
-  },
-  {
-    title: "Total Sales",
-    value: "+12,234",
-    trend: "+19%",
-    isUp: true,
-    icon: ShoppingBag,
-    color: "#8b5cf6",
-    bgColor: "rgba(139, 92, 246, 0.1)",
-  },
-  {
-    title: "Active Now",
-    value: "573",
-    trend: "+201 since last hour",
-    isUp: true,
-    icon: TrendingUp,
-    color: "#f59e0b",
-    bgColor: "rgba(245, 158, 11, 0.1)",
-  },
+const salesData = [
+  { name: "Mon", total: 1200 },
+  { name: "Tue", total: 2100 },
+  { name: "Wed", total: 1800 },
+  { name: "Thu", total: 2400 },
+  { name: "Fri", total: 2800 },
+  { name: "Sat", total: 3200 },
+  { name: "Sun", total: 2900 },
+];
+
+const productViewsData = [
+  { name: "Laptops", views: 4000 },
+  { name: "Phones", views: 3000 },
+  { name: "Audio", views: 2000 },
+  { name: "Tablets", views: 2780 },
+];
+
+const ordersData = [
+  { id: "#ORD-001", product: 'MacBook Pro 16"', customer: "John Doe", date: "2026-07-10", price: "$2,400", status: "Completed" },
+  { id: "#ORD-002", product: "iPhone 15 Pro", customer: "Jane Smith", date: "2026-07-09", price: "$1,200", status: "Pending" },
+  { id: "#ORD-003", product: "AirPods Pro 2", customer: "Alice Joe", date: "2026-07-08", price: "$250", status: "Cancelled" },
+  { id: "#ORD-004", product: "iPad Air", customer: "Bob Wilson", date: "2026-07-07", price: "$600", status: "Completed" },
+  { id: "#ORD-005", product: "Magic Keyboard", customer: "Charlie Day", date: "2026-07-06", price: "$299", status: "Completed" },
+];
+
+const topSoldItems = [
+  { name: 'MacBook Pro 16"', sales: 840, percentage: 85 },
+  { name: "iPhone 15 Pro", sales: 720, percentage: 72 },
+  { name: "AirPods Pro 2", sales: 504, percentage: 64 },
+  { name: "iPad Air", sales: 380, percentage: 50 },
+  { name: "Apple Watch S9", sales: 290, percentage: 40 },
 ];
 
 export default function AdminDashboardPage() {
   return (
     <div className={styles.dashboardContainer}>
+      {/* Top Row: KPI Cards */}
       <div className={styles.statsGrid}>
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div
-              key={stat.title}
-              className={styles.statCard}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.4 }}
-            >
-              <div className={styles.statHeader}>
-                <h3 className={styles.statTitle}>{stat.title}</h3>
-                <div
-                  className={styles.statIcon}
-                  style={{ backgroundColor: stat.bgColor, color: stat.color }}
-                >
-                  <Icon size={20} />
-                </div>
-              </div>
-              <p className={styles.statValue}>{stat.value}</p>
-              <span
-                className={`${styles.statTrend} ${
-                  stat.isUp ? styles.trendUp : styles.trendDown
-                }`}
-              >
-                {stat.trend} from last month
-              </span>
-            </motion.div>
-          );
-        })}
+        <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Total Customers</h3>
+          <p className={styles.statValue}>1,204</p>
+        </div>
+        <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Total Products</h3>
+          <p className={styles.statValue}>328</p>
+        </div>
+        <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Total Orders</h3>
+          <p className={styles.statValue}>8,405</p>
+        </div>
+        <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Total Sales</h3>
+          <p className={styles.statValue}>$24.5k</p>
+        </div>
       </div>
 
-      <motion.div
-        className={styles.recentSection}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.4 }}
-      >
-        <h2 className={styles.sectionTitle}>Recent Activity</h2>
-        <p style={{ color: "var(--text-secondary)" }}>
-          Your dashboard graphs and recent orders list will populate here.
-        </p>
-      </motion.div>
+      {/* Middle Row: Analytics Charts */}
+      <div className={styles.chartsGrid}>
+        <div className={styles.chartCard}>
+          <h2 className={styles.cardTitle}>Sales Trend</h2>
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer>
+              <AreaChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary-color)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--primary-color)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary)" />
+                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                  itemStyle={{ color: 'var(--text-primary)' }}
+                />
+                <Area type="monotone" dataKey="total" stroke="var(--primary-color)" fillOpacity={1} fill="url(#colorSales)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className={styles.chartCard}>
+          <h2 className={styles.cardTitle}>Product Views</h2>
+          <div style={{ width: "100%", height: 300 }}>
+            <ResponsiveContainer>
+              <BarChart data={productViewsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary)" />
+                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                  itemStyle={{ color: 'var(--text-primary)' }}
+                  cursor={{ fill: 'var(--border-primary)' }}
+                />
+                <Bar dataKey="views" fill="var(--primary-color)" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Row: Data Tables */}
+      <div className={styles.tablesGrid}>
+        <div className={styles.tableCard}>
+          <h2 className={styles.cardTitle}>All Orders</h2>
+          <table className={styles.ordersTable}>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordersData.map((order) => {
+                let statusClass = styles.statusPending;
+                if (order.status === "Completed") statusClass = styles.statusCompleted;
+                if (order.status === "Cancelled") statusClass = styles.statusCancelled;
+                
+                return (
+                  <tr key={order.id}>
+                    <td style={{ color: '#ffffff', fontWeight: 500 }}>{order.id}</td>
+                    <td>{order.product}</td>
+                    <td>{order.customer}</td>
+                    <td>{order.date}</td>
+                    <td>{order.price}</td>
+                    <td className={statusClass}>{order.status}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className={styles.tableCard}>
+          <h2 className={styles.cardTitle}>Top Sold Items</h2>
+          <div className={styles.topSoldList}>
+            {topSoldItems.map((item) => (
+              <div key={item.name} className={styles.topSoldItem}>
+                <div className={styles.itemHeader}>
+                  <span>{item.name}</span>
+                  <span className={styles.itemValue}>{item.sales}</span>
+                </div>
+                <div className={styles.progressBarContainer}>
+                  <div 
+                    className={styles.progressBar} 
+                    style={{ width: `${item.percentage}%` }} 
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

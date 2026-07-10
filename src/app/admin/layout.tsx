@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import {
   LayoutDashboard,
   Package,
@@ -11,8 +10,11 @@ import {
   Users,
   Settings,
   LogOut,
+  Search,
   Sun,
   Moon,
+  User,
+  Bell
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -32,36 +34,36 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<{ fullName: string, role: string } | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch session", err));
   }, []);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    setIsUserMenuOpen(false);
     router.push("/login");
   };
 
-  if (!mounted) return null;
-
+  // Instead of returning null and breaking the layout's rendering of children,
+  // we just handle the mounted state gracefully for theme icons.
   return (
     <div className={styles.adminLayout}>
       {/* Sidebar */}
       <aside className={styles.sidebar}>
-        <div className={styles.logoContainer}>
-          <Link href="/">
-            <Image
-              src={theme === "dark" ? "/imgs/logo-3.png" : "/imgs/logo-1.png"}
-              alt="Damian iTech Admin"
-              width={160}
-              height={40}
-              style={{ objectFit: "contain", height: "40px", width: "auto" }}
-            />
-          </Link>
-        </div>
-
         <nav className={styles.nav}>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -74,7 +76,7 @@ export default function AdminLayout({
                   isActive ? styles.navItemActive : ""
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 {item.label}
               </Link>
             );
@@ -86,20 +88,60 @@ export default function AdminLayout({
       <div className={styles.mainContent}>
         {/* Top Header */}
         <header className={styles.header}>
-          <h1 className={styles.headerTitle}>
-            {navItems.find((n) => n.href === pathname)?.label || "Admin Portal"}
-          </h1>
-          <div className={styles.headerActions}>
+          <div className={styles.headerLeft}>
+            <h1 className={styles.greeting}>
+              Hello, {user ? user.fullName.split(" ")[0] : "Admin"}
+            </h1>
+          </div>
+
+          <div className={styles.headerRight}>
+            <div className={styles.searchContainer}>
+              <Search size={16} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className={styles.searchInput}
+              />
+            </div>
+
             <button
+              aria-label="Toggle Theme"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className={styles.iconBtn}
-              title="Toggle Theme"
             >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              {mounted && (theme === "dark" ? <Sun size={18} /> : <Moon size={18} />)}
             </button>
-            <button onClick={handleLogout} className={styles.iconBtn} title="Logout">
-              <LogOut size={20} />
+
+            <button className={styles.iconBtn}>
+              <Bell size={18} />
             </button>
+
+            <div className={styles.userMenuContainer}>
+              <button
+                aria-label="User Account"
+                className={styles.userBtn}
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                <div className={styles.avatar}>
+                  {user ? user.fullName.charAt(0).toUpperCase() : "A"}
+                </div>
+              </button>
+
+              {isUserMenuOpen && (
+                <div className={styles.userDropdown}>
+                  <div className={styles.dropdownHeader}>
+                    <p className={styles.dropdownName}>{user?.fullName || "Admin"}</p>
+                    <p className={styles.dropdownRole}>{user?.role || "Administrator"}</p>
+                  </div>
+                  <Link href="/admin/settings" className={styles.dropdownItem}>
+                    <User size={16} /> Profile
+                  </Link>
+                  <button onClick={handleLogout} className={styles.dropdownItemLogout}>
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

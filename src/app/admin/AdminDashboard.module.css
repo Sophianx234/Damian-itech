@@ -6,87 +6,158 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
 .statCard {
-  background-color: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 16px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 12px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.statHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.statTitle {
-  font-size: 14px;
-  color: var(--text-secondary, #6b7280);
+.statLabel {
+  font-size: 13px;
+  color: var(--text-muted);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin: 0;
-}
-
-.statIcon {
-  padding: 10px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .statValue {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-color, #1f2937);
+  font-size: 40px;
+  font-weight: 300;
+  color: var(--text-primary);
   margin: 0;
+  line-height: 1;
+  font-family: 'Poppins', sans-serif;
 }
 
-.statTrend {
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 65% calc(35% - 24px);
+  gap: 24px;
 }
 
-.trendUp {
-  color: #10b981;
-}
-
-.trendDown {
-  color: #ef4444;
-}
-
-.recentSection {
-  background-color: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 16px;
+.chartCard,
+.tableCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
+.cardTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 24px 0;
 }
 
-/* Dark Mode Overrides */
-[data-theme='dark'] .statCard,
-[data-theme='dark'] .recentSection {
-  background-color: #111827;
-  border-color: #374151;
+.tablesGrid {
+  display: grid;
+  grid-template-columns: 65% calc(35% - 24px);
+  gap: 24px;
+}
+
+/* Orders Table */
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ordersTable th {
+  text-align: left;
+  padding-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.ordersTable td {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-primary);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.ordersTable tr:last-child td {
+  border-bottom: none;
+}
+
+.statusCompleted {
+  color: var(--text-primary);
+}
+
+.statusPending {
+  color: var(--text-muted);
+}
+
+.statusCancelled {
+  color: #a3a3a3;
+  text-decoration: line-through;
+}
+
+/* Top Sold Items */
+.topSoldList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topSoldItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.itemValue {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.progressBarContainer {
+  height: 2px;
+  width: 100%;
+  background-color: var(--border-primary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: var(--primary-color);
+}
+
+@media (max-width: 1200px) {
+  .chartsGrid,
+  .tablesGrid {
+    grid-template-columns: 1fr;
+  }
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
 }
