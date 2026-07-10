@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './FeaturedProducts.module.css';
+import ProductCard from '../ProductCard/ProductCard';
 
 const products = [
   {
@@ -56,24 +57,17 @@ const FeaturedProducts = () => {
         <h2 className={styles.sectionTitle}>Featured Products</h2>
         <div className={styles.grid}>
           {products.map(product => (
-            <div key={product.id} className={styles.card}>
-              <div className={styles.imageWrapper}>
-                {product.tag && (
-                  <span className={`${styles.tag} ${product.tagType === 'sale' ? styles.tagSale : styles.tagNew}`}>
-                    {product.tag}
-                  </span>
-                )}
-                <img src={product.image} alt={product.name} className={styles.productImage} />
-              </div>
-              <div className={styles.productInfo}>
-                <h3 className={styles.productName}>{product.name}</h3>
-                <div className={styles.priceRow}>
-                  <span className={product.oldPrice ? styles.salePrice : styles.price}>{product.price}</span>
-                  {product.oldPrice && <span className={styles.oldPrice}>{product.oldPrice}</span>}
-                </div>
-                <button className={`btn-primary ${styles.shopBtn}`}>Shop Now</button>
-              </div>
-            </div>
+            <ProductCard
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              image={product.image}
+              price={product.price}
+              oldPrice={product.oldPrice}
+              tag={product.tag}
+              tagType={product.tagType}
+              variant="shop"
+            />
           ))}
         </div>
       </div>

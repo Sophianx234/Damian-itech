@@ -17,104 +17,26 @@
   gap: 24px;
 }
 
-.card {
-  background: var(--bg-light);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.card:hover {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.imageWrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-primary); /* Changed to use theme var */
-  overflow: hidden;
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.productImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tag {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: white;
-  z-index: 2; /* Ensure tag is above the full-cover image */
-}
-
-.tagNew {
-  background-color: var(--primary-color);
-}
-
-.tagSale {
-  background-color: var(--red-accent);
-}
-
-.productInfo {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.productName {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  /* Fix height so 1-line and 2-line names align identically */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  /* autoprefixer: ignore next */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: calc(1.1rem * 1.4 * 2);
-}
-
-.priceRow {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.salePrice {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--red-accent);
-}
-
-.oldPrice {
-  font-size: 0.9rem;
-  color: var(--text-gray);
-  text-decoration: line-through;
-}
-
-.shopBtn {
-  margin-top: auto;
-  width: 100%;
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

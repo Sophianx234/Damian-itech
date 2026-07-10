@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './SwapItems.module.css';
+import ProductCard from '../ProductCard/ProductCard';
 
 const swapItems = [
   {
@@ -56,24 +57,17 @@ const SwapItems = () => {
         <h2 className={styles.sectionTitle}>Available for Swap</h2>
         <div className={styles.grid}>
           {swapItems.map(item => (
-            <div key={item.id} className={styles.card}>
-              <div className={styles.imageWrapper}>
-                {item.tag && (
-                  <span className={`${styles.tag} ${item.tagType === 'wanted' ? styles.tagWanted : styles.tagCondition}`}>
-                    {item.tag}
-                  </span>
-                )}
-                <img src={item.image} alt={item.name} className={styles.productImage} />
-              </div>
-              <div className={styles.productInfo}>
-                <h3 className={styles.productName}>{item.name}</h3>
-                <div className={styles.valueRow}>
-                  <span className={styles.valueLabel}>Est. Value: <span className={styles.price}>{item.estValue}</span></span>
-                  <span className={styles.valueLabel}>Wants: <strong>{item.lookingFor}</strong></span>
-                </div>
-                <button className={`btn-primary ${styles.swapBtn}`}>Propose Swap</button>
-              </div>
-            </div>
+            <ProductCard
+              key={item.id}
+              id={item.id}
+              name={item.name}
+              image={item.image}
+              estValue={item.estValue}
+              lookingFor={item.lookingFor}
+              tag={item.tag}
+              tagType={item.tagType}
+              variant="swap"
+            />
           ))}
         </div>
       </div>
