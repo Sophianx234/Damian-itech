@@ -14,8 +14,17 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please provide a password'],
     minlength: [6, 'Password must be at least 6 characters'],
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  signupOTP: {
+    type: String,
+  },
+  signupOTPExpires: {
+    type: Date,
   },
   createdAt: {
     type: Date,
