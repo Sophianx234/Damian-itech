@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Search, Plus } from "lucide-react";
+import Link from "next/link";
+import { Search, Plus, ChevronDown } from "lucide-react";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
@@ -63,6 +64,26 @@ const initialProducts: Product[] = [
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [conditionFilter, setConditionFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          p.brand.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter ? p.category === categoryFilter : true;
+    const matchesCondition = conditionFilter ? p.condition === conditionFilter : true;
+    const matchesStatus = statusFilter ? p.status === statusFilter : true;
+    return matchesSearch && matchesCategory && matchesCondition && matchesStatus;
+  });
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setCategoryFilter("");
+    setConditionFilter("");
+    setStatusFilter("");
+  };
 
   const handleUpdate = async (id: string, updates: Partial<Product>) => {
     // Optimistic UI update
@@ -97,33 +118,40 @@ export default function AdminProductsPage() {
             type="text"
             placeholder="Search products..."
             className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className={styles.addButton}>
+        <Link href="/admin/products/new" className={styles.addButton}>
           <Plus size={16} /> Add New Product
-        </button>
+        </Link>
       </div>
 
       {/* Filter Row */}
       <div className={styles.filterRow}>
-        <select className={styles.filterSelect}>
+        <select className={styles.filterSelect} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
           <option value="">Category</option>
           <option value="Phones">Phones</option>
           <option value="Laptops">Laptops</option>
           <option value="Audio">Audio</option>
         </select>
-        <select className={styles.filterSelect}>
+        <select className={styles.filterSelect} value={conditionFilter} onChange={(e) => setConditionFilter(e.target.value)}>
           <option value="">Condition</option>
           <option value="Pristine">Pristine</option>
           <option value="Excellent">Excellent</option>
           <option value="Good">Good</option>
         </select>
-        <select className={styles.filterSelect}>
+        <select className={styles.filterSelect} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">Status</option>
           <option value="Active">Active</option>
           <option value="Reserved">Reserved</option>
           <option value="Sold">Sold</option>
         </select>
+        {(categoryFilter || conditionFilter || statusFilter || searchQuery) && (
+          <button className={styles.resetButton} onClick={handleResetFilters}>
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {/* Master Data Table */}
@@ -138,7 +166,7 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => {
+            {filteredProducts.map((product) => {
               // Determine status class
               let statusClass = styles.statusActive;
               if (product.status === "Reserved") statusClass = styles.statusReserved;
@@ -187,25 +215,11 @@ export default function AdminProductsPage() {
 
                   {/* Status Column */}
                   <td>
-                    <select
-                      className={`${styles.statusSelect} ${statusClass}`}
-                      value={product.status}
-                      onChange={(e) =>
-                        handleUpdate(product.id, {
-                          status: e.target.value as ProductStatus,
-                        })
-                      }
-                    >
-                      <option value="Active" className={styles.statusActive}>
-                        Active
-                      </option>
-                      <option value="Reserved" className={styles.statusReserved}>
-                        Reserved
-                      </option>
-                      <option value="Sold" className={styles.statusSold}>
-                        Sold
-                      </option>
-                    </select>
+                    <StatusDropdown 
+                      value={product.status} 
+                      onChange={(newVal) => handleUpdate(product.id, { status: newVal })} 
+                      styles={styles} 
+                    />
                   </td>
                 </tr>
               );
@@ -213,6 +227,48 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+const StatusDropdown = ({ value, onChange, styles }: { value: ProductStatus, onChange: (val: ProductStatus) => void, styles: any }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  let statusClass = styles.statusActive;
+  if (value === "Reserved") statusClass = styles.statusReserved;
+  if (value === "Sold") statusClass = styles.statusSold;
+
+  return (
+    <div className={styles.customSelectWrapper} onMouseLeave={() => setIsOpen(false)}>
+      <div 
+        className={`${styles.customSelectTrigger} ${statusClass}`} 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {value}
+        <ChevronDown size={14} className={styles.customSelectIcon} />
+      </div>
+      {isOpen && (
+        <div className={styles.customSelectMenu}>
+          {(["Active", "Reserved", "Sold"] as ProductStatus[]).map((status) => {
+            let optionClass = styles.statusActive;
+            if (status === "Reserved") optionClass = styles.statusReserved;
+            if (status === "Sold") optionClass = styles.statusSold;
+            
+            return (
+              <div
+                key={status}
+                className={`${styles.customSelectOption} ${optionClass}`}
+                onClick={() => {
+                  onChange(status);
+                  setIsOpen(false);
+                }}
+              >
+                {status}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

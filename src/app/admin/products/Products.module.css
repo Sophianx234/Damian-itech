@@ -84,6 +84,22 @@
   border-color: var(--primary-color);
 }
 
+.resetButton {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
 .tableContainer {
   background-color: var(--card-bg);
   border: 1px solid var(--border-primary);
@@ -205,4 +221,46 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
   color: var(--text-muted);
   text-decoration: line-through;
   opacity: 0.6;
+}
+
+/* Custom Status Dropdown CSS */
+.customSelectWrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.customSelectTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.customSelectIcon {
+  color: var(--text-muted);
+}
+
+.customSelectMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 4px 0;
+  min-width: 120px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.customSelectOption {
+  padding: 8px 16px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.customSelectOption:hover {
+  background-color: var(--bg-primary);
 }
