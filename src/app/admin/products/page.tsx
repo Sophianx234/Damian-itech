@@ -3,13 +3,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical } from "lucide-react";
+import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye } from "lucide-react";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
 
 interface Product {
   id: string;
+  slug: string;
   title: string;
   brand: string;
   category: string;
@@ -25,67 +26,49 @@ interface Product {
   image: string;
 }
 
-const initialProducts: Product[] = [
-  {
-    id: "PROD-001",
-    title: "iPhone 15 Pro Max",
-    brand: "Apple",
-    category: "Phone",
-    productType: "Used",
-    condition: "Pristine",
-    isSwappable: false,
-    batteryHealth: 98,
-    price: "$1,199.00",
-    status: "Active",
-    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
-  },
-  {
-    id: "PROD-002",
-    title: "Galaxy S24 Ultra",
-    brand: "Samsung",
-    category: "Phone",
-    productType: "Store",
-    isSwappable: true,
-    price: "$1,099.00",
-    status: "Reserved",
-    image: "https://images.unsplash.com/photo-1707164998811-13c5fb368db5?w=100&h=100&fit=crop",
-  },
-  {
-    id: "PROD-003",
-    title: "MacBook Pro 16\"",
-    brand: "Apple",
-    category: "Laptop",
-    productType: "Used",
-    condition: "Good",
-    isSwappable: true,
-    ram: "16GB",
-    storage: "512GB SSD",
-    price: "$2,499.00",
-    status: "Sold",
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&h=100&fit=crop",
-  },
-  {
-    id: "PROD-004",
-    title: "AirPods Pro (2nd Gen)",
-    brand: "Apple",
-    category: "Audio",
-    productType: "Store",
-    isSwappable: false,
-    customSpecs: [{ key: "Color", value: "White" }],
-    price: "$249.00",
-    status: "Active",
-    image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=100&h=100&fit=crop",
-  },
-];
-
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
   const [productTypeFilter, setProductTypeFilter] = useState("");
   const [swappableFilter, setSwappableFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const json = await res.json();
+        if (json.success) {
+          const formatted = json.data.map((p: any) => ({
+            id: p._id,
+            slug: p.slug,
+            title: p.title,
+            brand: p.brand,
+            category: p.category,
+            productType: p.productType,
+            condition: p.condition,
+            isSwappable: p.isSwappable,
+            batteryHealth: p.batteryHealth,
+            ram: p.ram,
+            storage: p.storage,
+            customSpecs: p.customSpecs,
+            price: `₵${Number(p.price).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+            status: p.status,
+            image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
+          }));
+          setProducts(formatted);
+        }
+      } catch (err) {
+        console.error("Failed to load products", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -115,10 +98,20 @@ export default function AdminProductsPage() {
 
     // Call API
     try {
-      const res = await fetch("/api/admin/products/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...updates }),
+      const formData = new FormData();
+      Object.entries(updates).forEach(([key, value]) => {
+        if (key === 'price') {
+          // If it has a currency symbol, strip it
+          const cleanPrice = value.toString().replace(/[^0-9.]/g, '');
+          formData.append(key, cleanPrice);
+        } else {
+          formData.append(key, value as string);
+        }
+      });
+
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        body: formData,
       });
 
       if (!res.ok) {
@@ -139,8 +132,8 @@ export default function AdminProductsPage() {
 
     // Simulate API call
     try {
-      // await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-      console.log(`Product ${id} deleted`);
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
     } catch (err) {
       console.error("Failed to delete", err);
     }
@@ -207,9 +200,52 @@ export default function AdminProductsPage() {
 
       {/* Master Data Table */}
       <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
+        {isLoading ? (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Details</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th className={styles.actionsHeader}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, index) => (
+                <tr key={index}>
+                  <td>
+                    <div className={styles.productCell}>
+                      <div className={`${styles.skeleton} ${styles.skeletonImg}`}></div>
+                      <div className={styles.productInfo}>
+                        <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
+                        <div className={`${styles.skeleton} ${styles.skeletonTextSm}`}></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.specsWrapper}>
+                      <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
+                      <div className={`${styles.skeleton} ${styles.skeletonBadge}`} style={{ marginTop: '4px' }}></div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '60px' }}></div>
+                  </td>
+                  <td>
+                    <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '70px' }}></div>
+                  </td>
+                  <td>
+                    <div className={`${styles.skeleton} ${styles.skeletonAction}`}></div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
               <th>Product</th>
               <th>Details</th>
               <th>Price</th>
@@ -230,13 +266,14 @@ export default function AdminProductsPage() {
                   {/* Product Info Column */}
                   <td>
                     <div className={styles.productCell}>
-                      <Image
-                        src={product.image}
-                        alt={product.title}
-                        width={48}
-                        height={48}
-                        className={styles.productThumb}
-                      />
+                      <div className={styles.productImageWrapper}>
+                        <Image
+                          src={product.image}
+                          alt={product.title}
+                          fill
+                          className={styles.productThumb}
+                        />
+                      </div>
                       <div className={styles.productInfo}>
                         <h4 className={styles.productTitle}>{product.title}</h4>
                         <p className={styles.productBrand}>{product.brand}</p>
@@ -295,7 +332,8 @@ export default function AdminProductsPage() {
                   {/* Actions Column */}
                   <td>
                     <ActionDropdown 
-                      productId={product.id} 
+                      productId={product.id}
+                      slug={product.slug}
                       handleDelete={handleDelete} 
                       styles={styles} 
                       isLast={isLast}
@@ -304,8 +342,9 @@ export default function AdminProductsPage() {
                 </tr>
               );
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
@@ -363,7 +402,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: ProductSta
   );
 };
 
-const ActionDropdown = ({ productId, handleDelete, styles, isLast }: { productId: string, handleDelete: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ productId, slug, handleDelete, styles, isLast }: { productId: string, slug: string, handleDelete: (id: string) => void, styles: any, isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -390,7 +429,10 @@ const ActionDropdown = ({ productId, handleDelete, styles, isLast }: { productId
       </button>
       {isOpen && (
         <div className={`${styles.actionMenuDropdown} ${isLast ? styles.dropdownUp : ""}`}>
-          <Link href={`/admin/products/edit/${productId}`} className={styles.actionMenuItem}>
+          <Link href={`/product/${slug}`} className={styles.actionMenuItem} target="_blank">
+            <Eye size={14} /> View Product
+          </Link>
+          <Link href={`/admin/products/${productId}/edit`} className={styles.actionMenuItem}>
             <Edit2 size={14} /> Edit Product
           </Link>
           <button 

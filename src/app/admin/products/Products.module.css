@@ -150,12 +150,18 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
   gap: 16px;
 }
 
-.productThumb {
+.productImageWrapper {
+  position: relative;
   width: 48px;
   height: 48px;
+  flex-shrink: 0;
   border-radius: 4px;
-  object-fit: cover;
+  overflow: hidden;
   background-color: var(--bg-primary);
+}
+
+.productThumb {
+  object-fit: cover;
 }
 
 .productInfo {
@@ -381,4 +387,46 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
   bottom: 100% !important;
   margin-top: 0 !important;
   margin-bottom: 8px !important;
+}
+
+/* Skeleton Loader */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}
+
+.skeleton {
+  animation: pulse 1.5s infinite ease-in-out;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+}
+
+.skeletonImg {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.skeletonText {
+  height: 14px;
+  width: 100px;
+  margin-bottom: 6px;
+}
+
+.skeletonTextSm {
+  height: 12px;
+  width: 60px;
+}
+
+.skeletonBadge {
+  height: 18px;
+  width: 40px;
+  border-radius: 4px;
+}
+
+.skeletonAction {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
 }

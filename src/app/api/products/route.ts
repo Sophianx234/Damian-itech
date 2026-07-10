@@ -63,3 +63,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    await dbConnect();
+    const products = await Product.find({}).sort({ createdAt: -1 });
+    return NextResponse.json({ success: true, data: products });
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
