@@ -17,18 +17,18 @@ const Header = () => {
 
   useEffect(() => {
     setMounted(true);
-    const storedUser = localStorage.getItem("Damian iTechUser");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse user data");
-      }
-    }
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch session", err));
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("Damian iTechUser");
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIsUserMenuOpen(false);
   };

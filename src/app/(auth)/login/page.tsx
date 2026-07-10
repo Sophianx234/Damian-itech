@@ -56,12 +56,9 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to log in");
       }
-
-      // Store the user session in localStorage
-      localStorage.setItem("Damian iTechUser", JSON.stringify(data.user));
 
       router.push("/"); // Change to your desired dashboard route later
     } catch (err: any) {
