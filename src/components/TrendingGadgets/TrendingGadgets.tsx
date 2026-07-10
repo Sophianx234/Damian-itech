@@ -6,14 +6,14 @@ import Autoplay from 'embla-carousel-autoplay';
 import styles from './TrendingGadgets.module.css';
 
 const devices = [
-  { id: 1, name: 'PlayStation 5', image: 'imgs/gadgets/p-1.jpg' },
-  { id: 2, name: 'Smart TV 4K', image: 'imgs/gadgets/tv-1.jpg' },
-  { id: 3, name: 'iPhone 15 Pro', image: 'imgs/gadgets/iphone-1.png' },
-  { id: 4, name: 'VR Headset', image: 'imgs/gadgets/vr-1.jpg' },
-  { id: 5, name: 'Nintendo Switch', image: 'imgs/gadgets/n-1.jpg' },
-  { id: 6, name: 'MacBook Pro', image: 'imgs/gadgets/mac-1.jpg' },
-  { id: 7, name: 'Xbox Series X', image: 'imgs/gadgets/xbox-1.jpg' },
-  { id: 8, name: 'iPad Air', image: 'imgs/gadgets/ipad-1.jpg' }
+  { id: 1, name: 'PlayStation 5', image: 'imgs/gadgets/t-1.jpeg' },
+  { id: 2, name: 'Smart TV 4K', image: 'imgs/gadgets/tv-1.jpeg' },
+  { id: 3, name: 'iPhone 15 Pro', image: 'imgs/gadgets/iphone-1.jpeg' },
+  { id: 4, name: 'VR Headset', image: 'imgs/gadgets/vr-1.jpeg' },
+  { id: 5, name: 'Nintendo Switch', image: 'imgs/gadgets/n-1.jpeg' },
+  { id: 6, name: 'MacBook Pro', image: 'imgs/gadgets/mac-1.jpeg' },
+  { id: 7, name: 'Xbox Series X', image: 'imgs/gadgets/xbox-1.jpeg' },
+  { id: 8, name: 'iPad Air', image: 'imgs/gadgets/ipad-1.jpeg' }
 ];
 
 const TrendingGadgets = () => {
@@ -50,7 +50,7 @@ const TrendingGadgets = () => {
   return (
     <section className={styles.section}>
       <div className="container">
-        <h2 className={styles.sectionTitle}>Trending Tech Arsenal</h2>
+        <h2 className={styles.sectionTitle}>Trending Gadgets</h2>
         
         <div className={styles.carouselWrapper}>
           <div className={styles.embla} ref={emblaRef}>
