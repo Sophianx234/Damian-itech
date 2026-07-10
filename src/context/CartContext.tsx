@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 export interface CartItem {
   id: string | number;
@@ -31,7 +37,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Load from localStorage on mount
   useEffect(() => {
     setMounted(true);
-    const storedCart = localStorage.getItem('technest_cart');
+    const storedCart = localStorage.getItem("Damian iTech_cart");
     if (storedCart) {
       try {
         setCart(JSON.parse(storedCart));
@@ -44,16 +50,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Sync to localStorage on cart change
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem('technest_cart', JSON.stringify(cart));
+      localStorage.setItem("Damian iTech_cart", JSON.stringify(cart));
     }
   }, [cart, mounted]);
 
   const addToCart = (newItem: CartItem) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === newItem.id);
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === newItem.id);
       if (existing) {
-        return prev.map(item => 
-          item.id === newItem.id ? { ...item, quantity: newItem.quantity } : item
+        return prev.map((item) =>
+          item.id === newItem.id
+            ? { ...item, quantity: newItem.quantity }
+            : item,
         );
       }
       return [...prev, newItem];
@@ -61,7 +69,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (id: string | number) => {
-    setCart(prev => prev.filter(item => item.id !== id));
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const updateQuantity = (id: string | number, quantity: number) => {
@@ -69,39 +77,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart(id);
       return;
     }
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        if (item.stock !== undefined && quantity > item.stock) {
-          return { ...item, quantity: item.stock };
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          if (item.stock !== undefined && quantity > item.stock) {
+            return { ...item, quantity: item.stock };
+          }
+          return { ...item, quantity };
         }
-        return { ...item, quantity };
-      }
-      return item;
-    }));
+        return item;
+      }),
+    );
   };
 
   const clearCart = () => {
     setCart([]);
   };
 
-  const cartCount = mounted ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
-  
-  const cartTotal = mounted ? cart.reduce((total, item) => {
-    // Parse currency strings like "$499.00" to float 499.00
-    const numericPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
-    return total + (isNaN(numericPrice) ? 0 : numericPrice * item.quantity);
-  }, 0) : 0;
+  const cartCount = mounted
+    ? cart.reduce((total, item) => total + item.quantity, 0)
+    : 0;
+
+  const cartTotal = mounted
+    ? cart.reduce((total, item) => {
+        // Parse currency strings like "$499.00" to float 499.00
+        const numericPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+        return total + (isNaN(numericPrice) ? 0 : numericPrice * item.quantity);
+      }, 0)
+    : 0;
 
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      addToCart, 
-      removeFromCart, 
-      updateQuantity, 
-      clearCart, 
-      cartCount, 
-      cartTotal 
-    }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        cartCount,
+        cartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -110,7 +126,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }
