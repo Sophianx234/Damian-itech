@@ -130,7 +130,7 @@
 
 :global([data-theme='dark']) .swapBtn {
   background-color: var(--primary-color);
-  color: #171717;
+  color: white;
 }
 
 .swapBtn:hover {

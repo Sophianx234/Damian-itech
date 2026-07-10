@@ -1,0 +1,127 @@
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color, #f3f4f6);
+  color: var(--text-color, #1f2937);
+}
+
+.sidebar {
+  width: 280px;
+  background-color: var(--card-bg, #ffffff);
+  border-right: 1px solid var(--border-color, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.logoContainer {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.nav {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--text-secondary, #6b7280);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: var(--hover-bg, #f3f4f6);
+  color: var(--primary-color, #2563eb);
+}
+
+.navItemActive {
+  background-color: var(--primary-color, #2563eb);
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  height: 72px;
+  background-color: var(--card-bg, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.headerTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: var(--text-color, #1f2937);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.iconBtn:hover {
+  background-color: var(--hover-bg, #f3f4f6);
+}
+
+.contentWrapper {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+[data-theme='dark'] .sidebar,
+[data-theme='dark'] .header {
+  background-color: #111827;
+  border-color: #374151;
+}
+
+[data-theme='dark'] .navItem:hover {
+  background-color: #1f2937;
+}
+
+[data-theme='dark'] .iconBtn:hover {
+  background-color: #1f2937;
+}
