@@ -35,6 +35,8 @@ export default function AdminProductsPage() {
   const [productTypeFilter, setProductTypeFilter] = useState("");
   const [swappableFilter, setSwappableFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -123,12 +125,18 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
-    if (!confirmDelete) return;
+  const confirmDelete = (id: string) => {
+    const product = products.find(p => p.id === id);
+    if (product) setProductToDelete(product);
+  };
+
+  const executeDelete = async () => {
+    if (!productToDelete) return;
+    const id = productToDelete.id;
 
     // Optimistic UI update
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    setProductToDelete(null);
 
     // Simulate API call
     try {
@@ -334,7 +342,7 @@ export default function AdminProductsPage() {
                     <ActionDropdown 
                       productId={product.id}
                       slug={product.slug}
-                      handleDelete={handleDelete} 
+                      handleDelete={confirmDelete} 
                       styles={styles} 
                       isLast={isLast}
                     />
@@ -346,6 +354,42 @@ export default function AdminProductsPage() {
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>Delete Product</h3>
+            <p className={styles.modalText}>
+              Are you sure you want to permanently delete this product?
+            </p>
+            
+            <div className={styles.modalProductPreview}>
+              <div className={styles.productImageWrapper}>
+                <Image
+                  src={productToDelete.image}
+                  alt={productToDelete.title}
+                  fill
+                  className={styles.productThumb}
+                />
+              </div>
+              <div className={styles.productInfo}>
+                <h4 className={styles.productTitle}>{productToDelete.title}</h4>
+                <p className={styles.productBrand}>{productToDelete.brand} &bull; {productToDelete.price}</p>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button className={styles.cancelBtn} onClick={() => setProductToDelete(null)}>
+                Cancel
+              </button>
+              <button className={styles.confirmDeleteBtn} onClick={executeDelete}>
+                Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
