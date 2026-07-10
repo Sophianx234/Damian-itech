@@ -15,27 +15,47 @@
   border: 1px solid var(--border-primary);
   padding: 24px;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-primary);
+  border-radius: 10%;
+  background-color: var(--bg-primary);
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+  font-family: 'Poppins', sans-serif;
+}
+
 .statLabel {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0;
-}
-
-.statValue {
-  font-size: 40px;
-  font-weight: 300;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1;
-  font-family: 'Poppins', sans-serif;
 }
 
 .chartsGrid {

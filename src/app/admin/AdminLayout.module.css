@@ -20,12 +20,35 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+.logoContainer {
+  padding: 0 32px 15px 32px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.logoIcon {
+  display: block;
+}
+
+.logoLight {
+  display: block;
+}
+.logoDark {
+  display: none;
+}
+
+:global([data-theme="dark"]) .logoLight {
+  display: none;
+}
+:global([data-theme="dark"]) .logoDark {
+  display: block;
+}
+
 .nav {
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 0;
-  margin-top: 48px;
+  margin-top: 24px;
 }
 
 .navItem {

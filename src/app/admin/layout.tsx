@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -64,6 +65,29 @@ export default function AdminLayout({
     <div className={styles.adminLayout}>
       {/* Sidebar */}
       <aside className={styles.sidebar}>
+        <div className={styles.logoContainer}>
+          <Link href="/admin">
+            <Image
+              src="/imgs/logo-1.png"
+              alt="Damian iTech Logo"
+              width={160}
+              height={40}
+              className={`${styles.logoIcon} ${styles.logoLight}`}
+              style={{ objectFit: "contain", width: "auto", height: "32px" }}
+              priority
+            />
+            <Image
+              src="/imgs/logo-3.png"
+              alt="Damian iTech Logo Dark"
+              width={160}
+              height={40}
+              className={`${styles.logoIcon} ${styles.logoDark}`}
+              style={{ objectFit: "contain", width: "auto", height: "32px" }}
+              priority
+            />
+          </Link>
+        </div>
+
         <nav className={styles.nav}>
           {navItems.map((item) => {
             const Icon = item.icon;
