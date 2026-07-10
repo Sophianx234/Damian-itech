@@ -123,6 +123,11 @@
   border-bottom: 1px solid var(--border-primary);
 }
 
+.actionsHeader {
+  text-align: right;
+  width: 100px;
+}
+
 .table td {
   padding: 16px 24px;
   border-bottom: 1px solid #1a1a1a; /* Enforcing 1px solid #1a1a1a specifically as requested */
@@ -176,6 +181,39 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
 .detailsCell {
   font-size: 14px;
   color: var(--text-primary);
+  display: block;
+}
+
+.specsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.swapBadge {
+  font-size: 11px;
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.specsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.specItem {
+  font-size: 11px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .priceInput {
@@ -223,6 +261,79 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
   opacity: 0.6;
 }
 
+/* Actions Column CSS (Vertical Dots Dropdown) */
+.actionMenuWrapper {
+  position: relative;
+  display: inline-block;
+  text-align: right;
+  width: 100%;
+}
+
+.actionMenuTrigger {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionMenuTrigger:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.actionMenuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 4px;
+  min-width: 160px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actionMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  text-align: left;
+  font-family: inherit;
+}
+
+.actionMenuItem:hover {
+  background-color: var(--bg-primary);
+}
+
+.actionMenuItemDanger {
+  color: #ef4444;
+}
+
+.actionMenuItemDanger:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
 /* Custom Status Dropdown CSS */
 .customSelectWrapper {
   position: relative;
@@ -263,4 +374,11 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
 
 .customSelectOption:hover {
   background-color: var(--bg-primary);
+}
+
+.dropdownUp {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
 }

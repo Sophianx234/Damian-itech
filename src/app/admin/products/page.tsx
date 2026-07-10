@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Plus, ChevronDown } from "lucide-react";
+import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical } from "lucide-react";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
@@ -13,7 +13,13 @@ interface Product {
   title: string;
   brand: string;
   category: string;
-  condition: string;
+  productType: "Store" | "Used";
+  condition?: string;
+  isSwappable: boolean;
+  batteryHealth?: number;
+  ram?: string;
+  storage?: string;
+  customSpecs?: { key: string; value: string }[];
   price: string;
   status: ProductStatus;
   image: string;
@@ -24,8 +30,11 @@ const initialProducts: Product[] = [
     id: "PROD-001",
     title: "iPhone 15 Pro Max",
     brand: "Apple",
-    category: "Phones",
+    category: "Phone",
+    productType: "Used",
     condition: "Pristine",
+    isSwappable: false,
+    batteryHealth: 98,
     price: "$1,199.00",
     status: "Active",
     image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
@@ -34,8 +43,9 @@ const initialProducts: Product[] = [
     id: "PROD-002",
     title: "Galaxy S24 Ultra",
     brand: "Samsung",
-    category: "Phones",
-    condition: "Excellent",
+    category: "Phone",
+    productType: "Store",
+    isSwappable: true,
     price: "$1,099.00",
     status: "Reserved",
     image: "https://images.unsplash.com/photo-1707164998811-13c5fb368db5?w=100&h=100&fit=crop",
@@ -44,8 +54,12 @@ const initialProducts: Product[] = [
     id: "PROD-003",
     title: "MacBook Pro 16\"",
     brand: "Apple",
-    category: "Laptops",
+    category: "Laptop",
+    productType: "Used",
     condition: "Good",
+    isSwappable: true,
+    ram: "16GB",
+    storage: "512GB SSD",
     price: "$2,499.00",
     status: "Sold",
     image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&h=100&fit=crop",
@@ -55,7 +69,9 @@ const initialProducts: Product[] = [
     title: "AirPods Pro (2nd Gen)",
     brand: "Apple",
     category: "Audio",
-    condition: "Pristine",
+    productType: "Store",
+    isSwappable: false,
+    customSpecs: [{ key: "Color", value: "White" }],
     price: "$249.00",
     status: "Active",
     image: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=100&h=100&fit=crop",
@@ -67,6 +83,8 @@ export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
+  const [productTypeFilter, setProductTypeFilter] = useState("");
+  const [swappableFilter, setSwappableFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
   const filteredProducts = products.filter((p) => {
@@ -74,14 +92,18 @@ export default function AdminProductsPage() {
                           p.brand.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter ? p.category === categoryFilter : true;
     const matchesCondition = conditionFilter ? p.condition === conditionFilter : true;
+    const matchesProductType = productTypeFilter ? p.productType === productTypeFilter : true;
+    const matchesSwappable = swappableFilter ? (swappableFilter === "Yes" ? p.isSwappable : !p.isSwappable) : true;
     const matchesStatus = statusFilter ? p.status === statusFilter : true;
-    return matchesSearch && matchesCategory && matchesCondition && matchesStatus;
+    return matchesSearch && matchesCategory && matchesCondition && matchesProductType && matchesSwappable && matchesStatus;
   });
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setCategoryFilter("");
     setConditionFilter("");
+    setProductTypeFilter("");
+    setSwappableFilter("");
     setStatusFilter("");
   };
 
@@ -108,6 +130,22 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    // Optimistic UI update
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    // Simulate API call
+    try {
+      // await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      console.log(`Product ${id} deleted`);
+    } catch (err) {
+      console.error("Failed to delete", err);
+    }
+  };
+
   return (
     <div className={styles.pageContainer}>
       {/* Top Action Bar */}
@@ -131,15 +169,28 @@ export default function AdminProductsPage() {
       <div className={styles.filterRow}>
         <select className={styles.filterSelect} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
           <option value="">Category</option>
-          <option value="Phones">Phones</option>
-          <option value="Laptops">Laptops</option>
+          <option value="Phone">Phone</option>
+          <option value="Laptop">Laptop</option>
+          <option value="Console">Console</option>
           <option value="Audio">Audio</option>
+        </select>
+        <select className={styles.filterSelect} value={productTypeFilter} onChange={(e) => setProductTypeFilter(e.target.value)}>
+          <option value="">Type</option>
+          <option value="Store">Store</option>
+          <option value="Used">Used</option>
         </select>
         <select className={styles.filterSelect} value={conditionFilter} onChange={(e) => setConditionFilter(e.target.value)}>
           <option value="">Condition</option>
           <option value="Pristine">Pristine</option>
           <option value="Excellent">Excellent</option>
           <option value="Good">Good</option>
+          <option value="Open Box">Open Box</option>
+          <option value="UK Used">UK Used</option>
+        </select>
+        <select className={styles.filterSelect} value={swappableFilter} onChange={(e) => setSwappableFilter(e.target.value)}>
+          <option value="">Swap</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
         </select>
         <select className={styles.filterSelect} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">Status</option>
@@ -147,7 +198,7 @@ export default function AdminProductsPage() {
           <option value="Reserved">Reserved</option>
           <option value="Sold">Sold</option>
         </select>
-        {(categoryFilter || conditionFilter || statusFilter || searchQuery) && (
+        {(categoryFilter || conditionFilter || productTypeFilter || swappableFilter || statusFilter || searchQuery) && (
           <button className={styles.resetButton} onClick={handleResetFilters}>
             Reset Filters
           </button>
@@ -163,10 +214,12 @@ export default function AdminProductsPage() {
               <th>Details</th>
               <th>Price</th>
               <th>Status</th>
+              <th className={styles.actionsHeader}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product) => {
+            {filteredProducts.map((product, index) => {
+              const isLast = index >= filteredProducts.length - 2;
               // Determine status class
               let statusClass = styles.statusActive;
               if (product.status === "Reserved") statusClass = styles.statusReserved;
@@ -193,9 +246,25 @@ export default function AdminProductsPage() {
 
                   {/* Details Column */}
                   <td>
-                    <span className={styles.detailsCell}>
-                      {product.category} &bull; {product.condition}
-                    </span>
+                    <div className={styles.specsWrapper}>
+                      <span className={styles.detailsCell}>
+                        {product.category} &bull; {product.productType}
+                        {product.condition && ` (${product.condition})`}
+                      </span>
+                      {product.isSwappable && (
+                        <span className={styles.swapBadge}>Swappable</span>
+                      )}
+                      
+                      {/* Specs */}
+                      <div className={styles.specsList}>
+                        {product.batteryHealth && <span className={styles.specItem}>Battery: {product.batteryHealth}%</span>}
+                        {product.ram && <span className={styles.specItem}>RAM: {product.ram}</span>}
+                        {product.storage && <span className={styles.specItem}>Storage: {product.storage}</span>}
+                        {product.customSpecs?.map((spec, i) => (
+                          <span key={i} className={styles.specItem}>{spec.key}: {spec.value}</span>
+                        ))}
+                      </div>
+                    </div>
                   </td>
 
                   {/* Price Column */}
@@ -219,6 +288,17 @@ export default function AdminProductsPage() {
                       value={product.status} 
                       onChange={(newVal) => handleUpdate(product.id, { status: newVal })} 
                       styles={styles} 
+                      isLast={isLast}
+                    />
+                  </td>
+
+                  {/* Actions Column */}
+                  <td>
+                    <ActionDropdown 
+                      productId={product.id} 
+                      handleDelete={handleDelete} 
+                      styles={styles} 
+                      isLast={isLast}
                     />
                   </td>
                 </tr>
@@ -231,15 +311,28 @@ export default function AdminProductsPage() {
   );
 }
 
-const StatusDropdown = ({ value, onChange, styles }: { value: ProductStatus, onChange: (val: ProductStatus) => void, styles: any }) => {
+const StatusDropdown = ({ value, onChange, styles, isLast }: { value: ProductStatus, onChange: (val: ProductStatus) => void, styles: any, isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
   
   let statusClass = styles.statusActive;
   if (value === "Reserved") statusClass = styles.statusReserved;
   if (value === "Sold") statusClass = styles.statusSold;
 
   return (
-    <div className={styles.customSelectWrapper} onMouseLeave={() => setIsOpen(false)}>
+    <div className={styles.customSelectWrapper} ref={wrapperRef}>
       <div 
         className={`${styles.customSelectTrigger} ${statusClass}`} 
         onClick={() => setIsOpen(!isOpen)}
@@ -248,16 +341,13 @@ const StatusDropdown = ({ value, onChange, styles }: { value: ProductStatus, onC
         <ChevronDown size={14} className={styles.customSelectIcon} />
       </div>
       {isOpen && (
-        <div className={styles.customSelectMenu}>
+        <div className={`${styles.customSelectMenu} ${isLast ? styles.dropdownUp : ""}`}>
           {(["Active", "Reserved", "Sold"] as ProductStatus[]).map((status) => {
-            let optionClass = styles.statusActive;
-            if (status === "Reserved") optionClass = styles.statusReserved;
-            if (status === "Sold") optionClass = styles.statusSold;
-            
+            const isSelected = status === value;
             return (
-              <div
-                key={status}
-                className={`${styles.customSelectOption} ${optionClass}`}
+              <div 
+                key={status} 
+                className={`${styles.customSelectOption} ${isSelected ? styles.customSelectOptionSelected : ""}`} 
                 onClick={() => {
                   onChange(status);
                   setIsOpen(false);
@@ -271,4 +361,49 @@ const StatusDropdown = ({ value, onChange, styles }: { value: ProductStatus, onC
       )}
     </div>
   );
-}
+};
+
+const ActionDropdown = ({ productId, handleDelete, styles, isLast }: { productId: string, handleDelete: (id: string) => void, styles: any, isLast?: boolean }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div className={styles.actionMenuWrapper} ref={wrapperRef}>
+      <button 
+        className={styles.actionMenuTrigger} 
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="More actions"
+      >
+        <MoreVertical size={16} />
+      </button>
+      {isOpen && (
+        <div className={`${styles.actionMenuDropdown} ${isLast ? styles.dropdownUp : ""}`}>
+          <Link href={`/admin/products/edit/${productId}`} className={styles.actionMenuItem}>
+            <Edit2 size={14} /> Edit Product
+          </Link>
+          <button 
+            onClick={() => {
+              handleDelete(productId);
+              setIsOpen(false);
+            }} 
+            className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
+          >
+            <Trash2 size={14} /> Delete Product
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
