@@ -18,7 +18,6 @@ import {
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import styles from "./Signup.module.css";
-import { signupStep1, signupStep2, signupStep3 } from "@/actions/authActions";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -114,14 +113,20 @@ export default function SignupPage() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await signupStep1({
-      fullName: formData.fullName,
-      phone: formData.phone,
-    });
-    if (res.success) {
-      setStep(2);
-    } else {
-      setApiError(res.error || "Something went wrong.");
+    try {
+      const response = await fetch("/api/auth/signup/step1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName: formData.fullName, phone: formData.phone }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        setStep(2);
+      } else {
+        setApiError(res.error || "Something went wrong.");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
     setIsSubmitting(false);
   };
@@ -131,11 +136,20 @@ export default function SignupPage() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await signupStep2({ phone: formData.phone, otp: formData.otp });
-    if (res.success) {
-      setStep(3);
-    } else {
-      setApiError(res.error || "Something went wrong.");
+    try {
+      const response = await fetch("/api/auth/signup/step2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone, otp: formData.otp }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        setStep(3);
+      } else {
+        setApiError(res.error || "Something went wrong.");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
     setIsSubmitting(false);
   };
@@ -150,16 +164,21 @@ export default function SignupPage() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await signupStep3({
-      phone: formData.phone,
-      password: formData.password,
-    });
-    if (res.success) {
-      localStorage.setItem("Damian iTechUser", JSON.stringify(res.user));
-      alert("Account created successfully! Redirecting to home...");
-      router.push("/");
-    } else {
-      setApiError(res.error || "Something went wrong.");
+    try {
+      const response = await fetch("/api/auth/signup/step3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone, password: formData.password }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        alert("Account created successfully! Redirecting to home...");
+        router.push("/");
+      } else {
+        setApiError(res.error || "Something went wrong.");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
     setIsSubmitting(false);
   };
