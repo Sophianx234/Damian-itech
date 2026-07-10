@@ -8,10 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Phone, Sun, Moon, CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./ForgotPassword.module.css";
-import {
-  forgotPasswordStep1,
-  forgotPasswordStep2,
-} from "@/actions/authActions";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -100,11 +96,20 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await forgotPasswordStep1({ phone: formData.phone });
-    if (res.success) {
-      setStep(2);
-    } else {
-      setApiError(res.error || "Failed to send reset code");
+    try {
+      const response = await fetch("/api/auth/forgot-password/step1", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        setStep(2);
+      } else {
+        setApiError(res.error || "Failed to send reset code");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
     setIsSubmitting(false);
   };
@@ -116,16 +121,22 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await forgotPasswordStep2({
-      phone: formData.phone,
-      otp: formData.otp,
-    });
-    if (res.success) {
-      router.push(
-        `/reset-password?phone=${encodeURIComponent(formData.phone)}&otp=${encodeURIComponent(formData.otp)}`,
-      );
-    } else {
-      setApiError(res.error || "Invalid verification code");
+    try {
+      const response = await fetch("/api/auth/forgot-password/step2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone, otp: formData.otp }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        router.push(
+          `/reset-password?phone=${encodeURIComponent(formData.phone)}&otp=${encodeURIComponent(formData.otp)}`,
+        );
+      } else {
+        setApiError(res.error || "Invalid verification code");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
     setIsSubmitting(false);
   };

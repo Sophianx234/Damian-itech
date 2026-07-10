@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import { Loader2, Lock, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./ResetPassword.module.css";
-import { resetPasswordAction } from "@/actions/authActions";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -66,18 +65,25 @@ function ResetPasswordForm() {
     setIsSubmitting(true);
     setApiError(null);
 
-    const res = await resetPasswordAction({
-      phone: phoneParam,
-      otp: otpParam,
-      password: formData.password,
-    });
-
-    if (res.success) {
-      localStorage.setItem("Damian iTechUser", JSON.stringify(res.user));
-      alert("Password reset successfully! Redirecting to home...");
-      router.push("/");
-    } else {
-      setApiError(res.error || "Failed to reset password");
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phoneParam,
+          otp: otpParam,
+          password: formData.password,
+        }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        alert("Password reset successfully! Redirecting to home...");
+        router.push("/");
+      } else {
+        setApiError(res.error || "Failed to reset password");
+      }
+    } catch (error) {
+      setApiError("Internal server error");
     }
 
     setIsSubmitting(false);
