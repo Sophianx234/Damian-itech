@@ -1,7 +1,5 @@
 .pageContainer {
-  max-width: 800px;
   margin: 0 auto;
-  padding: 32px 16px 80px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -89,7 +87,8 @@
 }
 
 .input,
-.select {
+.select,
+.textarea {
   width: 100%;
   background-color: var(--bg-primary);
   border: 1px solid var(--border-primary);
@@ -103,7 +102,8 @@
 }
 
 .input:focus,
-.select:focus {
+.select:focus,
+.textarea:focus {
   border-color: var(--primary-color);
 }
 
@@ -113,6 +113,11 @@
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%23737373%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .row {
@@ -169,6 +174,59 @@
   font-weight: 500;
   color: var(--text-primary);
   cursor: pointer;
+}
+
+.customSpecsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.customSpecRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  gap: 16px;
+  align-items: center;
+}
+
+.removeSpecBtn {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.removeSpecBtn:hover {
+  background-color: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.addSpecBtn {
+  background: transparent;
+  border: 1px dashed var(--border-primary);
+  color: var(--text-muted);
+  padding: 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.addSpecBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .dropzone {
@@ -261,6 +319,8 @@
   border: none;
   border-radius: 6px;
   padding: 14px 32px;
+  display: flex;
+  gap:4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;

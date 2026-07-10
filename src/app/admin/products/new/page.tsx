@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, UploadCloud, X } from "lucide-react";
+import { ArrowLeft, Loader2, UploadCloud, X } from "lucide-react";
 import styles from "./NewProduct.module.css";
 
 function slugify(text: string) {
@@ -22,6 +22,7 @@ export default function NewProductPage() {
   const [productType, setProductType] = useState<"Store" | "Used">("Store");
   const [isSwappable, setIsSwappable] = useState(false);
   const [images, setImages] = useState<File[]>([]);
+  const [customSpecs, setCustomSpecs] = useState<{ key: string; value: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +41,22 @@ export default function NewProductPage() {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const addCustomSpec = () => {
+    setCustomSpecs(prev => [...prev, { key: "", value: "" }]);
+  };
+
+  const updateCustomSpec = (index: number, field: "key" | "value", newValue: string) => {
+    setCustomSpecs(prev => {
+      const updated = [...prev];
+      updated[index][field] = newValue;
+      return updated;
+    });
+  };
+
+  const removeCustomSpec = (index: number) => {
+    setCustomSpecs(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -47,22 +64,46 @@ export default function NewProductPage() {
     const title = (form.elements.namedItem("title") as HTMLInputElement).value;
     const slug = slugify(title);
 
-    const formData = new FormData(form);
-    formData.append("slug", slug);
-    formData.append("isSwappable", String(isSwappable));
-
-    images.forEach((file, index) => {
-      formData.append(`image_${index}`, file);
-    });
-
     try {
+      // 1. Fetch Cloudinary Signature
+      const signRes = await fetch("/api/cloudinary/sign");
+      if (!signRes.ok) throw new Error("Failed to get upload signature");
+      const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
+
+      // 2. Upload Images to Cloudinary client-side
+      const uploadedImageUrls: string[] = [];
+      for (const file of images) {
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+        uploadData.append("api_key", apiKey);
+        uploadData.append("timestamp", timestamp);
+        uploadData.append("signature", signature);
+        uploadData.append("folder", folder);
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: uploadData,
+        });
+        
+        if (!uploadRes.ok) throw new Error("Failed to upload image");
+        const cloudinaryData = await uploadRes.json();
+        uploadedImageUrls.push(cloudinaryData.secure_url);
+      }
+
+      // 3. Pass data to Backend API
+      const formData = new FormData(form);
+      formData.append("slug", slug);
+      formData.append("isSwappable", String(isSwappable));
+      formData.append("customSpecs", JSON.stringify(customSpecs));
+      formData.append("imageUrls", JSON.stringify(uploadedImageUrls));
+
       const res = await fetch("/api/products", {
         method: "POST",
         body: formData,
       });
 
       if (!res.ok) {
-        throw new Error("Failed to create product");
+        throw new Error("Failed to save product to database");
       }
 
       router.push("/admin/products");
@@ -97,22 +138,32 @@ export default function NewProductPage() {
           <div className={styles.row}>
             <div className={styles.formGroup}>
               <label htmlFor="price" className={styles.label}>Price</label>
-              <input type="text" id="price" name="price" required className={styles.input} placeholder="e.g. $1,199.00" />
+              <input type="number" id="price" name="price" required className={styles.input} placeholder="e.g. 1199" />
             </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="stock" className={styles.label}>Stock Quantity</label>
+              <input type="number" id="stock" name="stock" required className={styles.input} placeholder="e.g. 5" defaultValue={1} min={0} />
+            </div>
+          </div>
+          <div className={styles.row}>
             <div className={styles.formGroup}>
               <label htmlFor="brand" className={styles.label}>Brand</label>
               <input type="text" id="brand" name="brand" required className={styles.input} placeholder="e.g. Apple" />
             </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="category" className={styles.label}>Category</label>
+              <select id="category" name="category" required className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="" disabled>Select Category</option>
+                <option value="Phone">Phone</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Console">Console</option>
+                <option value="Audio">Audio</option>
+              </select>
+            </div>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="category" className={styles.label}>Category</label>
-            <select id="category" name="category" required className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="" disabled>Select Category</option>
-              <option value="Phone">Phone</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Console">Console</option>
-              <option value="Audio">Audio</option>
-            </select>
+            <label htmlFor="description" className={styles.label}>Description</label>
+            <textarea id="description" name="description" required className={styles.textarea} placeholder="Detailed product description..." rows={4}></textarea>
           </div>
         </div>
 
@@ -132,7 +183,7 @@ export default function NewProductPage() {
               </label>
               <label className={styles.radioLabel}>
                 <input type="radio" name="productType" value="Used" checked={productType === "Used"} onChange={() => setProductType("Used")} className={styles.radioInput} />
-                Used Market
+                Used (Market)
               </label>
             </div>
           </div>
@@ -193,6 +244,50 @@ export default function NewProductPage() {
             {category !== "Phone" && category !== "Laptop" && (
               <p className={styles.sectionSubtitle}>No additional technical specifications required for {category}.</p>
             )}
+
+            {/* Custom Specifications */}
+            <div className={styles.customSpecsContainer}>
+              {customSpecs.map((spec, index) => (
+                <div key={index} className={styles.customSpecRow}>
+                  <div className={styles.formGroup}>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Color" 
+                      className={styles.input} 
+                      value={spec.key}
+                      onChange={(e) => updateCustomSpec(index, "key", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Space Black" 
+                      className={styles.input} 
+                      value={spec.value}
+                      onChange={(e) => updateCustomSpec(index, "value", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button 
+                    type="button" 
+                    className={styles.removeSpecBtn} 
+                    onClick={() => removeCustomSpec(index)}
+                    aria-label="Remove specification"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              
+              <button 
+                type="button" 
+                className={styles.addSpecBtn} 
+                onClick={addCustomSpec}
+              >
+                + Add Custom Specification
+              </button>
+            </div>
           </div>
         )}
 
@@ -247,7 +342,8 @@ export default function NewProductPage() {
 
         <div className={styles.submitActionRow}>
           <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Save Product"}
+            {isSubmitting && <Loader2 className="animate-spin" size={20}  />}
+            {isSubmitting ? "Creating..." : "Create Product"}
           </button>
         </div>
       </form>
