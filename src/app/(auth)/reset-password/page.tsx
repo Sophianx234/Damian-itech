@@ -1,25 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Loader2, Lock, Eye, EyeOff, Sun, Moon, KeyRound } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import styles from './ResetPassword.module.css';
+import React, { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { Loader2, Lock, Eye, EyeOff, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import styles from "./ResetPassword.module.css";
+import { resetPasswordAction } from "@/actions/authActions";
 
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const phoneParam = searchParams.get('phone') || '';
+  const phoneParam = searchParams.get("phone") || "";
+  const otpParam = searchParams.get("otp") || "";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    otp: '',
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
 
   const carouselImages = [
@@ -42,9 +43,9 @@ function ResetPasswordForm() {
   }, [carouselImages.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -55,43 +56,36 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (!phoneParam) {
-      setApiError("Phone number is missing. Please restart the password reset process.");
+    if (!phoneParam || !otpParam) {
+      setApiError(
+        "Authorization token is missing. Please restart the password reset process.",
+      );
       return;
     }
 
     setIsSubmitting(true);
     setApiError(null);
 
-    try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          phone: phoneParam,
-          otp: formData.otp,
-          password: formData.password
-        })
-      });
+    const res = await resetPasswordAction({
+      phone: phoneParam,
+      otp: otpParam,
+      password: formData.password,
+    });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to reset password');
-      }
-
-      alert('Password updated successfully!');
-      router.push('/login');
-    } catch (err: any) {
-      setApiError(err.message);
-    } finally {
-      setIsSubmitting(false);
+    if (res.success) {
+      localStorage.setItem("Damian iTechUser", JSON.stringify(res.user));
+      alert("Password reset successfully! Redirecting to home...");
+      router.push("/");
+    } else {
+      setApiError(res.error || "Failed to reset password");
     }
+
+    setIsSubmitting(false);
   };
 
   return (
     <main className={styles.authContainer}>
-      <motion.div 
+      <motion.div
         className={styles.splitWrapper}
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -100,21 +94,21 @@ function ResetPasswordForm() {
         {/* Left: Form Section */}
         <div className={styles.formSection}>
           <Link href="/" className={styles.logoWrapper}>
-            <Image 
-              src="/imgs/logo-1.png" 
-              alt="TechNest Logo" 
-              width={160} 
-              height={48} 
-              className={`${styles.logoIcon} ${styles.logoLight}`} 
+            <Image
+              src="/imgs/logo-1.png"
+              alt="Damian iTech Logo"
+              width={160}
+              height={48}
+              className={`${styles.logoIcon} ${styles.logoLight}`}
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
-            <Image 
-              src="/imgs/logo-3.png" 
-              alt="TechNest Logo Dark" 
-              width={160} 
-              height={48} 
-              className={`${styles.logoIcon} ${styles.logoDark}`} 
+            <Image
+              src="/imgs/logo-3.png"
+              alt="Damian iTech Logo Dark"
+              width={160}
+              height={48}
+              className={`${styles.logoIcon} ${styles.logoDark}`}
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
@@ -122,44 +116,35 @@ function ResetPasswordForm() {
 
           <div className={styles.header}>
             <h1 className={styles.title}>Reset Password</h1>
-            <p className={styles.subtitle}>Enter the 6-digit code sent to your phone and your new password.</p>
+            <p className={styles.subtitle}>
+              Your number is verified. Now create a secure new password.
+            </p>
           </div>
 
-          <form className={styles.form} onSubmit={handleSubmit} style={{ marginTop: '24px' }}>
+          <form
+            className={styles.form}
+            onSubmit={handleSubmit}
+            style={{ marginTop: "24px" }}
+          >
             <div className={styles.inputGroup}>
-              <label htmlFor="otp" className={styles.label}>Verification Code</label>
-              <div className={styles.inputWrapper}>
-                <KeyRound className={styles.inputIcon} size={18} />
-                <input 
-                  type="text" 
-                  id="otp"
-                  name="otp"
-                  required
-                  maxLength={6}
-                  className={`${styles.input} ${styles.inputWithIcon}`}
-                  placeholder="Enter 6-digit code"
-                  value={formData.otp}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label htmlFor="password" className={styles.label}>New Password</label>
+              <label htmlFor="password" className={styles.label}>
+                New Password
+              </label>
               <div className={styles.inputWrapper}>
                 <Lock className={styles.inputIcon} size={18} />
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   required
+                  minLength={6}
                   className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
                   placeholder="Enter new password"
                   value={formData.password}
                   onChange={handleChange}
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={styles.passwordToggle}
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -169,37 +154,48 @@ function ResetPasswordForm() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label htmlFor="confirmPassword" className={styles.label}>Confirm Password</label>
+              <label htmlFor="confirmPassword" className={styles.label}>
+                Confirm Password
+              </label>
               <div className={styles.inputWrapper}>
                 <Lock className={styles.inputIcon} size={18} />
-                <input 
-                  type={showConfirmPassword ? "text" : "password"} 
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword"
                   required
+                  minLength={6}
                   className={`${styles.input} ${styles.inputWithIcon} ${styles.inputWithRightIcon}`}
                   placeholder="Confirm new password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={styles.passwordToggle}
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.submitBtn}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <div className={styles.btnContent}>
-                  <Loader2 className="animate-spin" size={20} />
+                  <Loader2
+                    className="animate-spin"
+                    size={20}
+                    style={{ marginRight: "8px", display: "inline-block" }}
+                  />
                   Updating Password...
                 </div>
               ) : (
@@ -207,14 +203,14 @@ function ResetPasswordForm() {
               )}
             </button>
 
-            {apiError && (
-              <div className={styles.errorMessage}>{apiError}</div>
-            )}
+            {apiError && <div className={styles.errorMessage}>{apiError}</div>}
           </form>
 
-          <div className={styles.footer}>
-            Remembered your password? 
-            <Link href="/login" className={styles.link}>Log in</Link>
+          <div className={styles.footer} style={{ marginTop: "24px" }}>
+            Remembered your password?
+            <Link href="/login" className={styles.link}>
+              Log in
+            </Link>
           </div>
         </div>
 
@@ -233,22 +229,22 @@ function ResetPasswordForm() {
             ))}
           </div>
           <div className={styles.infoBgGradient} />
-          
-          <button 
-            className={styles.themeToggle} 
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+
+          <button
+            className={styles.themeToggle}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="Toggle Theme"
           >
-            {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
+            {mounted &&
+              (theme === "dark" ? <Sun size={24} /> : <Moon size={24} />)}
           </button>
-          
-          
+
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
-                className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ''}`}
+                className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ""}`}
                 onClick={() => setActiveImage(idx)}
                 aria-label={`Go to image ${idx + 1}`}
               />
@@ -262,7 +258,20 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loader2 className="animate-spin" size={40} /></div>}>
+    <Suspense
+      fallback={
+        <div
+          style={{
+            height: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Loader2 className="animate-spin" size={40} />
+        </div>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   );

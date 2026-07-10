@@ -1,25 +1,24 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { Eye, EyeOff, Loader2, Lock, Moon, Phone, Sun } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import Image from 'next/image';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import styles from './Login.module.css';
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Loader2, Lock, Moon, Phone, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./Login.module.css";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    phone: '',
-    password: ''
+    phone: "",
+    password: "",
   });
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const carouselImages = [
-    "/imgs/person-11.jpg",
-    "/imgs/person-13.jpg",
-  ];
+  const carouselImages = ["/imgs/person-11.jpg", "/imgs/person-13.jpg"];
   const [activeImage, setActiveImage] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -34,9 +33,9 @@ export default function LoginPage() {
   }, [carouselImages.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -46,9 +45,9 @@ export default function LoginPage() {
     setApiError(null);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: formData.phone,
           password: formData.password,
@@ -58,13 +57,13 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to log in');
+        throw new Error(data.error || "Failed to log in");
       }
 
       // Store the user session in localStorage
-      localStorage.setItem('techNestUser', JSON.stringify(data.user));
+      localStorage.setItem("Damian iTechUser", JSON.stringify(data.user));
 
-      window.location.href = '/'; // Change to your desired dashboard route later
+      router.push("/"); // Change to your desired dashboard route later
     } catch (err: any) {
       setApiError(err.message);
     } finally {
@@ -74,7 +73,7 @@ export default function LoginPage() {
 
   return (
     <main className={styles.authContainer}>
-      <motion.div 
+      <motion.div
         className={styles.splitWrapper}
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -83,21 +82,21 @@ export default function LoginPage() {
         {/* Left: Form Section */}
         <div className={styles.formSection}>
           <Link href="/" className={styles.logoWrapper}>
-            <Image 
-              src="/imgs/logo-1.png" 
-              alt="TechNest Logo" 
-              width={160} 
-              height={48} 
-              className={`${styles.logoIcon} ${styles.logoLight}`} 
+            <Image
+              src="/imgs/logo-1.png"
+              alt="Damian iTech Logo"
+              width={160}
+              height={48}
+              className={`${styles.logoIcon} ${styles.logoLight}`}
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
-            <Image 
-              src="/imgs/logo-3.png" 
-              alt="TechNest Logo Dark" 
-              width={160} 
-              height={48} 
-              className={`${styles.logoIcon} ${styles.logoDark}`} 
+            <Image
+              src="/imgs/logo-3.png"
+              alt="Damian iTech Logo Dark"
+              width={160}
+              height={48}
+              className={`${styles.logoIcon} ${styles.logoDark}`}
               style={{ objectFit: "contain", width: "auto", height: "40px" }}
               priority
             />
@@ -105,17 +104,20 @@ export default function LoginPage() {
 
           <div className={styles.header}>
             <h1 className={styles.title}>Log In to Your Account</h1>
-            <p className={styles.subtitle}>Enter your phone number and password to access your account.</p>
+            <p className={styles.subtitle}>
+              Enter your phone number and password to access your account.
+            </p>
           </div>
 
-          
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label htmlFor="phone" className={styles.label}>Phone Number</label>
+              <label htmlFor="phone" className={styles.label}>
+                Phone Number
+              </label>
               <div className={styles.inputWrapper}>
                 <Phone className={styles.inputIcon} size={18} />
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   id="phone"
                   name="phone"
                   required
@@ -129,13 +131,17 @@ export default function LoginPage() {
 
             <div className={styles.inputGroup}>
               <div className={styles.labelRow}>
-                <label htmlFor="password" className={styles.label}>Password</label>
-                <Link href="/forgot-password" className={styles.forgotPassword}>Forgot Password?</Link>
+                <label htmlFor="password" className={styles.label}>
+                  Password
+                </label>
+                <Link href="/forgot-password" className={styles.forgotPassword}>
+                  Forgot Password?
+                </Link>
               </div>
               <div className={styles.inputWrapper}>
                 <Lock className={styles.inputIcon} size={18} />
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   required
@@ -144,8 +150,8 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                 />
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={styles.passwordToggle}
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -154,8 +160,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.submitBtn}
               disabled={isSubmitting}
             >
@@ -169,14 +175,14 @@ export default function LoginPage() {
               )}
             </button>
 
-            {apiError && (
-              <div className={styles.errorMessage}>{apiError}</div>
-            )}
+            {apiError && <div className={styles.errorMessage}>{apiError}</div>}
           </form>
 
           <div className={styles.footer}>
-            Don't have an account? 
-            <Link href="/signup" className={styles.link}>Sign up</Link>
+            Don't have an account?
+            <Link href="/signup" className={styles.link}>
+              Sign up
+            </Link>
           </div>
         </div>
 
@@ -196,21 +202,21 @@ export default function LoginPage() {
           </div>
           <div className={styles.infoBgGradient} />
 
-          <button 
-            className={styles.themeToggle} 
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          <button
+            className={styles.themeToggle}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label="Toggle Theme"
           >
-            {mounted && (theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />)}
+            {mounted &&
+              (theme === "dark" ? <Sun size={24} /> : <Moon size={24} />)}
           </button>
-          
-          
+
           <div className={styles.dots}>
             {carouselImages.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
-                className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ''}`}
+                className={`${styles.dot} ${idx === activeImage ? styles.dotActive : ""}`}
                 onClick={() => setActiveImage(idx)}
                 aria-label={`Go to image ${idx + 1}`}
               />
