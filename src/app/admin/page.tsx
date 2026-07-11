@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import styles from "./AdminDashboard.module.css";
 
-const INVENTORY_COLORS = ['#ffffff', '#8B5CF6'];
+const INVENTORY_COLORS = ['var(--primary-color)', 'var(--text-primary)'];
 
 export default function DashboardMainContent() {
   const [data, setData] = useState<any>(null);
@@ -50,7 +50,7 @@ export default function DashboardMainContent() {
   if (loading) {
     return (
       <div className={styles.loaderContainer}>
-        <Loader2 className="animate-spin" size={48} color="#ffffff" />
+        <Loader2 className="animate-spin" size={48} style={{ color: "var(--primary-color)" }} />
       </div>
     );
   }
@@ -133,15 +133,15 @@ export default function DashboardMainContent() {
             {salesData.length > 0 ? (
               <ResponsiveContainer>
                 <BarChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a1a1a" />
-                  <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary)" />
+                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
                   <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#000000', borderColor: '#1a1a1a', color: '#ffffff' }}
-                    itemStyle={{ color: '#ffffff' }}
-                    cursor={{ fill: '#1a1a1a' }}
+                    contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    itemStyle={{ color: 'var(--text-primary)' }}
+                    cursor={{ fill: 'var(--border-primary)' }}
                   />
-                  <Bar dataKey="total" fill="#ffffff" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="total" fill="var(--primary-color)" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -173,10 +173,10 @@ export default function DashboardMainContent() {
                     ))}
                   </Pie>
                   <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#000000', borderColor: '#1a1a1a', color: '#ffffff' }}
-                    itemStyle={{ color: '#ffffff' }}
+                    contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
+                    itemStyle={{ color: 'var(--text-primary)' }}
                   />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px', color: '#a1a1aa' }}/>
+                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px', color: 'var(--text-muted)' }}/>
                 </PieChart>
               </ResponsiveContainer>
             ) : (
