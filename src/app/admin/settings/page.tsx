@@ -8,15 +8,42 @@ type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "se
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
-  const [user, setUser] = useState<{ fullName: string; email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ _id: string; fullName: string; email: string; role: string; phone: string } | null>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   
-  // Shipping settings state
-  const [isLocalPickupEnabled, setIsLocalPickupEnabled] = useState(true);
-  const [isDeliveryEnabled, setIsDeliveryEnabled] = useState(true);
-  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true, teamMembers: true, security: true });
+  // Settings State
+  const [settings, setSettings] = useState<any>({
+    storeName: "Damian iTech",
+    supportEmail: "support@damian-itech.com",
+    contactPhone: "+233 55 123 4567",
+    physicalAddress: "Accra, Ghana\nWest Africa",
+    isLocalPickupEnabled: true,
+    pickupLocations: [
+      { id: "1", name: "Main HQ", address: "123 Oxford Street, Osu, Accra" },
+      { id: "2", name: "Kumasi Branch", address: "Adum, Kumasi City Mall" }
+    ],
+    freeDeliveryThreshold: 5000,
+    isDeliveryEnabled: true,
+    deliveryZones: [
+      { id: "1", name: "Accra", time: "1-2 Business Days", rate: 50 },
+      { id: "2", name: "Kumasi", time: "3-5 Business Days", rate: 80 },
+      { id: "3", name: "Other Regions", time: "5-7 Business Days", rate: 120 }
+    ],
+    adminAlertNewOrder: true,
+    adminAlertNewUser: true,
+    adminAlertLowStock: true,
+    lowStockThreshold: 5,
+    customerEmailOrderConfirm: true,
+    customerEmailOrderShipped: true,
+    customerEmailReview: true,
+    customerEmailWelcome: true,
+    require2FA: false,
+    sessionTimeout: true,
+  });
 
-  // Notifications settings state
-  const [isLowStockAlertEnabled, setIsLowStockAlertEnabled] = useState(true);
+  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true, teamMembers: true, security: true });
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts' | 'teamMembers' | 'security') => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -24,10 +51,74 @@ export default function SettingsPage() {
 
   // Invite Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteData, setInviteData] = useState({ fullName: "", phone: "", role: "Manager" });
+  const [inviteData, setInviteData] = useState({ fullName: "", phone: "", role: "manager" });
   const [isInviting, setIsInviting] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch user
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch session", err));
+
+    // Fetch store settings
+    fetch("/api/admin/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setSettings(data.settings);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch settings", err));
+
+    // Fetch team members
+    fetchTeamMembers();
+  }, []);
+
+  const fetchTeamMembers = async () => {
+    try {
+      const res = await fetch("/api/admin/team");
+      const data = await res.json();
+      if (data.success) {
+        setTeamMembers(data.teamMembers);
+      }
+    } catch (error) {
+      console.error("Failed to fetch team members", error);
+    }
+  };
+
+  const handleUpdateSetting = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveMessage(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSaveMessage({ type: 'success', text: 'Settings saved successfully!' });
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      setSaveMessage({ type: 'error', text: error.message || 'Failed to save settings' });
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setSaveMessage(null), 3000);
+    }
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +142,7 @@ export default function SettingsPage() {
       setTimeout(() => {
         setIsInviteModalOpen(false);
         setInviteSuccess(null);
-        setInviteData({ fullName: "", phone: "", role: "Manager" });
+        setInviteData({ fullName: "", phone: "", role: "manager" });
       }, 3000);
     } catch (err: any) {
       setInviteError(err.message);
@@ -60,16 +151,21 @@ export default function SettingsPage() {
     }
   };
 
-  useEffect(() => {
-    fetch("/api/auth/session")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch session", err));
-  }, []);
+  const handleRemoveTeamMember = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this team member's admin access?")) return;
+    try {
+      const res = await fetch(`/api/admin/team/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        fetchTeamMembers(); // refresh
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to remove team member");
+    }
+  };
 
   const tabs = [
     { id: "profile", label: "Profile & Account", icon: User },
@@ -82,7 +178,14 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Settings</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 className={styles.pageTitle}>Settings</h1>
+        {saveMessage && (
+          <div style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '14px', backgroundColor: saveMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: saveMessage.type === 'success' ? '#10b981' : '#ef4444' }}>
+            {saveMessage.text}
+          </div>
+        )}
+      </div>
 
       <div className={styles.settingsLayout}>
         <aside className={styles.settingsSidebar}>
@@ -128,12 +231,12 @@ export default function SettingsPage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Email Address</label>
+                <label className={styles.formLabel}>Phone Number</label>
                 <input 
-                  type="email" 
+                  type="text" 
                   className={styles.formInput} 
-                  defaultValue={user?.email || ""} 
-                  placeholder="e.g. admin@damian-itech.com"
+                  defaultValue={user?.phone || ""} 
+                  placeholder="e.g. 0241234567"
                 />
               </div>
 
@@ -142,7 +245,7 @@ export default function SettingsPage() {
                 <input 
                   type="text" 
                   className={styles.formInput} 
-                  defaultValue={user?.role || "Administrator"} 
+                  defaultValue={user?.role === "admin" ? "Super Admin" : user?.role === "manager" ? "Manager" : user?.role === "support" ? "Support Staff" : "User"} 
                   disabled
                   style={{ opacity: 0.7, cursor: "not-allowed" }}
                 />
@@ -176,22 +279,27 @@ export default function SettingsPage() {
 
           {activeTab === "store" && (
             <div>
-              <h2 className={styles.sectionTitle}>Store Configuration</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Store Configuration</h2>
+                <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Configuration"}
+                </button>
+              </div>
               <p className={styles.sectionSubtitle}>Manage global settings for your e-commerce platform.</p>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Store Name</label>
-                <input type="text" className={styles.formInput} defaultValue="Damian iTech" />
+                <input type="text" className={styles.formInput} value={settings.storeName} onChange={(e) => handleUpdateSetting('storeName', e.target.value)} />
               </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Support Email</label>
-                <input type="email" className={styles.formInput} defaultValue="support@damian-itech.com" />
+                <input type="email" className={styles.formInput} value={settings.supportEmail} onChange={(e) => handleUpdateSetting('supportEmail', e.target.value)} />
               </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Contact Phone</label>
-                <input type="text" className={styles.formInput} defaultValue="+233 55 123 4567" />
+                <input type="text" className={styles.formInput} value={settings.contactPhone} onChange={(e) => handleUpdateSetting('contactPhone', e.target.value)} />
               </div>
 
               <div className={styles.formGroup}>
@@ -199,12 +307,11 @@ export default function SettingsPage() {
                 <textarea 
                   className={styles.formInput} 
                   rows={3} 
-                  defaultValue={"Accra, Ghana\nWest Africa"}
+                  value={settings.physicalAddress}
+                  onChange={(e) => handleUpdateSetting('physicalAddress', e.target.value)}
                   style={{ resize: "vertical" }}
                 ></textarea>
               </div>
-
-              <button className={styles.btnPrimary}>Save Configuration</button>
             </div>
           )}
 
@@ -212,7 +319,9 @@ export default function SettingsPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Shipping & Delivery</h2>
-                <button className={styles.btnPrimary}>Save Settings</button>
+                <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                </button>
               </div>
               <p className={styles.sectionSubtitle}>Setup your delivery zones, rates, and pickup options.</p>
 
@@ -232,8 +341,8 @@ export default function SettingsPage() {
                         type="checkbox" 
                         id="localPickup" 
                         className={styles.checkboxInput} 
-                        checked={isLocalPickupEnabled}
-                        onChange={(e) => setIsLocalPickupEnabled(e.target.checked)}
+                        checked={settings.isLocalPickupEnabled}
+                        onChange={(e) => handleUpdateSetting('isLocalPickupEnabled', e.target.checked)}
                       />
                       <label htmlFor="localPickup" className={styles.checkboxLabel}>
                         <strong>Enable Local Pickup</strong>
@@ -241,26 +350,58 @@ export default function SettingsPage() {
                       </label>
                     </div>
 
-                    {isLocalPickupEnabled && (
+                    {settings.isLocalPickupEnabled && (
                       <div style={{ marginTop: '24px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                           <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Pickup Locations</h4>
-                          <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}>
+                          <button 
+                            className={styles.btnSecondary} 
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}
+                            onClick={() => {
+                              const newLoc = { id: Date.now().toString(), name: "New Location", address: "New Address" };
+                              handleUpdateSetting('pickupLocations', [...settings.pickupLocations, newLoc]);
+                            }}
+                          >
                             <Plus size={14} /> Add Location
                           </button>
                         </div>
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {[
-                            { id: 1, name: "Main HQ", address: "123 Oxford Street, Osu, Accra" },
-                            { id: 2, name: "Kumasi Branch", address: "Adum, Kumasi City Mall" }
-                          ].map(loc => (
+                          {settings.pickupLocations.map((loc: any, i: number) => (
                             <div key={loc.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                               <div style={{ flex: 1 }}>
-                                <input type="text" className={styles.formInput} defaultValue={loc.name} placeholder="Location Name" style={{ marginBottom: '8px' }} />
-                                <input type="text" className={styles.formInput} defaultValue={loc.address} placeholder="Full Address" />
+                                <input 
+                                  type="text" 
+                                  className={styles.formInput} 
+                                  value={loc.name} 
+                                  onChange={(e) => {
+                                    const newLocs = [...settings.pickupLocations];
+                                    newLocs[i].name = e.target.value;
+                                    handleUpdateSetting('pickupLocations', newLocs);
+                                  }}
+                                  placeholder="Location Name" 
+                                  style={{ marginBottom: '8px' }} 
+                                />
+                                <input 
+                                  type="text" 
+                                  className={styles.formInput} 
+                                  value={loc.address} 
+                                  onChange={(e) => {
+                                    const newLocs = [...settings.pickupLocations];
+                                    newLocs[i].address = e.target.value;
+                                    handleUpdateSetting('pickupLocations', newLocs);
+                                  }}
+                                  placeholder="Full Address" 
+                                />
                               </div>
-                              <button className={styles.iconBtnDanger} aria-label="Delete Location" style={{ marginTop: '4px' }}>
+                              <button 
+                                className={styles.iconBtnDanger} 
+                                aria-label="Delete Location" 
+                                style={{ marginTop: '4px' }}
+                                onClick={() => {
+                                  handleUpdateSetting('pickupLocations', settings.pickupLocations.filter((l: any) => l.id !== loc.id));
+                                }}
+                              >
                                 <Trash2 size={18} />
                               </button>
                             </div>
@@ -271,7 +412,13 @@ export default function SettingsPage() {
 
                     <div className={styles.formGroup} style={{ marginTop: '32px' }}>
                       <label className={styles.formLabel}>Free Delivery Threshold (₵)</label>
-                      <input type="number" className={styles.formInput} defaultValue={5000} placeholder="e.g. 5000" />
+                      <input 
+                        type="number" 
+                        className={styles.formInput} 
+                        value={settings.freeDeliveryThreshold} 
+                        onChange={(e) => handleUpdateSetting('freeDeliveryThreshold', Number(e.target.value))}
+                        placeholder="e.g. 5000" 
+                      />
                       <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
                     </div>
                   </div>
@@ -296,8 +443,8 @@ export default function SettingsPage() {
                         type="checkbox" 
                         id="homeDelivery" 
                         className={styles.checkboxInput} 
-                        checked={isDeliveryEnabled}
-                        onChange={(e) => setIsDeliveryEnabled(e.target.checked)}
+                        checked={settings.isDeliveryEnabled}
+                        onChange={(e) => handleUpdateSetting('isDeliveryEnabled', e.target.checked)}
                       />
                       <label htmlFor="homeDelivery" className={styles.checkboxLabel}>
                         <strong>Enable Home Delivery</strong>
@@ -305,37 +452,73 @@ export default function SettingsPage() {
                       </label>
                     </div>
 
-                    {isDeliveryEnabled && (
+                    {settings.isDeliveryEnabled && (
                       <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                           <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Configured Zones</h4>
-                          <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}>
+                          <button 
+                            className={styles.btnSecondary} 
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}
+                            onClick={() => {
+                              const newZone = { id: Date.now().toString(), name: "New Zone", time: "1-2 Days", rate: 0 };
+                              handleUpdateSetting('deliveryZones', [...settings.deliveryZones, newZone]);
+                            }}
+                          >
                             <Plus size={16} /> Add Zone
                           </button>
                         </div>
                         
                         <div className={styles.zonesContainer}>
-                          {[
-                            { id: 1, name: "Accra", time: "1-2 Business Days", rate: 50 },
-                            { id: 2, name: "Kumasi", time: "3-5 Business Days", rate: 80 },
-                            { id: 3, name: "Other Regions", time: "5-7 Business Days", rate: 120 }
-                          ].map(zone => (
+                          {settings.deliveryZones.map((zone: any, i: number) => (
                             <div key={zone.id} className={styles.zoneRow}>
                               <div className={styles.zoneGrid}>
                                 <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                                   <label className={styles.formLabel} style={{ fontSize: '12px' }}>Zone Name</label>
-                                  <input type="text" className={styles.formInput} defaultValue={zone.name} />
+                                  <input 
+                                    type="text" 
+                                    className={styles.formInput} 
+                                    value={zone.name} 
+                                    onChange={(e) => {
+                                      const newZones = [...settings.deliveryZones];
+                                      newZones[i].name = e.target.value;
+                                      handleUpdateSetting('deliveryZones', newZones);
+                                    }}
+                                  />
                                 </div>
                                 <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                                   <label className={styles.formLabel} style={{ fontSize: '12px' }}>Est. Delivery Time</label>
-                                  <input type="text" className={styles.formInput} defaultValue={zone.time} />
+                                  <input 
+                                    type="text" 
+                                    className={styles.formInput} 
+                                    value={zone.time} 
+                                    onChange={(e) => {
+                                      const newZones = [...settings.deliveryZones];
+                                      newZones[i].time = e.target.value;
+                                      handleUpdateSetting('deliveryZones', newZones);
+                                    }}
+                                  />
                                 </div>
                                 <div className={styles.formGroup} style={{ marginBottom: 0 }}>
                                   <label className={styles.formLabel} style={{ fontSize: '12px' }}>Flat Rate (₵)</label>
-                                  <input type="number" className={styles.formInput} defaultValue={zone.rate} />
+                                  <input 
+                                    type="number" 
+                                    className={styles.formInput} 
+                                    value={zone.rate} 
+                                    onChange={(e) => {
+                                      const newZones = [...settings.deliveryZones];
+                                      newZones[i].rate = Number(e.target.value);
+                                      handleUpdateSetting('deliveryZones', newZones);
+                                    }}
+                                  />
                                 </div>
                               </div>
-                              <button className={styles.iconBtnDanger} aria-label="Delete Zone">
+                              <button 
+                                className={styles.iconBtnDanger} 
+                                aria-label="Delete Zone"
+                                onClick={() => {
+                                  handleUpdateSetting('deliveryZones', settings.deliveryZones.filter((z: any) => z.id !== zone.id));
+                                }}
+                              >
                                 <Trash2 size={18} />
                               </button>
                             </div>
@@ -353,7 +536,9 @@ export default function SettingsPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Notifications & Alerts</h2>
-                <button className={styles.btnPrimary}>Save Settings</button>
+                <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                </button>
               </div>
               <p className={styles.sectionSubtitle}>Manage automated emails and system alerts for both admins and customers.</p>
 
@@ -369,7 +554,13 @@ export default function SettingsPage() {
                 {expandedSections.adminAlerts && (
                   <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="alertNewOrder" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="alertNewOrder" 
+                        className={styles.checkboxInput} 
+                        checked={settings.adminAlertNewOrder}
+                        onChange={(e) => handleUpdateSetting('adminAlertNewOrder', e.target.checked)}
+                      />
                       <label htmlFor="alertNewOrder" className={styles.checkboxLabel}>
                         <strong>New Order Received</strong>
                         <span className={styles.helpText}>Get an email instantly when a customer places a new order.</span>
@@ -377,7 +568,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="alertNewUser" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="alertNewUser" 
+                        className={styles.checkboxInput} 
+                        checked={settings.adminAlertNewUser}
+                        onChange={(e) => handleUpdateSetting('adminAlertNewUser', e.target.checked)}
+                      />
                       <label htmlFor="alertNewUser" className={styles.checkboxLabel}>
                         <strong>New Customer Sign-up</strong>
                         <span className={styles.helpText}>Get notified when a new user registers an account on your store.</span>
@@ -389,8 +586,8 @@ export default function SettingsPage() {
                         type="checkbox" 
                         id="alertLowStock" 
                         className={styles.checkboxInput} 
-                        checked={isLowStockAlertEnabled}
-                        onChange={(e) => setIsLowStockAlertEnabled(e.target.checked)}
+                        checked={settings.adminAlertLowStock}
+                        onChange={(e) => handleUpdateSetting('adminAlertLowStock', e.target.checked)}
                       />
                       <label htmlFor="alertLowStock" className={styles.checkboxLabel}>
                         <strong>Low Stock Warnings</strong>
@@ -398,10 +595,17 @@ export default function SettingsPage() {
                       </label>
                     </div>
 
-                    {isLowStockAlertEnabled && (
+                    {settings.adminAlertLowStock && (
                       <div className={styles.formGroup} style={{ marginTop: '8px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
                         <label className={styles.formLabel}>Low Stock Threshold</label>
-                        <input type="number" className={styles.formInput} defaultValue={5} placeholder="e.g. 5" style={{ maxWidth: '150px' }} />
+                        <input 
+                          type="number" 
+                          className={styles.formInput} 
+                          value={settings.lowStockThreshold} 
+                          onChange={(e) => handleUpdateSetting('lowStockThreshold', Number(e.target.value))}
+                          placeholder="e.g. 5" 
+                          style={{ maxWidth: '150px' }} 
+                        />
                         <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Alert when stock is equal to or less than this number.</span>
                       </div>
                     )}
@@ -423,7 +627,13 @@ export default function SettingsPage() {
                 {expandedSections.customerAlerts && (
                   <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="emailOrderConfirm" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="emailOrderConfirm" 
+                        className={styles.checkboxInput} 
+                        checked={settings.customerEmailOrderConfirm}
+                        onChange={(e) => handleUpdateSetting('customerEmailOrderConfirm', e.target.checked)}
+                      />
                       <label htmlFor="emailOrderConfirm" className={styles.checkboxLabel}>
                         <strong>Order Confirmation</strong>
                         <span className={styles.helpText}>Automatically email a receipt to the customer when they checkout.</span>
@@ -431,7 +641,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="emailOrderShipped" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="emailOrderShipped" 
+                        className={styles.checkboxInput} 
+                        checked={settings.customerEmailOrderShipped}
+                        onChange={(e) => handleUpdateSetting('customerEmailOrderShipped', e.target.checked)}
+                      />
                       <label htmlFor="emailOrderShipped" className={styles.checkboxLabel}>
                         <strong>Order Shipped</strong>
                         <span className={styles.helpText}>Send a notification when you mark their order status as "Shipped".</span>
@@ -439,7 +655,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="emailReview" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="emailReview" 
+                        className={styles.checkboxInput} 
+                        checked={settings.customerEmailReview}
+                        onChange={(e) => handleUpdateSetting('customerEmailReview', e.target.checked)}
+                      />
                       <label htmlFor="emailReview" className={styles.checkboxLabel}>
                         <strong>Review Request</strong>
                         <span className={styles.helpText}>Automatically ask for a review 7 days after the order is delivered.</span>
@@ -447,7 +669,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="emailWelcome" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="emailWelcome" 
+                        className={styles.checkboxInput} 
+                        checked={settings.customerEmailWelcome}
+                        onChange={(e) => handleUpdateSetting('customerEmailWelcome', e.target.checked)}
+                      />
                       <label htmlFor="emailWelcome" className={styles.checkboxLabel}>
                         <strong>Welcome Email</strong>
                         <span className={styles.helpText}>Send a customized welcome message when a new user registers.</span>
@@ -463,7 +691,9 @@ export default function SettingsPage() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Team & Security</h2>
-                <button className={styles.btnPrimary}>Save Settings</button>
+                <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                </button>
               </div>
               <p className={styles.sectionSubtitle}>Manage your team members, roles, and global security policies.</p>
 
@@ -490,32 +720,34 @@ export default function SettingsPage() {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {[
-                        { id: 1, name: "Damian X", email: "admin@damian-itech.com", role: "Super Admin", isCurrent: true },
-                        { id: 2, name: "Sarah Jane", email: "sarah@damian-itech.com", role: "Manager", isCurrent: false },
-                        { id: 3, name: "Mike Ross", email: "mike@damian-itech.com", role: "Support Staff", isCurrent: false }
-                      ].map(member => (
-                        <div key={member.id} className={styles.zoneRow} style={{ padding: '12px 16px' }}>
+                      {teamMembers.map(member => (
+                        <div key={member._id} className={styles.zoneRow} style={{ padding: '12px 16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
                             <div className={styles.avatarCircle} style={{ width: '40px', height: '40px', fontSize: '16px' }}>
-                              {member.name.charAt(0)}
+                              {member.fullName.charAt(0).toUpperCase()}
                             </div>
                             <div style={{ flex: 1 }}>
                               <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
-                                {member.name} {member.isCurrent && <span style={{ fontSize: '12px', color: 'var(--primary-color)', fontWeight: 'normal' }}>(You)</span>}
+                                {member.fullName} {user && user._id === member._id && <span style={{ fontSize: '12px', color: 'var(--primary-color)', fontWeight: 'normal' }}>(You)</span>}
                               </p>
-                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>{member.email}</p>
+                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>{member.email || member.phone}</p>
                             </div>
                             <div style={{ width: '150px' }}>
-                              <select className={styles.formInput} defaultValue={member.role} disabled={member.isCurrent} style={{ padding: '8px 12px' }}>
-                                <option>Super Admin</option>
-                                <option>Manager</option>
-                                <option>Support Staff</option>
+                              <select 
+                                className={styles.formInput} 
+                                value={member.role} 
+                                disabled={user && user._id === member._id} 
+                                style={{ padding: '8px 12px' }}
+                                onChange={() => {}} // Could implement change role logic here later
+                              >
+                                <option value="admin">Super Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="support">Support Staff</option>
                               </select>
                             </div>
                           </div>
-                          {!member.isCurrent && (
-                            <button className={styles.iconBtnDanger} aria-label="Remove Member" style={{ marginTop: 0 }}>
+                          {(!user || user._id !== member._id) && (
+                            <button className={styles.iconBtnDanger} aria-label="Remove Member" style={{ marginTop: 0 }} onClick={() => handleRemoveTeamMember(member._id)}>
                               <Trash2 size={18} />
                             </button>
                           )}
@@ -540,7 +772,13 @@ export default function SettingsPage() {
                 {expandedSections.security && (
                   <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="require2FA" className={styles.checkboxInput} />
+                      <input 
+                        type="checkbox" 
+                        id="require2FA" 
+                        className={styles.checkboxInput} 
+                        checked={settings.require2FA}
+                        onChange={(e) => handleUpdateSetting('require2FA', e.target.checked)}
+                      />
                       <label htmlFor="require2FA" className={styles.checkboxLabel}>
                         <strong>Require Two-Factor Authentication (2FA)</strong>
                         <span className={styles.helpText}>Force all staff members to use an authenticator app to log in. Highly recommended.</span>
@@ -548,7 +786,13 @@ export default function SettingsPage() {
                     </div>
 
                     <div className={styles.checkboxGroup}>
-                      <input type="checkbox" id="sessionTimeout" className={styles.checkboxInput} defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        id="sessionTimeout" 
+                        className={styles.checkboxInput} 
+                        checked={settings.sessionTimeout}
+                        onChange={(e) => handleUpdateSetting('sessionTimeout', e.target.checked)}
+                      />
                       <label htmlFor="sessionTimeout" className={styles.checkboxLabel}>
                         <strong>Strict Session Timeout</strong>
                         <span className={styles.helpText}>Automatically log out inactive admins after 30 minutes of no activity.</span>
@@ -624,9 +868,9 @@ export default function SettingsPage() {
                   value={inviteData.role}
                   onChange={(e) => setInviteData({...inviteData, role: e.target.value})}
                 >
-                  <option value="Manager">Manager</option>
-                  <option value="Support Staff">Support Staff</option>
-                  <option value="Super Admin">Super Admin</option>
+                  <option value="manager">Manager</option>
+                  <option value="support">Support Staff</option>
+                  <option value="admin">Super Admin</option>
                 </select>
               </div>
 

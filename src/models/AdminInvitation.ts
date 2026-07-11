@@ -24,7 +24,7 @@ const AdminInvitationSchema = new Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Super Admin", "Manager", "Support Staff"],
+      enum: ["admin", "manager", "support"],
     },
     otp: {
       type: String,
