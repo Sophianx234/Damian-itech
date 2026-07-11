@@ -57,6 +57,7 @@ export default function AdminLayout({
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -64,12 +65,15 @@ export default function AdminLayout({
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setIsNotifMenuOpen(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
     };
-    if (isNotifMenuOpen) {
+    if (isNotifMenuOpen || isUserMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isNotifMenuOpen]);
+  }, [isNotifMenuOpen, isUserMenuOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -281,7 +285,7 @@ export default function AdminLayout({
               )}
             </div>
 
-            <div className={styles.userMenuContainer}>
+            <div className={styles.userMenuContainer} ref={userMenuRef}>
               <button
                 aria-label="User Account"
                 className={styles.userBtn}
