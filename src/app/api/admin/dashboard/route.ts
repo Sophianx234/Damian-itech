@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import User from "@/models/User";
 
 export async function GET() {
   try {
@@ -21,6 +22,10 @@ export async function GET() {
     // Orders Count
     const totalOrdersCount = await Order.countDocuments();
     const pendingOrdersCount = await Order.countDocuments({ orderStatus: "pending" });
+    const failedOrdersCount = await Order.countDocuments({ orderStatus: { $in: ["cancelled", "failed"] } });
+
+    // Total Customers (unique users with role 'user')
+    const totalCustomers = await User.countDocuments({ role: "user" });
 
     // AOV
     const averageOrderValue = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
@@ -142,7 +147,9 @@ export async function GET() {
           averageOrderValue,
           activeInventory,
           pendingOrdersCount,
-          activeSwapProposals
+          activeSwapProposals,
+          failedOrdersCount,
+          totalCustomers
         },
         salesData,
         inventoryBreakdown,

@@ -62,6 +62,10 @@ export default function DashboardMainContent() {
           <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Total Customers</h3>
+          <p className={styles.statValue}>{kpis.totalCustomers}</p>
+        </div>
+        <div className={styles.statCard}>
           <h3 className={styles.statLabel}>Avg Order Value</h3>
           <p className={styles.statValue}>${kpis.averageOrderValue.toLocaleString()}</p>
         </div>
@@ -72,6 +76,10 @@ export default function DashboardMainContent() {
         <div className={styles.statCard}>
           <h3 className={styles.statLabel}>Pending Orders</h3>
           <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
+        </div>
+        <div className={styles.statCard}>
+          <h3 className={styles.statLabel}>Failed Orders</h3>
+          <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
           <h3 className={styles.statLabel}>Active Swap Proposals</h3>

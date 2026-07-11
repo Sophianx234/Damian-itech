@@ -9,7 +9,7 @@
 /* KPI Overview Grid */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -78,6 +78,7 @@
 .dataTable {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .dataTable th {
@@ -89,6 +90,7 @@
   letter-spacing: 0.05em;
   padding: 16px 12px;
   border-bottom: 1px solid #1a1a1a;
+  white-space: nowrap;
 }
 
 .dataTable td {
@@ -96,6 +98,9 @@
   font-size: 14px;
   color: #ffffff;
   border-bottom: 1px solid #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dataTable tr:last-child td {
@@ -154,10 +159,16 @@
 
 .swapUser {
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .swapTarget {
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .swapOffered {
