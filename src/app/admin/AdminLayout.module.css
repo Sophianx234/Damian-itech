@@ -431,3 +431,31 @@
   background-color: #ef4444;
   color: white;
 }
+
+.notifItemUnread {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.notifItemUnread .notifTitle {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.dismissBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.dismissBtn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}

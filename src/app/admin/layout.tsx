@@ -17,7 +17,8 @@ import {
   User,
   Bell,
   AlertTriangle,
-  Info
+  Info,
+  X
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -38,6 +39,8 @@ interface Notification {
   time: string;
   link: string;
   isCritical: boolean;
+  isRead: boolean;
+  isDismissed: boolean;
 }
 
 export default function AdminLayout({
@@ -74,6 +77,29 @@ export default function AdminLayout({
       })
       .catch(err => console.error("Failed to fetch notifications", err));
   }, []);
+
+  const handleNotificationAction = async (action: string, notificationId?: string) => {
+    try {
+      // Optimistic update
+      if (action === 'mark_read' && notificationId) {
+        setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n));
+      } else if (action === 'dismiss' && notificationId) {
+        setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      } else if (action === 'mark_all_read') {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      } else if (action === 'clear_all') {
+        setNotifications([]);
+      }
+
+      await fetch('/api/admin/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, notificationId })
+      });
+    } catch (err) {
+      console.error(`Failed to perform action ${action} on notification`, err);
+    }
+  };
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -166,29 +192,69 @@ export default function AdminLayout({
                 aria-label="Notifications"
               >
                 <Bell size={18} />
-                {notifications.length > 0 && <span className={styles.notifBadge}>{notifications.length}</span>}
+                {notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className={styles.notifBadge}>
+                    {notifications.filter(n => !n.isRead).length}
+                  </span>
+                )}
               </button>
 
               {isNotifMenuOpen && (
                 <div className={styles.notifDropdown}>
-                  <div className={styles.dropdownHeader}>
+                  <div className={styles.dropdownHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <p className={styles.dropdownName}>Notifications</p>
+                    {notifications.length > 0 && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          onClick={() => handleNotificationAction('mark_all_read')}
+                          style={{ background: 'none', border: 'none', fontSize: '11px', color: 'var(--primary-color)', cursor: 'pointer', padding: 0 }}
+                        >
+                          Mark all read
+                        </button>
+                        <button 
+                          onClick={() => handleNotificationAction('clear_all')}
+                          style={{ background: 'none', border: 'none', fontSize: '11px', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                        >
+                          Clear all
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className={styles.notifList}>
                     {notifications.length === 0 ? (
                       <div className={styles.notifEmpty}>No new notifications</div>
                     ) : (
                       notifications.map(n => (
-                        <Link key={n.id} href={n.link} className={styles.notifItem} onClick={() => setIsNotifMenuOpen(false)}>
-                          <div className={n.isCritical ? styles.notifIconCritical : styles.notifIconNormal}>
-                            {n.isCritical ? <AlertTriangle size={14} /> : <Info size={14} />}
-                          </div>
-                          <div className={styles.notifContent}>
-                            <p className={styles.notifTitle}>{n.title}</p>
-                            <p className={styles.notifMessage}>{n.message}</p>
-                            <p className={styles.notifTime}>{new Date(n.time).toLocaleString()}</p>
-                          </div>
-                        </Link>
+                        <div key={n.id} className={`${styles.notifItem} ${!n.isRead ? styles.notifItemUnread : ''}`}>
+                          <Link 
+                            href={n.link} 
+                            style={{ display: 'flex', gap: '12px', flex: 1, textDecoration: 'none' }}
+                            onClick={() => {
+                              if (!n.isRead) handleNotificationAction('mark_read', n.id);
+                              setIsNotifMenuOpen(false);
+                            }}
+                          >
+                            <div className={n.isCritical ? styles.notifIconCritical : styles.notifIconNormal}>
+                              {n.isCritical ? <AlertTriangle size={14} /> : <Info size={14} />}
+                            </div>
+                            <div className={styles.notifContent}>
+                              <p className={styles.notifTitle}>{n.title}</p>
+                              <p className={styles.notifMessage}>{n.message}</p>
+                              <p className={styles.notifTime}>{new Date(n.time).toLocaleString()}</p>
+                            </div>
+                          </Link>
+                          <button 
+                            className={styles.dismissBtn}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleNotificationAction('dismiss', n.id);
+                            }}
+                            title="Dismiss"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
                       ))
                     )}
                   </div>
@@ -225,11 +291,11 @@ export default function AdminLayout({
           </div>
         </header>
 
-        {notifications.length > 0 && (
+        {notifications.filter(n => !n.isRead).length > 0 && (
           <div className={styles.notificationBanner}>
             <AlertTriangle size={16} className={styles.bannerIcon} />
             <div className={styles.bannerText}>
-              <strong>Attention needed:</strong> You have {notifications.length} new notification{notifications.length > 1 ? 's' : ''} requiring your action.
+              <strong>Attention needed:</strong> You have {notifications.filter(n => !n.isRead).length} unread notification{notifications.filter(n => !n.isRead).length > 1 ? 's' : ''} requiring your action.
             </div>
             <button className={styles.bannerBtn} onClick={() => setIsNotifMenuOpen(true)}>
               View Details
