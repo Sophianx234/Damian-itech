@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,7 +18,8 @@ import {
   Bell,
   AlertTriangle,
   Info,
-  X
+  X,
+  ChevronDown
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -55,7 +56,20 @@ export default function AdminLayout({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const notifRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifMenuOpen(false);
+      }
+    };
+    if (isNotifMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNotifMenuOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -185,7 +199,7 @@ export default function AdminLayout({
               {mounted && (theme === "dark" ? <Sun size={18} /> : <Moon size={18} />)}
             </button>
 
-            <div className={styles.notifContainer}>
+            <div className={styles.notifContainer} ref={notifRef}>
               <button 
                 className={styles.iconBtn} 
                 onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
@@ -258,6 +272,11 @@ export default function AdminLayout({
                       ))
                     )}
                   </div>
+                  {notifications.length > 4 && (
+                    <div className={styles.notifMoreIndicator}>
+                      <ChevronDown size={16} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
