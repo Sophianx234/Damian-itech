@@ -134,7 +134,7 @@ export async function GET() {
     const topCustomers = topCustomersRaw.map(c => ({
       email: c._id || "Guest",
       name: c.name || "Guest Customer",
-      spent: `$${c.totalSpent.toLocaleString()}`,
+      spent: `₵${c.totalSpent.toLocaleString()}`,
       orders: c.ordersCount
     }));
 

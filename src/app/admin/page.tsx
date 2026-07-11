@@ -113,7 +113,7 @@ export default function DashboardMainContent() {
           <div className={styles.statHeader}>
             <div className={styles.statInfo}>
               <h3 className={styles.statLabel}>Total Revenue</h3>
-              <p className={styles.statValue}>${kpis.totalRevenue.toLocaleString()}</p>
+              <p className={styles.statValue}>₵{kpis.totalRevenue.toLocaleString()}</p>
             </div>
             <div className={styles.iconContainer}>
               <DollarSign size={24} className={styles.statIcon} />
@@ -146,7 +146,7 @@ export default function DashboardMainContent() {
           <div className={styles.statHeader}>
             <div className={styles.statInfo}>
               <h3 className={styles.statLabel}>Avg Order Value</h3>
-              <p className={styles.statValue}>${kpis.averageOrderValue.toLocaleString()}</p>
+              <p className={styles.statValue}>₵{kpis.averageOrderValue.toLocaleString()}</p>
             </div>
             <div className={styles.iconContainer}>
               <CreditCard size={24} className={styles.statIcon} />
@@ -211,7 +211,7 @@ export default function DashboardMainContent() {
                 <BarChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary)" />
                   <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₵${value}`} />
                   <RechartsTooltip 
                     contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
                     itemStyle={{ color: 'var(--text-primary)' }}
