@@ -354,7 +354,9 @@
 .notifIconCritical {
   color: #ef4444;
   background-color: rgba(239, 68, 68, 0.1);
-  padding: 8px;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -364,7 +366,9 @@
 .notifIconNormal {
   color: #3b82f6;
   background-color: rgba(59, 130, 246, 0.1);
-  padding: 8px;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
