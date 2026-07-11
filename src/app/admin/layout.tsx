@@ -58,7 +58,12 @@ export default function AdminLayout({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<{ products: any[], orders: any[], users: any[] } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -68,8 +73,11 @@ export default function AdminLayout({
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchResults(null);
+      }
     };
-    if (isNotifMenuOpen || isUserMenuOpen) {
+    if (isNotifMenuOpen || isUserMenuOpen || searchResults) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -95,6 +103,27 @@ export default function AdminLayout({
       })
       .catch(err => console.error("Failed to fetch notifications", err));
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults(null);
+      return;
+    }
+
+    setIsSearching(true);
+    const delayDebounce = setTimeout(() => {
+      fetch(`/api/admin/search?q=${encodeURIComponent(searchQuery)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setSearchResults(data.data);
+          }
+        })
+        .finally(() => setIsSearching(false));
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
 
   const handleNotificationAction = async (action: string, notificationId?: string) => {
     try {
@@ -186,13 +215,65 @@ export default function AdminLayout({
           </div>
 
           <div className={styles.headerRight}>
-            <div className={styles.searchContainer}>
+            <div className={styles.searchContainer} ref={searchRef}>
               <Search size={16} className={styles.searchIcon} />
               <input 
                 type="text" 
-                placeholder="Search..." 
+                placeholder="Global Search (Orders, Users, Products)..." 
                 className={styles.searchInput}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
+
+              {searchResults && (
+                <div className={styles.searchDropdown}>
+                  {isSearching ? (
+                    <div className={styles.searchEmpty}>Searching...</div>
+                  ) : (
+                    <>
+                      {searchResults.orders.length > 0 && (
+                        <>
+                          <div className={styles.searchCategory}>Orders</div>
+                          {searchResults.orders.map(order => (
+                            <Link key={order._id} href={`/admin/orders/${order._id}`} className={styles.searchItem} onClick={() => setSearchResults(null)}>
+                              <p className={styles.searchItemTitle}>Order #{order._id.substring(0, 8)}</p>
+                              <p className={styles.searchItemSub}>{order.shippingDetails?.fullName || order.guestEmail} • ₵{order.totalAmount}</p>
+                            </Link>
+                          ))}
+                        </>
+                      )}
+
+                      {searchResults.products.length > 0 && (
+                        <>
+                          <div className={styles.searchCategory}>Products</div>
+                          {searchResults.products.map(product => (
+                            <Link key={product._id} href={`/admin/products/${product._id}`} className={styles.searchItem} onClick={() => setSearchResults(null)}>
+                              <p className={styles.searchItemTitle}>{product.title}</p>
+                              <p className={styles.searchItemSub}>Stock: {product.stock} • {product.category}</p>
+                            </Link>
+                          ))}
+                        </>
+                      )}
+
+                      {searchResults.users.length > 0 && (
+                        <>
+                          <div className={styles.searchCategory}>Users</div>
+                          {searchResults.users.map(u => (
+                            <Link key={u._id} href={`/admin/customers`} className={styles.searchItem} onClick={() => setSearchResults(null)}>
+                              <p className={styles.searchItemTitle}>{u.fullName}</p>
+                              <p className={styles.searchItemSub}>{u.email} • {u.role}</p>
+                            </Link>
+                          ))}
+                        </>
+                      )}
+
+                      {searchResults.orders.length === 0 && searchResults.products.length === 0 && searchResults.users.length === 0 && (
+                        <div className={styles.searchEmpty}>No results found for "{searchQuery}"</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             <button
