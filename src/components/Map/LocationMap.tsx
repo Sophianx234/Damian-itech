@@ -30,7 +30,6 @@ export default function LocationMap({ onLocationSelect }: LocationMapProps) {
       style: maptilersdk.MapStyle.STREETS,
       center: [-0.1870, 5.6037],
       zoom: 12,
-      attributionControl: false,
     });
     
     map.current = mapInstance;
