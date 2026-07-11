@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye } from "lucide-react";
+import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye, X } from "lucide-react";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
@@ -37,6 +37,7 @@ export default function AdminProductsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [productToView, setProductToView] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -133,6 +134,11 @@ export default function AdminProductsPage() {
   const confirmDelete = (id: string) => {
     const product = products.find(p => p.id === id);
     if (product) setProductToDelete(product);
+  };
+
+  const handleQuickView = (id: string) => {
+    const product = products.find(p => p.id === id);
+    if (product) setProductToView(product);
   };
 
   const executeDelete = async () => {
@@ -348,6 +354,7 @@ export default function AdminProductsPage() {
                       productId={product.id}
                       slug={product.slug}
                       handleDelete={confirmDelete} 
+                      handleView={handleQuickView}
                       styles={styles} 
                       isLast={isLast}
                     />
@@ -391,6 +398,91 @@ export default function AdminProductsPage() {
               <button className={styles.confirmDeleteBtn} onClick={executeDelete}>
                 Delete Permanently
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick View Modal */}
+      {productToView && (
+        <div className={styles.modalOverlay} onClick={() => setProductToView(null)}>
+          <div className={`${styles.modalContent} ${styles.quickViewModal}`} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.qvHeader}>
+              <div>
+                <h3 className={styles.modalTitle}>{productToView.title}</h3>
+                <p className={styles.productBrand}>{productToView.brand}</p>
+              </div>
+              <button className={styles.closeBtn} onClick={() => setProductToView(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className={styles.qvScrollArea}>
+              <div className={styles.qvBody}>
+                <div className={styles.qvImageWrapper}>
+                  <Image
+                    src={productToView.image}
+                    alt={productToView.title}
+                    fill
+                    className={styles.qvImage}
+                  />
+                </div>
+                
+                <div className={styles.qvInfo}>
+                  <div className={styles.qvPrice}>{productToView.price}</div>
+                  
+                  <div className={styles.qvGrid}>
+                    <div className={styles.qvItem}>
+                      <span className={styles.qvLabel}>Category</span>
+                      <span className={styles.qvValue}>{productToView.category}</span>
+                    </div>
+                    <div className={styles.qvItem}>
+                      <span className={styles.qvLabel}>Type & Condition</span>
+                      <span className={styles.qvValue}>{productToView.productType} {productToView.condition ? `(${productToView.condition})` : ""}</span>
+                    </div>
+                    <div className={styles.qvItem}>
+                      <span className={styles.qvLabel}>Status</span>
+                      <span className={styles.qvValue}>{productToView.status}</span>
+                    </div>
+                    <div className={styles.qvItem}>
+                      <span className={styles.qvLabel}>Swappable</span>
+                      <span className={styles.qvValue}>{productToView.isSwappable ? "Yes" : "No"}</span>
+                    </div>
+                    
+                    {productToView.batteryHealth && (
+                      <div className={styles.qvItem}>
+                        <span className={styles.qvLabel}>Battery Health</span>
+                        <span className={styles.qvValue}>{productToView.batteryHealth}%</span>
+                      </div>
+                    )}
+                    {productToView.ram && (
+                      <div className={styles.qvItem}>
+                        <span className={styles.qvLabel}>RAM</span>
+                        <span className={styles.qvValue}>{productToView.ram}</span>
+                      </div>
+                    )}
+                    {productToView.storage && (
+                      <div className={styles.qvItem}>
+                        <span className={styles.qvLabel}>Storage</span>
+                        <span className={styles.qvValue}>{productToView.storage}</span>
+                      </div>
+                    )}
+                    {productToView.customSpecs && productToView.customSpecs.length > 0 && productToView.customSpecs.map((spec, idx) => (
+                      <div key={idx} className={styles.qvItem}>
+                        <span className={styles.qvLabel}>{spec.key}</span>
+                        <span className={styles.qvValue}>{spec.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.qvFooter}>
+              <Link href={`/admin/products/${productToView.id}/edit`} className={styles.cancelBtn} style={{ textDecoration: 'none' }}>
+                <Edit2 size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+                Edit Full Details
+              </Link>
             </div>
           </div>
         </div>
@@ -451,7 +543,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: ProductSta
   );
 };
 
-const ActionDropdown = ({ productId, slug, handleDelete, styles, isLast }: { productId: string, slug: string, handleDelete: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ productId, slug, handleDelete, handleView, styles, isLast }: { productId: string, slug: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -478,8 +570,17 @@ const ActionDropdown = ({ productId, slug, handleDelete, styles, isLast }: { pro
       </button>
       {isOpen && (
         <div className={`${styles.actionMenuDropdown} ${isLast ? styles.dropdownUp : ""}`}>
-          <Link href={`/product/${slug}`} className={styles.actionMenuItem} target="_blank">
-            <Eye size={14} /> View Product
+          <button 
+            onClick={() => {
+              handleView(productId);
+              setIsOpen(false);
+            }} 
+            className={styles.actionMenuItem}
+          >
+            <Eye size={14} /> Quick View
+          </button>
+          <Link href={`/products/${slug}`} className={styles.actionMenuItem} target="_blank">
+            <Eye size={14} /> View in Store
           </Link>
           <Link href={`/admin/products/${productId}/edit`} className={styles.actionMenuItem}>
             <Edit2 size={14} /> Edit Product
