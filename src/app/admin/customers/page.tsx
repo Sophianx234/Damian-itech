@@ -1,8 +1,24 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Search, ChevronDown, MoreVertical, Eye, X, User as UserIcon } from "lucide-react";
+import Image from "next/image";
+import { Search, ChevronDown, MoreVertical, Eye, X, User as UserIcon, Ban, CheckCircle } from "lucide-react";
 import styles from "./Customers.module.css";
+
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+  image?: string;
+}
+
+interface Order {
+  _id: string;
+  totalAmount: number;
+  orderStatus: string;
+  createdAt: string;
+  items: OrderItem[];
+}
 
 interface Customer {
   id: string;
@@ -10,10 +26,12 @@ interface Customer {
   phone: string;
   email: string;
   isVerified: boolean;
+  isSuspended: boolean;
   createdAt: string;
   totalOrders: number;
   totalSpent: number;
   isGuest: boolean;
+  orders: Order[];
 }
 
 export default function AdminCustomersPage() {
@@ -64,6 +82,42 @@ export default function AdminCustomersPage() {
   const handleQuickView = (id: string) => {
     const customer = customers.find(c => c.id === id);
     if (customer) setCustomerToView(customer);
+  };
+
+  const handleSuspend = async (id: string, isSuspended: boolean) => {
+    const customer = customers.find(c => c.id === id);
+    if (!customer || customer.isGuest) return;
+
+    // Optimistic UI update
+    setCustomers((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, isSuspended } : c))
+    );
+    
+    // Update active modal customer if open
+    if (customerToView?.id === id) {
+      setCustomerToView({ ...customerToView, isSuspended });
+    }
+
+    try {
+      const res = await fetch(`/api/admin/customers/${id}/suspend`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isSuspended }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update status");
+      }
+    } catch (error) {
+      console.error("Failed to suspend customer", error);
+      // Revert optimistic update
+      setCustomers((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, isSuspended: !isSuspended } : c))
+      );
+      if (customerToView?.id === id) {
+        setCustomerToView({ ...customerToView, isSuspended: !isSuspended });
+      }
+    }
   };
 
   return (
@@ -165,6 +219,7 @@ export default function AdminCustomersPage() {
                         <div className={styles.productInfo}>
                           <h4 className={styles.productTitle} style={{ maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {customer.fullName}
+                            {customer.isSuspended && <span style={{ color: '#ef4444', fontSize: '11px', marginLeft: '6px', backgroundColor: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}>Suspended</span>}
                           </h4>
                         </div>
                       </div>
@@ -213,8 +268,9 @@ export default function AdminCustomersPage() {
                     {/* Actions Column */}
                     <td>
                       <ActionDropdown 
-                        customerId={customer.id}
+                        customer={customer}
                         handleView={handleQuickView}
+                        handleSuspend={handleSuspend}
                         styles={styles} 
                         isLast={isLast}
                       />
@@ -258,12 +314,20 @@ export default function AdminCustomersPage() {
                       <span className={styles.qvValue}>{customerToView.email || 'N/A'}</span>
                     </div>
                     {!customerToView.isGuest && (
-                      <div className={styles.qvItem} style={{ gridColumn: '1 / -1' }}>
-                        <span className={styles.qvLabel}>Verification Status</span>
-                        <span className={styles.qvValue} style={{ color: customerToView.isVerified ? '#10b981' : '#f59e0b' }}>
-                          {customerToView.isVerified ? 'Verified' : 'Unverified'}
-                        </span>
-                      </div>
+                      <>
+                        <div className={styles.qvItem}>
+                          <span className={styles.qvLabel}>Verification Status</span>
+                          <span className={styles.qvValue} style={{ color: customerToView.isVerified ? '#10b981' : '#f59e0b' }}>
+                            {customerToView.isVerified ? 'Verified' : 'Unverified'}
+                          </span>
+                        </div>
+                        <div className={styles.qvItem}>
+                          <span className={styles.qvLabel}>Account Status</span>
+                          <span className={styles.qvValue} style={{ color: customerToView.isSuspended ? '#ef4444' : '#10b981' }}>
+                            {customerToView.isSuspended ? 'Suspended' : 'Active'}
+                          </span>
+                        </div>
+                      </>
                     )}
                   </div>
 
@@ -279,11 +343,62 @@ export default function AdminCustomersPage() {
                     </div>
                   </div>
 
+                  {customerToView.orders && customerToView.orders.length > 0 && (
+                    <>
+                      <h4 style={{ margin: '24px 0 4px', fontSize: '15px' }}>Order History</h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {customerToView.orders.map((order, idx) => (
+                          <div key={idx} style={{ backgroundColor: 'var(--bg-primary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-primary)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid var(--border-primary)', paddingBottom: '8px' }}>
+                              <div>
+                                <div style={{ fontSize: '14px', fontWeight: 600 }}>Order #{order._id.slice(-6).toUpperCase()}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+                              </div>
+                              <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-color)' }}>₵{order.totalAmount.toLocaleString()}</div>
+                                <div style={{ fontSize: '12px', textTransform: 'capitalize', color: order.orderStatus === 'delivered' ? '#10b981' : order.orderStatus === 'cancelled' ? '#ef4444' : '#f59e0b' }}>
+                                  {order.orderStatus}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {order.items.map((item, itemIdx) => (
+                                <div key={itemIdx} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                  {item.image ? (
+                                    <div style={{ position: 'relative', width: '36px', height: '36px', borderRadius: '4px', overflow: 'hidden' }}>
+                                      <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} />
+                                    </div>
+                                  ) : (
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '4px', backgroundColor: 'var(--card-bg)' }}></div>
+                                  )}
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{item.quantity} x ₵{item.price}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
                 </div>
               </div>
             </div>
 
             <div className={styles.qvFooter}>
+               {!customerToView.isGuest && (
+                 <button 
+                   className={customerToView.isSuspended ? styles.confirmDeleteBtn : styles.cancelBtn} 
+                   style={{ marginRight: 'auto', backgroundColor: customerToView.isSuspended ? '#10b981' : '#ef4444', color: 'white', border: 'none' }}
+                   onClick={() => handleSuspend(customerToView.id, !customerToView.isSuspended)}
+                 >
+                   {customerToView.isSuspended ? 'Unsuspend Account' : 'Suspend Account'}
+                 </button>
+               )}
                <button className={styles.cancelBtn} onClick={() => setCustomerToView(null)}>
                  Close
                </button>
@@ -295,7 +410,7 @@ export default function AdminCustomersPage() {
   );
 }
 
-const ActionDropdown = ({ customerId, handleView, styles, isLast }: { customerId: string, handleView: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ customer, handleView, handleSuspend, styles, isLast }: { customer: Customer, handleView: (id: string) => void, handleSuspend: (id: string, isSuspended: boolean) => void, styles: any, isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -324,13 +439,29 @@ const ActionDropdown = ({ customerId, handleView, styles, isLast }: { customerId
         <div className={`${styles.actionMenuDropdown} ${isLast ? styles.dropdownUp : ""}`}>
           <button 
             onClick={() => {
-              handleView(customerId);
+              handleView(customer.id);
               setIsOpen(false);
             }} 
             className={styles.actionMenuItem}
           >
             <Eye size={14} /> Quick View
           </button>
+          {!customer.isGuest && (
+            <button 
+              onClick={() => {
+                handleSuspend(customer.id, !customer.isSuspended);
+                setIsOpen(false);
+              }} 
+              className={`${styles.actionMenuItem} ${!customer.isSuspended ? styles.actionMenuItemDanger : ""}`}
+              style={customer.isSuspended ? { color: '#10b981' } : {}}
+            >
+              {customer.isSuspended ? (
+                <><CheckCircle size={14} /> Unsuspend User</>
+              ) : (
+                <><Ban size={14} /> Suspend User</>
+              )}
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isSuspended: {
+    type: Boolean,
+    default: false,
+  },
   signupOTP: {
     type: String,
   },

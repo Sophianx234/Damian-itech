@@ -21,10 +21,12 @@ export async function GET() {
         fullName: user.fullName,
         phone: user.phone,
         isVerified: user.isVerified,
+        isSuspended: user.isSuspended || false,
         createdAt: user.createdAt,
         totalOrders,
         totalSpent,
-        isGuest: false
+        isGuest: false,
+        orders: orders
       };
     }));
     
@@ -47,16 +49,19 @@ export async function GET() {
           phone: phone || 'N/A',
           email: email || 'N/A',
           isVerified: false,
+          isSuspended: false,
           createdAt: order.createdAt,
           totalOrders: 0,
           totalSpent: 0,
-          isGuest: true
+          isGuest: true,
+          orders: []
         });
       }
       
       const guest = guestMap.get(key);
       guest.totalOrders += 1;
       guest.totalSpent += order.totalAmount;
+      guest.orders.push(order);
     });
 
     const allCustomers = [...registeredCustomers, ...Array.from(guestMap.values())]
