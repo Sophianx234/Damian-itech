@@ -25,7 +25,7 @@ export async function GET() {
       await Notification.updateOne(
         { type: 'order', referenceId: order._id.toString() },
         { 
-          $setOnInsert: {
+          $set: {
             title: 'New Pending Order',
             message: `Order #${order._id.toString().slice(-6).toUpperCase()} is waiting to be processed.`,
             link: '/admin/orders',
@@ -41,9 +41,9 @@ export async function GET() {
       await Notification.updateOne(
         { type: 'stock', referenceId: product._id.toString() },
         { 
-          $setOnInsert: {
+          $set: {
             title: 'Low Stock Alert',
-            message: `${product.name} is running low on stock (${product.stock} left).`,
+            message: `${product.title} is running low on stock (${product.stock} left).`,
             link: '/admin/products',
             isCritical: product.stock === 0
           }
