@@ -13,9 +13,12 @@ export default function SettingsPage() {
   // Shipping settings state
   const [isLocalPickupEnabled, setIsLocalPickupEnabled] = useState(true);
   const [isDeliveryEnabled, setIsDeliveryEnabled] = useState(true);
-  const [expandedSections, setExpandedSections] = useState({ general: true, zones: true });
+  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true });
 
-  const toggleSection = (section: 'general' | 'zones') => {
+  // Notifications settings state
+  const [isLowStockAlertEnabled, setIsLowStockAlertEnabled] = useState(true);
+
+  const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts') => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
@@ -173,7 +176,7 @@ export default function SettingsPage() {
                 <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Shipping & Delivery</h2>
                 <button className={styles.btnPrimary}>Save Settings</button>
               </div>
-              <p className={styles.sectionSubtitle}>Setup your delivery zones, shipping rates, and pickup options.</p>
+              <p className={styles.sectionSubtitle}>Setup your delivery zones, rates, and pickup options.</p>
 
               <div className={styles.settingsBlock}>
                 <div 
@@ -308,7 +311,117 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {["payments", "notifications", "security"].includes(activeTab) && (
+          {activeTab === "notifications" && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Notifications & Alerts</h2>
+                <button className={styles.btnPrimary}>Save Settings</button>
+              </div>
+              <p className={styles.sectionSubtitle}>Manage automated emails and system alerts for both admins and customers.</p>
+
+              <div className={styles.settingsBlock}>
+                <div 
+                  onClick={() => toggleSection('adminAlerts')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.adminAlerts ? '16px' : '0' }}
+                >
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Admin Alerts</h3>
+                  {expandedSections.adminAlerts ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
+                
+                {expandedSections.adminAlerts && (
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="alertNewOrder" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="alertNewOrder" className={styles.checkboxLabel}>
+                        <strong>New Order Received</strong>
+                        <span className={styles.helpText}>Get an email instantly when a customer places a new order.</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="alertNewUser" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="alertNewUser" className={styles.checkboxLabel}>
+                        <strong>New Customer Sign-up</strong>
+                        <span className={styles.helpText}>Get notified when a new user registers an account on your store.</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input 
+                        type="checkbox" 
+                        id="alertLowStock" 
+                        className={styles.checkboxInput} 
+                        checked={isLowStockAlertEnabled}
+                        onChange={(e) => setIsLowStockAlertEnabled(e.target.checked)}
+                      />
+                      <label htmlFor="alertLowStock" className={styles.checkboxLabel}>
+                        <strong>Low Stock Warnings</strong>
+                        <span className={styles.helpText}>Receive alerts when product inventory falls below a specific threshold.</span>
+                      </label>
+                    </div>
+
+                    {isLowStockAlertEnabled && (
+                      <div className={styles.formGroup} style={{ marginTop: '8px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
+                        <label className={styles.formLabel}>Low Stock Threshold</label>
+                        <input type="number" className={styles.formInput} defaultValue={5} placeholder="e.g. 5" style={{ maxWidth: '150px' }} />
+                        <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Alert when stock is equal to or less than this number.</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.settingsBlock}>
+                <div 
+                  onClick={() => toggleSection('customerAlerts')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.customerAlerts ? '16px' : '0' }}
+                >
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Customer Emails</h3>
+                  {expandedSections.customerAlerts ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
+                
+                {expandedSections.customerAlerts && (
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="emailOrderConfirm" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="emailOrderConfirm" className={styles.checkboxLabel}>
+                        <strong>Order Confirmation</strong>
+                        <span className={styles.helpText}>Automatically email a receipt to the customer when they checkout.</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="emailOrderShipped" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="emailOrderShipped" className={styles.checkboxLabel}>
+                        <strong>Order Shipped</strong>
+                        <span className={styles.helpText}>Send a notification when you mark their order status as "Shipped".</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="emailReview" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="emailReview" className={styles.checkboxLabel}>
+                        <strong>Review Request</strong>
+                        <span className={styles.helpText}>Automatically ask for a review 7 days after the order is delivered.</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="emailWelcome" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="emailWelcome" className={styles.checkboxLabel}>
+                        <strong>Welcome Email</strong>
+                        <span className={styles.helpText}>Send a customized welcome message when a new user registers.</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {["payments", "security"].includes(activeTab) && (
             <div className={styles.comingSoon}>
               <ImageIcon size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
               <h2 className={styles.sectionTitle}>Coming Soon</h2>
