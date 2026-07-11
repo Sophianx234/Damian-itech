@@ -1,0 +1,190 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settingsLayout {
+  display: flex;
+  gap: 32px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.settingsSidebar {
+  width: 260px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-right: 1px solid var(--border-primary);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:global([data-theme="dark"]) .settingsSidebar {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.tabBtn:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.tabBtnActive {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.tabBtnActive:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.settingsContent {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.sectionTitle {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sectionSubtitle {
+  margin: 0 0 32px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.formGroup {
+  margin-bottom: 24px;
+  max-width: 600px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.formInput:focus {
+  border-color: var(--primary-color);
+}
+
+.profileAvatarSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.avatarCircle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.avatarActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnPrimary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+}
+
+.btnSecondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btnSecondary:hover {
+  background-color: var(--bg-primary);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: 32px 0;
+  max-width: 600px;
+}
+
+.comingSoon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  color: var(--text-muted);
+  text-align: center;
+}
