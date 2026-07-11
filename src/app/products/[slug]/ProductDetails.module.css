@@ -228,6 +228,37 @@
   height: 56px;
 }
 
+.swapBtn {
+  flex: 1;
+  background-color: #8b5cf6; /* Cyber Violet */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 56px;
+  transition: opacity 0.2s;
+}
+.swapBtn:hover {
+  opacity: 0.9;
+}
+
+.swapInfo {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+.swapInfo span {
+  font-weight: 600;
+  color: #8b5cf6;
+}
+
+
 /* Secondary Actions */
 .secondaryActions {
   display: flex;
