@@ -324,216 +324,197 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "shipping" && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Shipping & Delivery</h2>
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 className={styles.sectionTitle}>Shipping & delivery</h2>
+                  <p className={styles.sectionSubtitle}>Setup your delivery zones, rates, and pickup options.</p>
+                </div>
                 <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
                 </button>
               </div>
-              <p className={styles.sectionSubtitle}>Setup your delivery zones, rates, and pickup options.</p>
 
               <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('general')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.general ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>General Options</h3>
-                  {expandedSections.general ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                </div>
+                <h3 className={styles.blockTitle}>General options</h3>
                 
-                {expandedSections.general && (
-                  <div style={{ marginTop: '16px' }}>
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="localPickup" 
-                        className={styles.checkboxInput} 
-                        checked={settings.isLocalPickupEnabled}
-                        onChange={(e) => handleUpdateSetting('isLocalPickupEnabled', e.target.checked)}
-                      />
-                      <label htmlFor="localPickup" className={styles.checkboxLabel}>
-                        <strong>Enable Local Pickup</strong>
-                        <span className={styles.helpText}>Allow customers to pick up their orders from your physical store for free.</span>
-                      </label>
-                    </div>
+                <div className={styles.toggleRow}>
+                  <div>
+                    <strong>Local pickup</strong>
+                    <span className={styles.helpText}>Allow customers to pick up orders from your physical stores.</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input 
+                      type="checkbox" 
+                      checked={settings.isLocalPickupEnabled}
+                      onChange={(e) => handleUpdateSetting('isLocalPickupEnabled', e.target.checked)}
+                    />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
 
-                    {settings.isLocalPickupEnabled && (
-                      <div style={{ marginTop: '24px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                          <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Pickup Locations</h4>
+                {settings.isLocalPickupEnabled && (
+                  <div className={styles.subSettingsContainer}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Pickup locations</h4>
+                      <button 
+                        className={styles.btnSecondary} 
+                        style={{ padding: '6px 12px', fontSize: '13px' }}
+                        onClick={() => {
+                          const newLoc = { id: Date.now().toString(), name: "", address: "" };
+                          handleUpdateSetting('pickupLocations', [...settings.pickupLocations, newLoc]);
+                        }}
+                      >
+                        Add location
+                      </button>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {settings.pickupLocations.map((loc: any, i: number) => (
+                        <div key={loc.id} className={styles.rowCard}>
+                          <div className={styles.formGrid} style={{ flex: 1, margin: 0 }}>
+                            <div className={styles.formGroup} style={{ margin: 0 }}>
+                              <label className={styles.formLabel}>Location name</label>
+                              <input 
+                                type="text" 
+                                className={styles.formInput} 
+                                value={loc.name} 
+                                onChange={(e) => {
+                                  const newLocs = [...settings.pickupLocations];
+                                  newLocs[i].name = e.target.value;
+                                  handleUpdateSetting('pickupLocations', newLocs);
+                                }}
+                                placeholder="e.g. Main HQ" 
+                              />
+                            </div>
+                            <div className={styles.formGroup} style={{ margin: 0 }}>
+                              <label className={styles.formLabel}>Address</label>
+                              <input 
+                                type="text" 
+                                className={styles.formInput} 
+                                value={loc.address} 
+                                onChange={(e) => {
+                                  const newLocs = [...settings.pickupLocations];
+                                  newLocs[i].address = e.target.value;
+                                  handleUpdateSetting('pickupLocations', newLocs);
+                                }}
+                                placeholder="Full address" 
+                              />
+                            </div>
+                          </div>
                           <button 
-                            className={styles.btnSecondary} 
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}
-                            onClick={() => {
-                              const newLoc = { id: Date.now().toString(), name: "New Location", address: "New Address" };
-                              handleUpdateSetting('pickupLocations', [...settings.pickupLocations, newLoc]);
-                            }}
+                            className={styles.iconBtnDanger} 
+                            onClick={() => handleUpdateSetting('pickupLocations', settings.pickupLocations.filter((l: any) => l.id !== loc.id))}
                           >
-                            <Plus size={14} /> Add Location
+                            <Trash2 size={18} />
                           </button>
                         </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {settings.pickupLocations.map((loc: any, i: number) => (
-                            <div key={loc.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                              <div style={{ flex: 1 }}>
-                                <input 
-                                  type="text" 
-                                  className={styles.formInput} 
-                                  value={loc.name} 
-                                  onChange={(e) => {
-                                    const newLocs = [...settings.pickupLocations];
-                                    newLocs[i].name = e.target.value;
-                                    handleUpdateSetting('pickupLocations', newLocs);
-                                  }}
-                                  placeholder="Location Name" 
-                                  style={{ marginBottom: '8px' }} 
-                                />
-                                <input 
-                                  type="text" 
-                                  className={styles.formInput} 
-                                  value={loc.address} 
-                                  onChange={(e) => {
-                                    const newLocs = [...settings.pickupLocations];
-                                    newLocs[i].address = e.target.value;
-                                    handleUpdateSetting('pickupLocations', newLocs);
-                                  }}
-                                  placeholder="Full Address" 
-                                />
-                              </div>
-                              <button 
-                                className={styles.iconBtnDanger} 
-                                aria-label="Delete Location" 
-                                style={{ marginTop: '4px' }}
-                                onClick={() => {
-                                  handleUpdateSetting('pickupLocations', settings.pickupLocations.filter((l: any) => l.id !== loc.id));
-                                }}
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className={styles.formGroup} style={{ marginTop: '32px' }}>
-                      <label className={styles.formLabel}>Free Delivery Threshold (₵)</label>
-                      <input 
-                        type="number" 
-                        className={styles.formInput} 
-                        value={settings.freeDeliveryThreshold} 
-                        onChange={(e) => handleUpdateSetting('freeDeliveryThreshold', Number(e.target.value))}
-                        placeholder="e.g. 5000" 
-                      />
-                      <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
+                      ))}
                     </div>
                   </div>
                 )}
+
+                <div className={styles.formGroup} style={{ marginTop: '32px', maxWidth: '300px' }}>
+                  <label className={styles.formLabel}>Free delivery threshold (₵)</label>
+                  <input 
+                    type="number" 
+                    className={styles.formInput} 
+                    value={settings.freeDeliveryThreshold} 
+                    onChange={(e) => handleUpdateSetting('freeDeliveryThreshold', Number(e.target.value))}
+                    placeholder="e.g. 5000" 
+                  />
+                </div>
               </div>
 
-              <div className={styles.divider}></div>
-
               <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('zones')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.zones ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Delivery Zones</h3>
-                  {expandedSections.zones ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                <h3 className={styles.blockTitle}>Delivery zones</h3>
+
+                <div className={styles.toggleRow}>
+                  <div>
+                    <strong>Home delivery</strong>
+                    <span className={styles.helpText}>Deliver orders directly to customers.</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input 
+                      type="checkbox" 
+                      checked={settings.isDeliveryEnabled}
+                      onChange={(e) => handleUpdateSetting('isDeliveryEnabled', e.target.checked)}
+                    />
+                    <span className={styles.slider}></span>
+                  </label>
                 </div>
 
-                {expandedSections.zones && (
-                  <div style={{ marginTop: '16px' }}>
-                    <div className={styles.checkboxGroup} style={{ marginBottom: '24px' }}>
-                      <input 
-                        type="checkbox" 
-                        id="homeDelivery" 
-                        className={styles.checkboxInput} 
-                        checked={settings.isDeliveryEnabled}
-                        onChange={(e) => handleUpdateSetting('isDeliveryEnabled', e.target.checked)}
-                      />
-                      <label htmlFor="homeDelivery" className={styles.checkboxLabel}>
-                        <strong>Enable Home Delivery</strong>
-                        <span className={styles.helpText}>Allow customers to have orders delivered to their address.</span>
-                      </label>
+                {settings.isDeliveryEnabled && (
+                  <div className={styles.subSettingsContainer}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Configured zones</h4>
+                      <button 
+                        className={styles.btnSecondary} 
+                        style={{ padding: '6px 12px', fontSize: '13px' }}
+                        onClick={() => {
+                          const newZone = { id: Date.now().toString(), name: "", time: "", rate: 0 };
+                          handleUpdateSetting('deliveryZones', [...settings.deliveryZones, newZone]);
+                        }}
+                      >
+                        Add zone
+                      </button>
                     </div>
-
-                    {settings.isDeliveryEnabled && (
-                      <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                          <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Configured Zones</h4>
+                    
+                    <div className={styles.zonesContainer}>
+                      {settings.deliveryZones.map((zone: any, i: number) => (
+                        <div key={zone.id} className={styles.rowCard}>
+                          <div className={styles.zoneGrid}>
+                            <div className={styles.formGroup} style={{ margin: 0 }}>
+                              <label className={styles.formLabel}>Zone name</label>
+                              <input 
+                                type="text" 
+                                className={styles.formInput} 
+                                value={zone.name} 
+                                onChange={(e) => {
+                                  const newZones = [...settings.deliveryZones];
+                                  newZones[i].name = e.target.value;
+                                  handleUpdateSetting('deliveryZones', newZones);
+                                }}
+                                placeholder="e.g. Accra"
+                              />
+                            </div>
+                            <div className={styles.formGroup} style={{ margin: 0 }}>
+                              <label className={styles.formLabel}>Delivery time</label>
+                              <input 
+                                type="text" 
+                                className={styles.formInput} 
+                                value={zone.time} 
+                                onChange={(e) => {
+                                  const newZones = [...settings.deliveryZones];
+                                  newZones[i].time = e.target.value;
+                                  handleUpdateSetting('deliveryZones', newZones);
+                                }}
+                                placeholder="e.g. 1-2 Days"
+                              />
+                            </div>
+                            <div className={styles.formGroup} style={{ margin: 0 }}>
+                              <label className={styles.formLabel}>Flat rate (₵)</label>
+                              <input 
+                                type="number" 
+                                className={styles.formInput} 
+                                value={zone.rate} 
+                                onChange={(e) => {
+                                  const newZones = [...settings.deliveryZones];
+                                  newZones[i].rate = Number(e.target.value);
+                                  handleUpdateSetting('deliveryZones', newZones);
+                                }}
+                              />
+                            </div>
+                          </div>
                           <button 
-                            className={styles.btnSecondary} 
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}
-                            onClick={() => {
-                              const newZone = { id: Date.now().toString(), name: "New Zone", time: "1-2 Days", rate: 0 };
-                              handleUpdateSetting('deliveryZones', [...settings.deliveryZones, newZone]);
-                            }}
+                            className={styles.iconBtnDanger} 
+                            onClick={() => handleUpdateSetting('deliveryZones', settings.deliveryZones.filter((z: any) => z.id !== zone.id))}
                           >
-                            <Plus size={16} /> Add Zone
+                            <Trash2 size={18} />
                           </button>
                         </div>
-                        
-                        <div className={styles.zonesContainer}>
-                          {settings.deliveryZones.map((zone: any, i: number) => (
-                            <div key={zone.id} className={styles.zoneRow}>
-                              <div className={styles.zoneGrid}>
-                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Zone Name</label>
-                                  <input 
-                                    type="text" 
-                                    className={styles.formInput} 
-                                    value={zone.name} 
-                                    onChange={(e) => {
-                                      const newZones = [...settings.deliveryZones];
-                                      newZones[i].name = e.target.value;
-                                      handleUpdateSetting('deliveryZones', newZones);
-                                    }}
-                                  />
-                                </div>
-                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Est. Delivery Time</label>
-                                  <input 
-                                    type="text" 
-                                    className={styles.formInput} 
-                                    value={zone.time} 
-                                    onChange={(e) => {
-                                      const newZones = [...settings.deliveryZones];
-                                      newZones[i].time = e.target.value;
-                                      handleUpdateSetting('deliveryZones', newZones);
-                                    }}
-                                  />
-                                </div>
-                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Flat Rate (₵)</label>
-                                  <input 
-                                    type="number" 
-                                    className={styles.formInput} 
-                                    value={zone.rate} 
-                                    onChange={(e) => {
-                                      const newZones = [...settings.deliveryZones];
-                                      newZones[i].rate = Number(e.target.value);
-                                      handleUpdateSetting('deliveryZones', newZones);
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              <button 
-                                className={styles.iconBtnDanger} 
-                                aria-label="Delete Zone"
-                                onClick={() => {
-                                  handleUpdateSetting('deliveryZones', settings.deliveryZones.filter((z: any) => z.id !== zone.id));
-                                }}
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
