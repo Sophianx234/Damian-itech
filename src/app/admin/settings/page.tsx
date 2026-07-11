@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
+import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, X, Loader2 } from "lucide-react";
 import styles from "./Settings.module.css";
-
 
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
 
@@ -12,7 +11,6 @@ export default function SettingsPage() {
   const [user, setUser] = useState<{ _id: string; fullName: string; email: string; role: string; phone: string } | null>(null);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   
-  // Settings State
   const [settings, setSettings] = useState<any>({
     storeName: "Damian iTech",
     supportEmail: "support@damian-itech.com",
@@ -42,15 +40,9 @@ export default function SettingsPage() {
     sessionTimeout: true,
   });
 
-  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true, teamMembers: true, security: true });
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts' | 'teamMembers' | 'security') => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  // Invite Modal State
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteData, setInviteData] = useState({ fullName: "", phone: "", role: "manager" });
   const [isInviting, setIsInviting] = useState(false);
@@ -58,17 +50,13 @@ export default function SettingsPage() {
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch user
     fetch("/api/auth/session")
       .then((res) => res.json())
       .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        }
+        if (data.user) setUser(data.user);
       })
       .catch((err) => console.error("Failed to fetch session", err));
 
-    // Fetch store settings
     fetch("/api/admin/settings")
       .then((res) => res.json())
       .then((data) => {
@@ -78,7 +66,6 @@ export default function SettingsPage() {
       })
       .catch((err) => console.error("Failed to fetch settings", err));
 
-    // Fetch team members
     fetchTeamMembers();
   }, []);
 
@@ -95,7 +82,7 @@ export default function SettingsPage() {
   };
 
   const handleUpdateSetting = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const handleSaveSettings = async () => {
@@ -109,7 +96,7 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setSaveMessage({ type: 'success', text: 'Settings saved successfully!' });
+        setSaveMessage({ type: 'success', text: 'Settings saved successfully' });
       } else {
         throw new Error(data.error);
       }
@@ -158,7 +145,7 @@ export default function SettingsPage() {
       const res = await fetch(`/api/admin/team/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
-        fetchTeamMembers(); // refresh
+        fetchTeamMembers(); 
       } else {
         alert(data.error);
       }
@@ -169,10 +156,10 @@ export default function SettingsPage() {
   };
 
   const tabs = [
-    { id: "profile", label: "Profile & Account", icon: User },
-    { id: "store", label: "Store Configuration", icon: Store },
-    { id: "payments", label: "Payments & Checkout", icon: CreditCard },
-    { id: "shipping", label: "Shipping & Delivery", icon: Truck },
+    { id: "profile", label: "Profile", icon: User },
+    { id: "store", label: "Store details", icon: Store },
+    { id: "payments", label: "Payments", icon: CreditCard },
+    { id: "shipping", label: "Shipping", icon: Truck },
     { id: "notifications", label: "Notifications", icon: BellRing },
     { id: "security", label: "Team & Security", icon: Shield },
   ];
@@ -327,547 +314,420 @@ export default function SettingsPage() {
             <div className={styles.sectionGroup}>
               <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h2 className={styles.sectionTitle}>Shipping & delivery</h2>
-                  <p className={styles.sectionSubtitle}>Setup your delivery zones, rates, and pickup options.</p>
+                  <h2 className={styles.sectionTitle}>Shipping</h2>
+                  <p className={styles.sectionSubtitle}>Set up delivery zones, rates, and pickup options.</p>
                 </div>
                 <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
                   {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
                 </button>
               </div>
 
-              <div className={styles.settingsBlock}>
-                <h3 className={styles.blockTitle}>General options</h3>
-                
-                <div className={styles.toggleRow}>
-                  <div>
-                    <strong>Local pickup</strong>
-                    <span className={styles.helpText}>Allow customers to pick up orders from your physical stores.</span>
-                  </div>
-                  <label className={styles.switch}>
-                    <input 
-                      type="checkbox" 
-                      checked={settings.isLocalPickupEnabled}
-                      onChange={(e) => handleUpdateSetting('isLocalPickupEnabled', e.target.checked)}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
+              <div className={styles.toggleGroup}>
+                <div className={styles.toggleInfo}>
+                  <span className={styles.toggleLabel}>Local pickup</span>
+                  <span className={styles.toggleDesc}>Allow customers to pick up orders from physical locations</span>
                 </div>
-
-                {settings.isLocalPickupEnabled && (
-                  <div className={styles.subSettingsContainer}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Pickup locations</h4>
-                      <button 
-                        className={styles.btnSecondary} 
-                        style={{ padding: '6px 12px', fontSize: '13px' }}
-                        onClick={() => {
-                          const newLoc = { id: Date.now().toString(), name: "", address: "" };
-                          handleUpdateSetting('pickupLocations', [...settings.pickupLocations, newLoc]);
-                        }}
-                      >
-                        Add location
-                      </button>
-                    </div>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {settings.pickupLocations.map((loc: any, i: number) => (
-                        <div key={loc.id} className={styles.rowCard}>
-                          <div className={styles.formGrid} style={{ flex: 1, margin: 0 }}>
-                            <div className={styles.formGroup} style={{ margin: 0 }}>
-                              <label className={styles.formLabel}>Location name</label>
-                              <input 
-                                type="text" 
-                                className={styles.formInput} 
-                                value={loc.name} 
-                                onChange={(e) => {
-                                  const newLocs = [...settings.pickupLocations];
-                                  newLocs[i].name = e.target.value;
-                                  handleUpdateSetting('pickupLocations', newLocs);
-                                }}
-                                placeholder="e.g. Main HQ" 
-                              />
-                            </div>
-                            <div className={styles.formGroup} style={{ margin: 0 }}>
-                              <label className={styles.formLabel}>Address</label>
-                              <input 
-                                type="text" 
-                                className={styles.formInput} 
-                                value={loc.address} 
-                                onChange={(e) => {
-                                  const newLocs = [...settings.pickupLocations];
-                                  newLocs[i].address = e.target.value;
-                                  handleUpdateSetting('pickupLocations', newLocs);
-                                }}
-                                placeholder="Full address" 
-                              />
-                            </div>
-                          </div>
-                          <button 
-                            className={styles.iconBtnDanger} 
-                            onClick={() => handleUpdateSetting('pickupLocations', settings.pickupLocations.filter((l: any) => l.id !== loc.id))}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className={styles.formGroup} style={{ marginTop: '32px', maxWidth: '300px' }}>
-                  <label className={styles.formLabel}>Free delivery threshold (₵)</label>
+                <label className={styles.switch}>
                   <input 
-                    type="number" 
-                    className={styles.formInput} 
-                    value={settings.freeDeliveryThreshold} 
-                    onChange={(e) => handleUpdateSetting('freeDeliveryThreshold', Number(e.target.value))}
-                    placeholder="e.g. 5000" 
+                    type="checkbox" 
+                    checked={settings.isLocalPickupEnabled}
+                    onChange={(e) => handleUpdateSetting('isLocalPickupEnabled', e.target.checked)}
                   />
-                </div>
+                  <span className={styles.slider}></span>
+                </label>
               </div>
 
-              <div className={styles.settingsBlock}>
-                <h3 className={styles.blockTitle}>Delivery zones</h3>
-
-                <div className={styles.toggleRow}>
-                  <div>
-                    <strong>Home delivery</strong>
-                    <span className={styles.helpText}>Deliver orders directly to customers.</span>
+              {settings.isLocalPickupEnabled && (
+                <div className={styles.listContainer}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>Locations</span>
+                    <button 
+                      className={styles.btnSecondary} 
+                      onClick={() => handleUpdateSetting('pickupLocations', [...settings.pickupLocations, { id: Date.now().toString(), name: "New Location", address: "" }])}
+                    >
+                      <Plus size={16} /> Add location
+                    </button>
                   </div>
-                  <label className={styles.switch}>
-                    <input 
-                      type="checkbox" 
-                      checked={settings.isDeliveryEnabled}
-                      onChange={(e) => handleUpdateSetting('isDeliveryEnabled', e.target.checked)}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
-                </div>
-
-                {settings.isDeliveryEnabled && (
-                  <div className={styles.subSettingsContainer}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Configured zones</h4>
+                  {settings.pickupLocations.map((loc: any, i: number) => (
+                    <div key={loc.id} className={styles.listItem}>
+                      <div className={styles.listItemContent} style={{ flexWrap: 'wrap' }}>
+                        <input 
+                          type="text" 
+                          className={styles.formInput} 
+                          value={loc.name} 
+                          onChange={(e) => {
+                            const newLocs = [...settings.pickupLocations];
+                            newLocs[i].name = e.target.value;
+                            handleUpdateSetting('pickupLocations', newLocs);
+                          }}
+                          placeholder="Location name" 
+                          style={{ flex: 1, minWidth: '200px' }}
+                        />
+                        <input 
+                          type="text" 
+                          className={styles.formInput} 
+                          value={loc.address} 
+                          onChange={(e) => {
+                            const newLocs = [...settings.pickupLocations];
+                            newLocs[i].address = e.target.value;
+                            handleUpdateSetting('pickupLocations', newLocs);
+                          }}
+                          placeholder="Full address" 
+                          style={{ flex: 2, minWidth: '300px' }}
+                        />
+                      </div>
                       <button 
-                        className={styles.btnSecondary} 
-                        style={{ padding: '6px 12px', fontSize: '13px' }}
-                        onClick={() => {
-                          const newZone = { id: Date.now().toString(), name: "", time: "", rate: 0 };
-                          handleUpdateSetting('deliveryZones', [...settings.deliveryZones, newZone]);
-                        }}
+                        className={styles.iconBtnDanger} 
+                        onClick={() => handleUpdateSetting('pickupLocations', settings.pickupLocations.filter((l: any) => l.id !== loc.id))}
                       >
-                        Add zone
+                        <Trash2 size={18} />
                       </button>
                     </div>
-                    
-                    <div className={styles.zonesContainer}>
-                      {settings.deliveryZones.map((zone: any, i: number) => (
-                        <div key={zone.id} className={styles.rowCard}>
-                          <div className={styles.zoneGrid}>
-                            <div className={styles.formGroup} style={{ margin: 0 }}>
-                              <label className={styles.formLabel}>Zone name</label>
-                              <input 
-                                type="text" 
-                                className={styles.formInput} 
-                                value={zone.name} 
-                                onChange={(e) => {
-                                  const newZones = [...settings.deliveryZones];
-                                  newZones[i].name = e.target.value;
-                                  handleUpdateSetting('deliveryZones', newZones);
-                                }}
-                                placeholder="e.g. Accra"
-                              />
-                            </div>
-                            <div className={styles.formGroup} style={{ margin: 0 }}>
-                              <label className={styles.formLabel}>Delivery time</label>
-                              <input 
-                                type="text" 
-                                className={styles.formInput} 
-                                value={zone.time} 
-                                onChange={(e) => {
-                                  const newZones = [...settings.deliveryZones];
-                                  newZones[i].time = e.target.value;
-                                  handleUpdateSetting('deliveryZones', newZones);
-                                }}
-                                placeholder="e.g. 1-2 Days"
-                              />
-                            </div>
-                            <div className={styles.formGroup} style={{ margin: 0 }}>
-                              <label className={styles.formLabel}>Flat rate (₵)</label>
-                              <input 
-                                type="number" 
-                                className={styles.formInput} 
-                                value={zone.rate} 
-                                onChange={(e) => {
-                                  const newZones = [...settings.deliveryZones];
-                                  newZones[i].rate = Number(e.target.value);
-                                  handleUpdateSetting('deliveryZones', newZones);
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <button 
-                            className={styles.iconBtnDanger} 
-                            onClick={() => handleUpdateSetting('deliveryZones', settings.deliveryZones.filter((z: any) => z.id !== zone.id))}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              )}
+
+              <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '16px 0' }} />
+
+              <div className={styles.toggleGroup}>
+                <div className={styles.toggleInfo}>
+                  <span className={styles.toggleLabel}>Home delivery</span>
+                  <span className={styles.toggleDesc}>Allow customers to have orders delivered to their address</span>
+                </div>
+                <label className={styles.switch}>
+                  <input 
+                    type="checkbox" 
+                    checked={settings.isDeliveryEnabled}
+                    onChange={(e) => handleUpdateSetting('isDeliveryEnabled', e.target.checked)}
+                  />
+                  <span className={styles.slider}></span>
+                </label>
               </div>
+
+              {settings.isDeliveryEnabled && (
+                <div className={styles.listContainer}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>Delivery zones</span>
+                    <button 
+                      className={styles.btnSecondary} 
+                      onClick={() => handleUpdateSetting('deliveryZones', [...settings.deliveryZones, { id: Date.now().toString(), name: "New Zone", time: "1-2 Days", rate: 0 }])}
+                    >
+                      <Plus size={16} /> Add zone
+                    </button>
+                  </div>
+                  {settings.deliveryZones.map((zone: any, i: number) => (
+                    <div key={zone.id} className={styles.listItem}>
+                      <div className={styles.listItemContent} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', width: '100%' }}>
+                        <div className={styles.formGroup}>
+                          <label className={styles.formLabel}>Zone name</label>
+                          <input 
+                            type="text" className={styles.formInput} value={zone.name} 
+                            onChange={(e) => {
+                              const newZones = [...settings.deliveryZones];
+                              newZones[i].name = e.target.value;
+                              handleUpdateSetting('deliveryZones', newZones);
+                            }}
+                          />
+                        </div>
+                        <div className={styles.formGroup}>
+                          <label className={styles.formLabel}>Delivery time</label>
+                          <input 
+                            type="text" className={styles.formInput} value={zone.time} 
+                            onChange={(e) => {
+                              const newZones = [...settings.deliveryZones];
+                              newZones[i].time = e.target.value;
+                              handleUpdateSetting('deliveryZones', newZones);
+                            }}
+                          />
+                        </div>
+                        <div className={styles.formGroup}>
+                          <label className={styles.formLabel}>Flat rate (₵)</label>
+                          <input 
+                            type="number" className={styles.formInput} value={zone.rate} 
+                            onChange={(e) => {
+                              const newZones = [...settings.deliveryZones];
+                              newZones[i].rate = Number(e.target.value);
+                              handleUpdateSetting('deliveryZones', newZones);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <button 
+                        className={styles.iconBtnDanger} 
+                        onClick={() => handleUpdateSetting('deliveryZones', settings.deliveryZones.filter((z: any) => z.id !== zone.id))}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <div className={styles.formGroup} style={{ marginTop: '24px', maxWidth: '300px' }}>
+                    <label className={styles.formLabel}>Free delivery threshold (₵)</label>
+                    <input 
+                      type="number" className={styles.formInput} 
+                      value={settings.freeDeliveryThreshold} 
+                      onChange={(e) => handleUpdateSetting('freeDeliveryThreshold', Number(e.target.value))}
+                      placeholder="e.g. 5000" 
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "notifications" && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Notifications & Alerts</h2>
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 className={styles.sectionTitle}>Notifications</h2>
+                  <p className={styles.sectionSubtitle}>Manage automated emails and system alerts.</p>
+                </div>
                 <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
                 </button>
               </div>
-              <p className={styles.sectionSubtitle}>Manage automated emails and system alerts for both admins and customers.</p>
 
-              <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('adminAlerts')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.adminAlerts ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Admin Alerts</h3>
-                  {expandedSections.adminAlerts ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <div>
+                <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Admin Alerts</h3>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>New order received</span>
+                    <span className={styles.toggleDesc}>Receive an email when a customer places an order</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.adminAlertNewOrder} onChange={(e) => handleUpdateSetting('adminAlertNewOrder', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
                 </div>
-                
-                {expandedSections.adminAlerts && (
-                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="alertNewOrder" 
-                        className={styles.checkboxInput} 
-                        checked={settings.adminAlertNewOrder}
-                        onChange={(e) => handleUpdateSetting('adminAlertNewOrder', e.target.checked)}
-                      />
-                      <label htmlFor="alertNewOrder" className={styles.checkboxLabel}>
-                        <strong>New Order Received</strong>
-                        <span className={styles.helpText}>Get an email instantly when a customer places a new order.</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="alertNewUser" 
-                        className={styles.checkboxInput} 
-                        checked={settings.adminAlertNewUser}
-                        onChange={(e) => handleUpdateSetting('adminAlertNewUser', e.target.checked)}
-                      />
-                      <label htmlFor="alertNewUser" className={styles.checkboxLabel}>
-                        <strong>New Customer Sign-up</strong>
-                        <span className={styles.helpText}>Get notified when a new user registers an account on your store.</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="alertLowStock" 
-                        className={styles.checkboxInput} 
-                        checked={settings.adminAlertLowStock}
-                        onChange={(e) => handleUpdateSetting('adminAlertLowStock', e.target.checked)}
-                      />
-                      <label htmlFor="alertLowStock" className={styles.checkboxLabel}>
-                        <strong>Low Stock Warnings</strong>
-                        <span className={styles.helpText}>Receive alerts when product inventory falls below a specific threshold.</span>
-                      </label>
-                    </div>
-
-                    {settings.adminAlertLowStock && (
-                      <div className={styles.formGroup} style={{ marginTop: '8px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
-                        <label className={styles.formLabel}>Low Stock Threshold</label>
-                        <input 
-                          type="number" 
-                          className={styles.formInput} 
-                          value={settings.lowStockThreshold} 
-                          onChange={(e) => handleUpdateSetting('lowStockThreshold', Number(e.target.value))}
-                          placeholder="e.g. 5" 
-                          style={{ maxWidth: '150px' }} 
-                        />
-                        <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Alert when stock is equal to or less than this number.</span>
-                      </div>
-                    )}
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>New customer sign-up</span>
+                    <span className={styles.toggleDesc}>Get notified when a new user registers</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.adminAlertNewUser} onChange={(e) => handleUpdateSetting('adminAlertNewUser', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Low stock warnings</span>
+                    <span className={styles.toggleDesc}>Receive alerts when product inventory falls below threshold</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.adminAlertLowStock} onChange={(e) => handleUpdateSetting('adminAlertLowStock', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+                {settings.adminAlertLowStock && (
+                  <div className={styles.formGroup} style={{ marginTop: '16px', maxWidth: '200px' }}>
+                    <label className={styles.formLabel}>Low stock threshold</label>
+                    <input 
+                      type="number" className={styles.formInput} 
+                      value={settings.lowStockThreshold} 
+                      onChange={(e) => handleUpdateSetting('lowStockThreshold', Number(e.target.value))}
+                    />
                   </div>
                 )}
               </div>
 
-              <div className={styles.divider}></div>
+              <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '16px 0' }} />
 
-              <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('customerAlerts')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.customerAlerts ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Customer Emails</h3>
-                  {expandedSections.customerAlerts ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                </div>
-                
-                {expandedSections.customerAlerts && (
-                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="emailOrderConfirm" 
-                        className={styles.checkboxInput} 
-                        checked={settings.customerEmailOrderConfirm}
-                        onChange={(e) => handleUpdateSetting('customerEmailOrderConfirm', e.target.checked)}
-                      />
-                      <label htmlFor="emailOrderConfirm" className={styles.checkboxLabel}>
-                        <strong>Order Confirmation</strong>
-                        <span className={styles.helpText}>Automatically email a receipt to the customer when they checkout.</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="emailOrderShipped" 
-                        className={styles.checkboxInput} 
-                        checked={settings.customerEmailOrderShipped}
-                        onChange={(e) => handleUpdateSetting('customerEmailOrderShipped', e.target.checked)}
-                      />
-                      <label htmlFor="emailOrderShipped" className={styles.checkboxLabel}>
-                        <strong>Order Shipped</strong>
-                        <span className={styles.helpText}>Send a notification when you mark their order status as "Shipped".</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="emailReview" 
-                        className={styles.checkboxInput} 
-                        checked={settings.customerEmailReview}
-                        onChange={(e) => handleUpdateSetting('customerEmailReview', e.target.checked)}
-                      />
-                      <label htmlFor="emailReview" className={styles.checkboxLabel}>
-                        <strong>Review Request</strong>
-                        <span className={styles.helpText}>Automatically ask for a review 7 days after the order is delivered.</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="emailWelcome" 
-                        className={styles.checkboxInput} 
-                        checked={settings.customerEmailWelcome}
-                        onChange={(e) => handleUpdateSetting('customerEmailWelcome', e.target.checked)}
-                      />
-                      <label htmlFor="emailWelcome" className={styles.checkboxLabel}>
-                        <strong>Welcome Email</strong>
-                        <span className={styles.helpText}>Send a customized welcome message when a new user registers.</span>
-                      </label>
-                    </div>
+              <div>
+                <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Customer Emails</h3>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Order confirmation</span>
+                    <span className={styles.toggleDesc}>Automatically email receipt after checkout</span>
                   </div>
-                )}
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.customerEmailOrderConfirm} onChange={(e) => handleUpdateSetting('customerEmailOrderConfirm', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Order shipped</span>
+                    <span className={styles.toggleDesc}>Send a notification when order status is marked as shipped</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.customerEmailOrderShipped} onChange={(e) => handleUpdateSetting('customerEmailOrderShipped', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Review request</span>
+                    <span className={styles.toggleDesc}>Ask for a review 7 days after delivery</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.customerEmailReview} onChange={(e) => handleUpdateSetting('customerEmailReview', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Welcome email</span>
+                    <span className={styles.toggleDesc}>Send a message when a new user registers</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.customerEmailWelcome} onChange={(e) => handleUpdateSetting('customerEmailWelcome', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === "security" && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Team & Security</h2>
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 className={styles.sectionTitle}>Team & Security</h2>
+                  <p className={styles.sectionSubtitle}>Manage team roles and global security policies.</p>
+                </div>
                 <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Settings"}
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
                 </button>
               </div>
-              <p className={styles.sectionSubtitle}>Manage your team members, roles, and global security policies.</p>
 
-              <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('teamMembers')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.teamMembers ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Team Members</h3>
-                  {expandedSections.teamMembers ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Team Members</h3>
+                  <button className={styles.btnSecondary} onClick={() => setIsInviteModalOpen(true)}>
+                    <Plus size={16} /> Invite member
+                  </button>
                 </div>
-                
-                {expandedSections.teamMembers && (
-                  <div style={{ marginTop: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <p className={styles.helpText} style={{ margin: 0 }}>Invite colleagues to help manage your store. Assign roles to restrict access.</p>
-                      <button 
-                        className={styles.btnSecondary} 
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
-                        onClick={() => setIsInviteModalOpen(true)}
-                      >
-                        <Plus size={16} /> Invite Member
-                      </button>
-                    </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {teamMembers.map(member => (
-                        <div key={member._id} className={styles.zoneRow} style={{ padding: '12px 16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-                            <div className={styles.avatarCircle} style={{ width: '40px', height: '40px', fontSize: '16px' }}>
-                              {member.fullName.charAt(0).toUpperCase()}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
-                                {member.fullName} {user && user._id === member._id && <span style={{ fontSize: '12px', color: 'var(--primary-color)', fontWeight: 'normal' }}>(You)</span>}
-                              </p>
-                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>{member.email || member.phone}</p>
-                            </div>
-                            <div style={{ width: '150px' }}>
-                              <select 
-                                className={styles.formInput} 
-                                value={member.role} 
-                                disabled={user && user._id === member._id} 
-                                style={{ padding: '8px 12px' }}
-                                onChange={() => {}} // Could implement change role logic here later
-                              >
-                                <option value="admin">Super Admin</option>
-                                <option value="manager">Manager</option>
-                                <option value="support">Support Staff</option>
-                              </select>
-                            </div>
-                          </div>
-                          {(!user || user._id !== member._id) && (
-                            <button className={styles.iconBtnDanger} aria-label="Remove Member" style={{ marginTop: 0 }} onClick={() => handleRemoveTeamMember(member._id)}>
-                              <Trash2 size={18} />
-                            </button>
-                          )}
+                <div className={styles.listContainer}>
+                  {teamMembers.map(member => (
+                    <div key={member._id} className={styles.listItem}>
+                      <div className={styles.listItemContent}>
+                        <div className={styles.avatarCircle} style={{ width: '40px', height: '40px', fontSize: '16px' }}>
+                          {member.fullName.charAt(0).toUpperCase()}
                         </div>
-                      ))}
+                        <div style={{ flex: 1 }}>
+                          <h4 className={styles.listItemTitle}>
+                            {member.fullName} {user && user._id === member._id && <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>(You)</span>}
+                          </h4>
+                          <p className={styles.listItemSubtitle}>{member.email || member.phone}</p>
+                        </div>
+                        <div style={{ width: '160px' }}>
+                          <select 
+                            className={styles.formInput} 
+                            value={member.role} 
+                            disabled={user && user._id === member._id} 
+                          >
+                            <option value="admin">Super Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="support">Support</option>
+                          </select>
+                        </div>
+                      </div>
+                      {(!user || user._id !== member._id) && (
+                        <button className={styles.iconBtnDanger} onClick={() => handleRemoveTeamMember(member._id)}>
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
 
-              <div className={styles.divider}></div>
+              <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '16px 0' }} />
 
-              <div className={styles.settingsBlock}>
-                <div 
-                  onClick={() => toggleSection('security')}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.security ? '16px' : '0' }}
-                >
-                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Global Security Policies</h3>
-                  {expandedSections.security ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              <div>
+                <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Security Policies</h3>
+                
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Require 2FA</span>
+                    <span className={styles.toggleDesc}>Force all staff to use an authenticator app</span>
+                  </div>
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.require2FA} onChange={(e) => handleUpdateSetting('require2FA', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
                 </div>
 
-                {expandedSections.security && (
-                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="require2FA" 
-                        className={styles.checkboxInput} 
-                        checked={settings.require2FA}
-                        onChange={(e) => handleUpdateSetting('require2FA', e.target.checked)}
-                      />
-                      <label htmlFor="require2FA" className={styles.checkboxLabel}>
-                        <strong>Require Two-Factor Authentication (2FA)</strong>
-                        <span className={styles.helpText}>Force all staff members to use an authenticator app to log in. Highly recommended.</span>
-                      </label>
-                    </div>
-
-                    <div className={styles.checkboxGroup}>
-                      <input 
-                        type="checkbox" 
-                        id="sessionTimeout" 
-                        className={styles.checkboxInput} 
-                        checked={settings.sessionTimeout}
-                        onChange={(e) => handleUpdateSetting('sessionTimeout', e.target.checked)}
-                      />
-                      <label htmlFor="sessionTimeout" className={styles.checkboxLabel}>
-                        <strong>Strict Session Timeout</strong>
-                        <span className={styles.helpText}>Automatically log out inactive admins after 30 minutes of no activity.</span>
-                      </label>
-                    </div>
-
-                    <div style={{ paddingLeft: '30px', marginTop: '8px' }}>
-                      <button className={styles.btnSecondary} style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                        Force Logout All Devices
-                      </button>
-                      <span className={styles.helpText} style={{ display: 'block', marginTop: '8px' }}>
-                        This will instantly log out every active session across all devices, except your current one.
-                      </span>
-                    </div>
+                <div className={styles.toggleGroup}>
+                  <div className={styles.toggleInfo}>
+                    <span className={styles.toggleLabel}>Strict session timeout</span>
+                    <span className={styles.toggleDesc}>Log out inactive admins after 30 minutes</span>
                   </div>
-                )}
+                  <label className={styles.switch}>
+                    <input type="checkbox" checked={settings.sessionTimeout} onChange={(e) => handleUpdateSetting('sessionTimeout', e.target.checked)} />
+                    <span className={styles.slider}></span>
+                  </label>
+                </div>
+
+                <div style={{ marginTop: '32px' }}>
+                  <button className={styles.btnDanger}>
+                    Force logout all devices
+                  </button>
+                  <p className={styles.sectionSubtitle} style={{ marginTop: '12px' }}>
+                    Instantly log out every active session across all devices except your current one.
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {["payments"].includes(activeTab) && (
             <div className={styles.comingSoon}>
-              <ImageIcon size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
-              <h2 className={styles.sectionTitle}>Coming Soon</h2>
+              <ImageIcon size={48} style={{ opacity: 0.1, marginBottom: '24px' }} />
+              <h2 className={styles.sectionTitle}>Payments integration</h2>
               <p className={styles.sectionSubtitle}>This module is currently under development.</p>
             </div>
           )}
         </main>
       </div>
 
-      {/* Invite Member Modal */}
       {isInviteModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'var(--card-bg)', width: '100%', maxWidth: '450px', borderRadius: '12px', padding: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid var(--border-primary)', position: 'relative' }}>
-            <button 
-              onClick={() => setIsInviteModalOpen(false)}
-              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
-            >
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <button className={styles.modalClose} onClick={() => setIsInviteModalOpen(false)}>
               <X size={20} />
             </button>
-            <h2 className={styles.sectionTitle} style={{ margin: '0 0 8px 0' }}>Invite Team Member</h2>
-            <p className={styles.sectionSubtitle} style={{ marginBottom: '24px' }}>Send an invitation link via WhatsApp with an OTP.</p>
+            <h2 className={styles.sectionTitle} style={{ marginBottom: '8px' }}>Invite team member</h2>
+            <p className={styles.sectionSubtitle} style={{ marginBottom: '32px' }}>Send an invitation link via WhatsApp with an OTP.</p>
 
-            <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                <label className={styles.formLabel}>Full Name</label>
+            <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Full name</label>
                 <input 
-                  type="text" 
-                  required 
-                  className={styles.formInput} 
-                  placeholder="e.g. John Doe"
-                  value={inviteData.fullName}
+                  type="text" required className={styles.formInput} 
+                  placeholder="e.g. John Doe" value={inviteData.fullName}
                   onChange={(e) => setInviteData({...inviteData, fullName: e.target.value})}
                 />
               </div>
 
-              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                <label className={styles.formLabel}>Phone Number (WhatsApp)</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Phone number</label>
                 <input 
-                  type="tel" 
-                  required 
-                  className={styles.formInput} 
-                  placeholder="e.g. 0241234567"
-                  value={inviteData.phone}
+                  type="tel" required className={styles.formInput} 
+                  placeholder="e.g. 0241234567" value={inviteData.phone}
                   onChange={(e) => setInviteData({...inviteData, phone: e.target.value})}
                 />
               </div>
 
-              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+              <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Role</label>
                 <select 
-                  className={styles.formInput} 
-                  value={inviteData.role}
+                  className={styles.formInput} value={inviteData.role}
                   onChange={(e) => setInviteData({...inviteData, role: e.target.value})}
                 >
                   <option value="manager">Manager</option>
-                  <option value="support">Support Staff</option>
+                  <option value="support">Support</option>
                   <option value="admin">Super Admin</option>
                 </select>
               </div>
 
-              {inviteError && <div style={{ color: '#ef4444', fontSize: '13px', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '4px' }}>{inviteError}</div>}
-              {inviteSuccess && <div style={{ color: '#10b981', fontSize: '13px', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '4px' }}>{inviteSuccess}</div>}
+              {inviteError && <div className={styles.toastError}>{inviteError}</div>}
+              {inviteSuccess && <div className={styles.toastSuccess}>{inviteSuccess}</div>}
 
-              <button type="submit" className={styles.btnPrimary} disabled={isInviting} style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-                {isInviting ? <><Loader2 size={18} className="animate-spin" /> Sending...</> : "Send WhatsApp Invitation"}
+              <button type="submit" className={styles.btnPrimary} disabled={isInviting} style={{ marginTop: '8px', width: '100%' }}>
+                {isInviting ? <><Loader2 size={18} className="animate-spin" /> Sending...</> : "Send invitation"}
               </button>
             </form>
           </div>
