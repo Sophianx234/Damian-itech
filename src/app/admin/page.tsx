@@ -7,17 +7,29 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   Legend
 } from "recharts";
-import { Loader2 } from "lucide-react";
+import { 
+  Loader2, 
+  DollarSign, 
+  ShoppingCart, 
+  Users, 
+  CreditCard,
+  Package, 
+  Clock, 
+  XCircle, 
+  RefreshCw,
+  BarChart2,
+  PieChart as PieChartIcon
+} from "lucide-react";
 import styles from "./AdminDashboard.module.css";
 
-const INVENTORY_COLORS = ['#ffffff', '#8B5CF6']; // Stark white for Store, Cyber Violet for Used
+const INVENTORY_COLORS = ['#ffffff', '#8B5CF6'];
 
 export default function DashboardMainContent() {
   const [data, setData] = useState<any>(null);
@@ -54,35 +66,59 @@ export default function DashboardMainContent() {
       {/* 1. KPI Overview Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Total Revenue</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Total Revenue</h3>
+            <DollarSign size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>${kpis.totalRevenue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Total Orders</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Total Orders</h3>
+            <ShoppingCart size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Total Customers</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Total Customers</h3>
+            <Users size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.totalCustomers}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Avg Order Value</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Avg Order Value</h3>
+            <CreditCard size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>${kpis.averageOrderValue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Active Inventory</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Active Inventory</h3>
+            <Package size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.activeInventory}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Pending Orders</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Pending Orders</h3>
+            <Clock size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Failed Orders</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Failed Orders</h3>
+            <XCircle size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <h3 className={styles.statLabel}>Active Swap Proposals</h3>
+          <div className={styles.statHeader}>
+            <h3 className={styles.statLabel}>Active Swaps</h3>
+            <RefreshCw size={18} className={styles.statIcon} />
+          </div>
           <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
         </div>
       </div>
@@ -90,7 +126,9 @@ export default function DashboardMainContent() {
       {/* 2. Analytics Section */}
       <div className={styles.chartsGrid}>
         <div className={styles.chartCard}>
-          <h2 className={styles.cardTitle}>Revenue Overview</h2>
+          <h2 className={styles.cardTitle}>
+            <BarChart2 size={20} color="#8B5CF6" /> Revenue Overview
+          </h2>
           <div style={{ width: "100%", height: 300 }}>
             {salesData.length > 0 ? (
               <ResponsiveContainer>
@@ -98,7 +136,7 @@ export default function DashboardMainContent() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a1a1a" />
                   <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                  <Tooltip 
+                  <RechartsTooltip 
                     contentStyle={{ backgroundColor: '#000000', borderColor: '#1a1a1a', color: '#ffffff' }}
                     itemStyle={{ color: '#ffffff' }}
                     cursor={{ fill: '#1a1a1a' }}
@@ -115,7 +153,9 @@ export default function DashboardMainContent() {
         </div>
 
         <div className={styles.chartCard}>
-          <h2 className={styles.cardTitle}>Inventory Breakdown</h2>
+          <h2 className={styles.cardTitle}>
+            <PieChartIcon size={20} color="#8B5CF6" /> Inventory Breakdown
+          </h2>
           <div style={{ width: "100%", height: 300 }}>
             {inventoryBreakdown.length > 0 ? (
               <ResponsiveContainer>
@@ -132,7 +172,7 @@ export default function DashboardMainContent() {
                       <Cell key={`cell-${index}`} fill={INVENTORY_COLORS[index % INVENTORY_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <RechartsTooltip 
                     contentStyle={{ backgroundColor: '#000000', borderColor: '#1a1a1a', color: '#ffffff' }}
                     itemStyle={{ color: '#ffffff' }}
                   />
@@ -148,76 +188,80 @@ export default function DashboardMainContent() {
         </div>
       </div>
 
-      {/* 3. Operational Tables */}
-      <div className={styles.tablesGrid}>
-        {/* Recent Orders */}
+      {/* 3. Primary Table (Full Width) */}
+      <div className={styles.fullWidthTable}>
         <div className={styles.tableCard}>
           <h2 className={styles.cardTitle}>Recent Orders</h2>
-          <table className={styles.dataTable}>
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Product</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.length > 0 ? (
-                recentOrders.map((order: any) => {
-                  let statusClass = styles.statusPending;
-                  if (order.status.toLowerCase() === "completed" || order.status.toLowerCase() === "delivered") statusClass = styles.statusCompleted;
-                  if (order.status.toLowerCase() === "cancelled") statusClass = styles.statusCancelled;
-                  
-                  return (
-                    <tr key={order.id}>
-                      <td>{order.customer}</td>
-                      <td>{order.product}</td>
-                      <td className={styles.textMuted}>{order.date}</td>
-                      <td className={styles.textMuted}>{order.type}</td>
-                      <td className={statusClass}>{order.status}</td>
-                    </tr>
-                  );
-                })
-              ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table className={styles.dataTable}>
+              <thead>
                 <tr>
-                  <td colSpan={5} style={{ textAlign: "center", color: "#a1a1aa", padding: "24px 0" }}>
-                    No recent orders.
-                  </td>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Status</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((order: any) => {
+                    let statusClass = styles.statusPending;
+                    if (order.status.toLowerCase() === "completed" || order.status.toLowerCase() === "delivered") statusClass = styles.statusCompleted;
+                    if (order.status.toLowerCase() === "cancelled") statusClass = styles.statusCancelled;
+                    
+                    return (
+                      <tr key={order.id}>
+                        <td style={{ fontWeight: 500 }}>{order.customer}</td>
+                        <td>{order.product}</td>
+                        <td className={styles.textMuted}>{order.date}</td>
+                        <td className={styles.textMuted}>{order.type}</td>
+                        <td className={statusClass}>{order.status}</td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
+                      No recent orders.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
 
+      {/* 4. Secondary Tables Grid (3 Columns) */}
+      <div className={styles.secondaryTablesGrid}>
         {/* Swap Offers */}
         <div className={styles.tableCard}>
-          <h2 className={styles.cardTitle}>Swap Offers & Reservations</h2>
+          <h2 className={styles.cardTitle}>Swap Offers</h2>
           <div className={styles.swapList}>
-            <div className={styles.swapHeader} style={{ gridTemplateColumns: '1fr 2fr' }}>
+            <div className={styles.swapHeader}>
               <span>User</span>
               <span>Target Product</span>
             </div>
             {swapOffers.length > 0 ? (
               swapOffers.map((offer: any) => (
-                <div key={offer.id} className={styles.swapItem} style={{ gridTemplateColumns: '1fr 2fr' }}>
+                <div key={offer.id} className={styles.swapItem}>
                   <div className={styles.swapUser}>{offer.user}</div>
                   <div className={styles.swapTarget}>{offer.targetProduct}</div>
                 </div>
               ))
             ) : (
-              <div style={{ textAlign: "center", color: "#a1a1aa", padding: "24px 0" }}>
+              <div style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
                 No pending swap offers.
               </div>
             )}
           </div>
         </div>
 
-        {/* Low Stock & Top Customers */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className={styles.tableCard}>
-            <h2 className={styles.cardTitle}>Low Stock Alerts</h2>
+        {/* Low Stock */}
+        <div className={styles.tableCard}>
+          <h2 className={styles.cardTitle}>Low Stock Alerts</h2>
+          <div style={{ overflowX: "auto" }}>
             <table className={styles.dataTable}>
               <tbody>
                 {lowStockAlerts.length > 0 ? (
@@ -231,7 +275,7 @@ export default function DashboardMainContent() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "24px 0" }}>
+                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
                       Inventory looks good.
                     </td>
                   </tr>
@@ -239,15 +283,18 @@ export default function DashboardMainContent() {
               </tbody>
             </table>
           </div>
+        </div>
 
-          <div className={styles.tableCard}>
-            <h2 className={styles.cardTitle}>Top Customers</h2>
+        {/* Top Customers */}
+        <div className={styles.tableCard}>
+          <h2 className={styles.cardTitle}>Top Customers</h2>
+          <div style={{ overflowX: "auto" }}>
             <table className={styles.dataTable}>
               <tbody>
                 {topCustomers.length > 0 ? (
                   topCustomers.map((c: any, index: number) => (
                     <tr key={index}>
-                      <td>{c.name}</td>
+                      <td style={{ color: '#a1a1aa' }}>{c.name}</td>
                       <td style={{ textAlign: 'right', fontWeight: 500, color: '#ffffff' }}>
                         {c.spent}
                       </td>
@@ -255,7 +302,7 @@ export default function DashboardMainContent() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "24px 0" }}>
+                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
                       No customers yet.
                     </td>
                   </tr>
@@ -264,6 +311,7 @@ export default function DashboardMainContent() {
             </table>
           </div>
         </div>
+
       </div>
     </div>
   );

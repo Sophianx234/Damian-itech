@@ -20,7 +20,14 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  position: relative;
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .statLabel {
@@ -30,6 +37,10 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.statIcon {
+  color: #3f3f46;
 }
 
 .statValue {
@@ -43,7 +54,7 @@
 /* Analytics Section */
 .chartsGrid {
   display: grid;
-  grid-template-columns: 60% 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -59,12 +70,19 @@
   font-weight: 600;
   color: #ffffff;
   margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Tables Section */
-.tablesGrid {
+/* Tables Section - New Orientation */
+.fullWidthTable {
+  margin-bottom: 32px;
+}
+
+.secondaryTablesGrid {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -72,13 +90,11 @@
   background-color: #000000;
   border: 1px solid #1a1a1a;
   padding: 24px;
-  overflow-x: auto;
 }
 
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 
 .dataTable th {
@@ -90,7 +106,6 @@
   letter-spacing: 0.05em;
   padding: 16px 12px;
   border-bottom: 1px solid #1a1a1a;
-  white-space: nowrap;
 }
 
 .dataTable td {
@@ -98,9 +113,6 @@
   font-size: 14px;
   color: #ffffff;
   border-bottom: 1px solid #1a1a1a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .dataTable tr:last-child td {
@@ -135,10 +147,11 @@
 
 .swapItem {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  grid-template-columns: 1fr 2fr;
   padding: 16px 12px;
   border-bottom: 1px solid #1a1a1a;
   font-size: 14px;
+  gap: 16px;
 }
 
 .swapItem:last-child {
@@ -147,7 +160,7 @@
 
 .swapHeader {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr;
+  grid-template-columns: 1fr 2fr;
   padding: 16px 12px;
   border-bottom: 1px solid #1a1a1a;
   font-size: 12px;
@@ -155,24 +168,15 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
+  gap: 16px;
 }
 
 .swapUser {
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .swapTarget {
   color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.swapOffered {
-  color: #a1a1aa;
 }
 
 .dangerText {
@@ -195,7 +199,7 @@
 }
 
 @media (max-width: 1024px) {
-  .chartsGrid, .tablesGrid {
+  .chartsGrid, .secondaryTablesGrid {
     grid-template-columns: 1fr;
   }
 }
