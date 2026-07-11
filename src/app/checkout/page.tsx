@@ -87,30 +87,52 @@ export default function CheckoutPage() {
 
   const initializePayment = usePaystackPayment(paystackConfig);
 
-  const onSuccess = (reference: any) => {
-    // Call the verification endpoint
-    fetch('/api/verify-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reference: reference.reference }),
-    })
-    .then(res => res.json())
-    .then(data => {
-      setIsProcessing(false);
+  const submitOrder = async (reference?: string) => {
+    setIsProcessing(true);
+    
+    const payload = {
+      items: cart,
+      paymentMethod,
+      shippingDetails: {
+        fullName,
+        email,
+        phone,
+        region,
+        streetAddress,
+        additionalInfo,
+        lat,
+        lng,
+      },
+      pickupLocation,
+      reference,
+    };
+
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await res.json();
+      
       if (data.success) {
         setOrderSuccess(true);
         clearCart();
-        console.log("Payment successfully verified. Reference:", reference);
       } else {
-        console.error("Payment verification failed:", data.message);
-        alert("Payment verification failed: " + data.message);
+        alert("Checkout failed: " + data.message);
       }
-    })
-    .catch(err => {
+    } catch (err) {
+      console.error("Order submission error:", err);
+      alert("An error occurred while placing your order.");
+    } finally {
       setIsProcessing(false);
-      console.error("Verification error:", err);
-      alert("An error occurred while verifying your payment.");
-    });
+    }
+  };
+
+  const onSuccess = (reference: any) => {
+    // Call our unified endpoint to verify payment and save the order
+    submitOrder(reference.reference);
   };
 
   const onClose = () => {
@@ -120,17 +142,11 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
     if (paymentMethod === 'paystack') {
-      // Trigger Paystack popup
+      setIsProcessing(true);
       initializePayment({ onSuccess, onClose });
     } else {
-      // Simulate order processing for Delivery / Pickup
-      setTimeout(() => {
-        setIsProcessing(false);
-        setOrderSuccess(true);
-        clearCart();
-      }, 1500);
+      submitOrder();
     }
   };
 
@@ -162,7 +178,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Email Address</label>
-                    <input type="email" required className={styles.input} placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                    <input type="email"  className={styles.input} placeholder="john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
                   </div>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Phone Number</label>
