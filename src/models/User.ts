@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema({
   resetPasswordExpires: {
     type: Date,
   },
+  wishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
+  }],
 }, { timestamps: true });
 
 // Check if the model exists before creating a new one (prevents overwrite errors in hot reloading)

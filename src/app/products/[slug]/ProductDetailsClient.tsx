@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import ProductCard from '../../../components/ProductCard/ProductCard';
 import styles from './ProductDetails.module.css';
 import { useCart } from '../../../context/CartContext';
@@ -12,6 +13,56 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   const [isAdded, setIsAdded] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setIsAuthenticated(true);
+          fetch('/api/wishlist')
+            .then(res => res.json())
+            .then(wishlistData => {
+              if (wishlistData.success && wishlistData.data.some((item: any) => (item._id || item).toString() === product._id.toString())) {
+                setIsWishlisted(true);
+              }
+            });
+        }
+      });
+  }, [product._id]);
+
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      alert("Please log in to add items to your wishlist.");
+      router.push('/login');
+      return;
+    }
+    
+    const previousState = isWishlisted;
+    setIsWishlisted(!isWishlisted);
+
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product._id }),
+      });
+      const data = await res.json();
+      
+      if (!data.success) {
+        setIsWishlisted(previousState);
+        alert(data.error || "Failed to update wishlist");
+      } else {
+        setIsWishlisted(data.isWishlisted);
+      }
+    } catch (err) {
+      setIsWishlisted(previousState);
+      alert("An error occurred");
+    }
+  };
 
   const incrementQty = () => setQuantity(prev => {
     if (product.stock !== undefined && prev >= product.stock) {
@@ -187,13 +238,13 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
 
           {/* Secondary Actions */}
           <div className={styles.secondaryActions}>
-            <button className={styles.actionBtn}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-              <span>Add to Wishlist</span>
-            </button>
-            <button className={styles.actionBtn}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 21l6-6M9 8l-3 3-3-3M3 11V6h5"></path></svg>
-              <span>Compare</span>
+            <button 
+              className={styles.actionBtn}
+              onClick={handleWishlistToggle}
+              style={{ color: isWishlisted ? '#ef4444' : 'inherit' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={isWishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span>{isWishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</span>
             </button>
           </div>
 
