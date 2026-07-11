@@ -23,7 +23,7 @@ export default function LocationMap({ onLocationSelect }: LocationMapProps) {
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    maptilersdk.config.apiKey = process.env.NEXT_PUBLIC_MAPTILER_PUBLIC_KEY || "eE392qCg6XmH94dK1rR6"; // default key if missing
+    maptilersdk.config.apiKey = process.env.NEXT_PUBLIC_MAPTILER_PUBLIC_KEY || "";
 
     const mapInstance = new maptilersdk.Map({
       container: mapContainer.current,
