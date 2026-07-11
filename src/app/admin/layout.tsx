@@ -15,7 +15,9 @@ import {
   Sun,
   Moon,
   User,
-  Bell
+  Bell,
+  AlertTriangle,
+  Info
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -28,6 +30,16 @@ const navItems = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  time: string;
+  link: string;
+  isCritical: boolean;
+}
+
 export default function AdminLayout({
   children,
 }: {
@@ -38,6 +50,8 @@ export default function AdminLayout({
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<{ fullName: string, role: string } | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -50,6 +64,15 @@ export default function AdminLayout({
         }
       })
       .catch((err) => console.error("Failed to fetch session", err));
+
+    fetch("/api/admin/notifications")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setNotifications(data.data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch notifications", err));
   }, []);
 
   const handleLogout = async () => {
@@ -136,9 +159,42 @@ export default function AdminLayout({
               {mounted && (theme === "dark" ? <Sun size={18} /> : <Moon size={18} />)}
             </button>
 
-            <button className={styles.iconBtn}>
-              <Bell size={18} />
-            </button>
+            <div className={styles.notifContainer}>
+              <button 
+                className={styles.iconBtn} 
+                onClick={() => setIsNotifMenuOpen(!isNotifMenuOpen)}
+                aria-label="Notifications"
+              >
+                <Bell size={18} />
+                {notifications.length > 0 && <span className={styles.notifBadge}>{notifications.length}</span>}
+              </button>
+
+              {isNotifMenuOpen && (
+                <div className={styles.notifDropdown}>
+                  <div className={styles.dropdownHeader}>
+                    <p className={styles.dropdownName}>Notifications</p>
+                  </div>
+                  <div className={styles.notifList}>
+                    {notifications.length === 0 ? (
+                      <div className={styles.notifEmpty}>No new notifications</div>
+                    ) : (
+                      notifications.map(n => (
+                        <Link key={n.id} href={n.link} className={styles.notifItem} onClick={() => setIsNotifMenuOpen(false)}>
+                          <div className={n.isCritical ? styles.notifIconCritical : styles.notifIconNormal}>
+                            {n.isCritical ? <AlertTriangle size={14} /> : <Info size={14} />}
+                          </div>
+                          <div className={styles.notifContent}>
+                            <p className={styles.notifTitle}>{n.title}</p>
+                            <p className={styles.notifMessage}>{n.message}</p>
+                            <p className={styles.notifTime}>{new Date(n.time).toLocaleString()}</p>
+                          </div>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className={styles.userMenuContainer}>
               <button
@@ -168,6 +224,18 @@ export default function AdminLayout({
             </div>
           </div>
         </header>
+
+        {notifications.length > 0 && (
+          <div className={styles.notificationBanner}>
+            <AlertTriangle size={16} className={styles.bannerIcon} />
+            <div className={styles.bannerText}>
+              <strong>Attention needed:</strong> You have {notifications.length} new notification{notifications.length > 1 ? 's' : ''} requiring your action.
+            </div>
+            <button className={styles.bannerBtn} onClick={() => setIsNotifMenuOpen(true)}>
+              View Details
+            </button>
+          </div>
+        )}
 
         {/* Dynamic Content Wrapper */}
         <main className={styles.contentWrapper}>{children}</main>
