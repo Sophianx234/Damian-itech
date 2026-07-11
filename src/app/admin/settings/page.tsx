@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon } from "lucide-react";
+import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus } from "lucide-react";
 import styles from "./Settings.module.css";
 
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
@@ -158,7 +158,74 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {["payments", "shipping", "notifications", "security"].includes(activeTab) && (
+          {activeTab === "shipping" && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Shipping & Delivery</h2>
+                <button className={styles.btnPrimary}>Save Settings</button>
+              </div>
+              <p className={styles.sectionSubtitle}>Configure your delivery zones, shipping rates, and pickup options.</p>
+
+              <div className={styles.settingsBlock}>
+                <h3 className={styles.blockTitle}>General Options</h3>
+                
+                <div className={styles.checkboxGroup}>
+                  <input type="checkbox" id="localPickup" className={styles.checkboxInput} defaultChecked />
+                  <label htmlFor="localPickup" className={styles.checkboxLabel}>
+                    <strong>Enable Local Pickup</strong>
+                    <span className={styles.helpText}>Allow customers to pick up their orders from your physical store for free.</span>
+                  </label>
+                </div>
+
+                <div className={styles.formGroup} style={{ marginTop: '24px' }}>
+                  <label className={styles.formLabel}>Free Shipping Threshold (₵)</label>
+                  <input type="number" className={styles.formInput} defaultValue={5000} placeholder="e.g. 5000" />
+                  <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
+                </div>
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.settingsBlock}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Delivery Zones</h3>
+                  <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}>
+                    <Plus size={16} /> Add Zone
+                  </button>
+                </div>
+                
+                <div className={styles.zonesContainer}>
+                  {[
+                    { id: 1, name: "Accra", time: "1-2 Business Days", rate: 50 },
+                    { id: 2, name: "Kumasi", time: "3-5 Business Days", rate: 80 },
+                    { id: 3, name: "Other Regions", time: "5-7 Business Days", rate: 120 }
+                  ].map(zone => (
+                    <div key={zone.id} className={styles.zoneRow}>
+                      <div className={styles.zoneGrid}>
+                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Zone Name</label>
+                          <input type="text" className={styles.formInput} defaultValue={zone.name} />
+                        </div>
+                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Est. Delivery Time</label>
+                          <input type="text" className={styles.formInput} defaultValue={zone.time} />
+                        </div>
+                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Flat Rate (₵)</label>
+                          <input type="number" className={styles.formInput} defaultValue={zone.rate} />
+                        </div>
+                      </div>
+                      <button className={styles.iconBtnDanger} aria-label="Delete Zone">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {["payments", "notifications", "security"].includes(activeTab) && (
             <div className={styles.comingSoon}>
               <ImageIcon size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
               <h2 className={styles.sectionTitle}>Coming Soon</h2>
