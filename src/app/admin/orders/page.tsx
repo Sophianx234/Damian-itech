@@ -204,6 +204,7 @@ export default function AdminOrdersPage() {
                 <th>Order ID</th>
                 <th>Customer</th>
                 <th>Items</th>
+                <th>Payment</th>
                 <th>Total</th>
                 <th>Order Status</th>
                 <th className={styles.actionsHeader}>Actions</th>
@@ -222,7 +223,16 @@ export default function AdminOrdersPage() {
                     </div>
                   </td>
                   <td>
-                    <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
+                    <div className={styles.productCell}>
+                      <div className={`${styles.skeleton} ${styles.skeletonImg}`}></div>
+                      <div className={styles.productInfo}>
+                        <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
+                        <div className={`${styles.skeleton} ${styles.skeletonTextSm}`}></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={`${styles.skeleton} ${styles.skeletonTextSm}`}></div>
                   </td>
                   <td>
                     <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '60px' }}></div>
@@ -244,6 +254,7 @@ export default function AdminOrdersPage() {
               <th>Order ID</th>
               <th>Customer</th>
               <th>Items</th>
+              <th>Payment</th>
               <th>Total</th>
               <th>Order Status</th>
               <th className={styles.actionsHeader}>Actions</th>
@@ -265,19 +276,44 @@ export default function AdminOrdersPage() {
                     </div>
                   </td>
 
+                  
+
+                  {/* Items Column */}
+                  <td>
+                    <div className={styles.productCell}>
+                      <div className={styles.productImageWrapper}>
+                        {order.items[0]?.image ? (
+                          <Image src={order.items[0].image} alt={order.items[0].name} fill className={styles.productThumb} sizes="48px" />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--border-primary)' }}></div>
+                        )}
+                      </div>
+                      <div className={styles.productInfo}>
+                        <h4 className={styles.productTitle} style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {order.items[0]?.name || "Item"}
+                        </h4>
+                        <p className={styles.productBrand}>
+                          {totalItems > 1 ? `+ ${totalItems - 1} more` : '1 item'}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
                   {/* Customer Column */}
                   <td>
                     <div className={styles.productInfo}>
                       <h4 className={styles.productTitle}>{order.shippingDetails?.fullName || "Guest"}</h4>
-                      <p className={styles.productBrand}>{order.shippingDetails?.email || order.guestEmail || "No Email"}</p>
+                      <p className={styles.productBrand}>{order.shippingDetails?.phone || "No Phone"}</p>
                     </div>
                   </td>
 
-                  {/* Items Column */}
+                  {/* Payment Column */}
                   <td>
-                    <span className={styles.detailsCell}>
-                      {totalItems} item{totalItems !== 1 ? 's' : ''}
-                    </span>
+                    <div className={styles.productInfo}>
+                      <span className={styles.detailsCell} style={{ textTransform: 'capitalize' }}>
+                        {order.paymentMethod || "N/A"}
+                      </span>
+                     
+                    </div>
                   </td>
 
                   {/* Total Column */}
@@ -360,8 +396,26 @@ export default function AdminOrdersPage() {
             <div className={styles.qvScrollArea}>
               <div className={styles.qvBody}>
                 <div className={styles.qvInfo}>
-                  <div className={styles.qvPrice}>₵{orderToView.totalAmount.toLocaleString()}</div>
                   
+                   <h4 style={{ margin: '12px 0 4px', fontSize: '15px' }}>Items</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {orderToView.items.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-primary)', padding: '8px', borderRadius: '6px' }}>
+                        {item.image && (
+                          <div style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden' }}>
+                            <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} />
+                          </div>
+                        )}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{item.quantity} x ₵{item.price}</div>
+                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: 600 }}>
+                          ₵{item.quantity * item.price}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                   <h4 style={{ margin: '12px 0 4px', fontSize: '15px' }}>Customer Details</h4>
                   <div className={styles.qvGrid}>
                     <div className={styles.qvItem}>
@@ -419,24 +473,8 @@ export default function AdminOrdersPage() {
                     </div>
                   )}
 
-                  <h4 style={{ margin: '12px 0 4px', fontSize: '15px' }}>Items</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {orderToView.items.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--bg-primary)', padding: '8px', borderRadius: '6px' }}>
-                        {item.image && (
-                          <div style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden' }}>
-                            <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} />
-                          </div>
-                        )}
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{item.quantity} x ₵{item.price}</div>
-                        </div>
-                        <div style={{ fontSize: '14px', fontWeight: 600 }}>
-                          ₵{item.quantity * item.price}
-                        </div>
-                      </div>
-                    ))}
+                  <div className={styles.qvItem} style={{ gridColumn: '1 / -1', fontWeight: 600 }}>
+                   <span>Total</span>  <span className={styles.qvPrice}>₵{orderToView.totalAmount.toLocaleString()}</span>
                   </div>
 
                 </div>

@@ -12,7 +12,6 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { Users, Package, ShoppingCart, DollarSign } from "lucide-react";
 import styles from "./AdminDashboard.module.css";
 
 const salesData = [
@@ -54,40 +53,20 @@ export default function AdminDashboardPage() {
       {/* Top Row: KPI Cards */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.iconWrapper}>
-            <Users size={18} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
-            <p className={styles.statValue}>1,204</p>
-            <h3 className={styles.statLabel}>Total Customers</h3>
-          </div>
+          <h3 className={styles.statLabel}>Total Customers</h3>
+          <p className={styles.statValue}>1,204</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconWrapper}>
-            <Package size={18} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
-            <p className={styles.statValue}>328</p>
-            <h3 className={styles.statLabel}>Total Products</h3>
-          </div>
+          <h3 className={styles.statLabel}>Total Products</h3>
+          <p className={styles.statValue}>328</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconWrapper}>
-            <ShoppingCart size={18} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
-            <p className={styles.statValue}>8,405</p>
-            <h3 className={styles.statLabel}>Total Orders</h3>
-          </div>
+          <h3 className={styles.statLabel}>Total Orders</h3>
+          <p className={styles.statValue}>8,405</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconWrapper}>
-            <DollarSign size={18} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
-            <p className={styles.statValue}>$24.5k</p>
-            <h3 className={styles.statLabel}>Total Sales</h3>
-          </div>
+          <h3 className={styles.statLabel}>Total Sales</h3>
+          <p className={styles.statValue}>$24.5k</p>
         </div>
       </div>
 
