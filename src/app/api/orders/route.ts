@@ -152,3 +152,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: error.message || 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    await dbConnect();
+    const orders = await Order.find().sort({ createdAt: -1 });
+    return NextResponse.json({ success: true, data: orders });
+  } catch (error: any) {
+    console.error("Fetch orders error:", error);
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
