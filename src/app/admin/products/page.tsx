@@ -57,7 +57,7 @@ export default function AdminProductsPage() {
             ram: p.ram,
             storage: p.storage,
             customSpecs: p.customSpecs,
-            price: `₵${Number(p.price).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+            price: `₵${Number(p.isSwappable ? (p.estValue || p.price || 0) : (p.price || 0)).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
             status: p.status,
             image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
           }));
@@ -105,7 +105,12 @@ export default function AdminProductsPage() {
         if (key === 'price') {
           // If it has a currency symbol, strip it
           const cleanPrice = value.toString().replace(/[^0-9.]/g, '');
-          formData.append(key, cleanPrice);
+          const product = products.find(p => p.id === id);
+          if (product?.isSwappable) {
+            formData.append('estValue', cleanPrice);
+          } else {
+            formData.append('price', cleanPrice);
+          }
         } else {
           formData.append(key, value as string);
         }
