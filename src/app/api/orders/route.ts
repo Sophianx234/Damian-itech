@@ -122,11 +122,13 @@ export async function POST(request: Request) {
         formattedPhone = `${formattedPhone}@c.us`;
       }
 
+      const productNames = items.map((item: any) => `${item.quantity}x ${item.name}`).join(', ');
+
       let message = "";
       if (paymentMethod === 'pickup') {
-        message = `Hello ${shippingDetails.fullName || 'Customer'}, your order at Damian iTech has been confirmed! Order ID: ${newOrder._id}. Please have your payment ready when you arrive at ${pickupLocation}. We will prepare your items shortly.`;
+        message = `Hello ${shippingDetails.fullName || 'Customer'}, your order for ${productNames} has been confirmed! Order ID: ${newOrder._id}. Please have your payment ready when you arrive at ${pickupLocation}. We will prepare your items shortly. Thank you for choosing Damian iTech!`;
       } else {
-        message = `Hello ${shippingDetails.fullName || 'Customer'}, your payment was successfully processed! Order ID: ${newOrder._id}. Your items will be dispatched to your location soon. Thank you for choosing Damian iTech!`;
+        message = `Hello ${shippingDetails.fullName || 'Customer'}, your payment for ${productNames} was successfully processed! Order ID: ${newOrder._id}. Your items will be dispatched to your location soon. Thank you for choosing Damian iTech!`;
       }
 
       try {
