@@ -6,10 +6,20 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ShieldCheck, Lock, Loader2, ArrowLeft } from 'lucide-react';
 import { usePaystackPayment } from 'react-paystack';
+import dynamic from 'next/dynamic';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
+
+const LocationMap = dynamic(() => import('../../components/Map/LocationMap'), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: '300px', width: '100%', borderRadius: '12px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Loader2 className="animate-spin" />
+    </div>
+  )
+});
 
 const GHANA_REGIONS = [
   "Greater Accra", "Ashanti", "Western", "Central", "Eastern", "Volta",
@@ -27,16 +37,28 @@ export default function CheckoutPage() {
   // Form State
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [region, setRegion] = useState("Greater Accra");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [additionalInfo, setAdditionalInfo] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("paystack");
   const [pickupLocation, setPickupLocation] = useState("Main Store, Accra");
 
   useEffect(() => {
     setMounted(true);
+    // Auto-fill user details from session
+    fetch("/api/auth/session")
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          if (data.user.fullName) setFullName(data.user.fullName);
+          if (data.user.email) setEmail(data.user.email);
+          if (data.user.phone) setPhone(data.user.phone);
+        }
+      })
+      .catch(err => console.error("Failed to fetch session for checkout", err));
   }, []);
 
   if (!mounted) return null;
@@ -48,13 +70,10 @@ export default function CheckoutPage() {
 
   // Delivery within Ghana (e.g. Free delivery for Greater Accra, fixed for outside)
   const deliveryFee = paymentMethod === 'pickup' ? 0 : (region === "Greater Accra" ? 20 : 50);
-  // Let's assume the cart total is in GHS for this Ghanaian store, or USD converted.
-  // For simplicity, we keep the numbers as they are and format as GHS.
-  const tax = cartTotal * 0.05; // 5% VAT
-  const finalTotal = cartTotal + deliveryFee + tax;
+  const finalTotal = cartTotal + deliveryFee; // VAT removed to align with cart logic
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-GH', { style: 'currency', currency: 'GHS' }).format(value);
+    return `₵${Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   // Paystack Configuration
@@ -137,13 +156,9 @@ export default function CheckoutPage() {
                   <span className={styles.stepNumber}>1</span> Contact Information
                 </h2>
                 <div className={styles.inputGrid}>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>First Name</label>
-                    <input type="text" required className={styles.input} placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
-                  </div>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Last Name</label>
-                    <input type="text" required className={styles.input} placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                    <label className={styles.label}>Full Name</label>
+                    <input type="text" required className={styles.input} placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} />
                   </div>
                   <div className={styles.inputGroup}>
                     <label className={styles.label}>Email Address</label>
@@ -203,30 +218,48 @@ export default function CheckoutPage() {
                 <h2 className={styles.sectionTitle}>
                   <span className={styles.stepNumber}>3</span> Delivery Details (Ghana)
                 </h2>
-                <div className={styles.inputGrid}>
+                
+                <div className={styles.mapContainerWrapper}>
+                  <label className={styles.label}>1. Pinpoint your delivery location on the map</label>
+                  <LocationMap onLocationSelect={(lat, lng, addr) => {
+                    setLat(lat.toString());
+                    setLng(lng.toString());
+                    setStreetAddress(addr);
+                  }} />
                   
-                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <label className={styles.label}>Region</label>
-                    <select required className={styles.select} value={region} onChange={e => setRegion(e.target.value)}>
-                      {GHANA_REGIONS.map(r => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>City / Town</label>
-                    <input type="text" required className={styles.input} placeholder="Kumasi" value={city} onChange={e => setCity(e.target.value)} />
-                  </div>
+                  <div className={styles.inputGrid} style={{ marginTop: '24px' }}>
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                      <label className={styles.label}>Region (For Delivery Fee Calculation)</label>
+                      <select required className={styles.select} value={region} onChange={e => setRegion(e.target.value)}>
+                        {GHANA_REGIONS.map(r => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Digital Address (GhanaPostGPS)</label>
-                    <input type="text" className={styles.input} placeholder="AK-039-5028" />
-                  </div>
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                      <label className={styles.label}>2. Verify Street Address</label>
+                      <input 
+                        type="text" 
+                        required 
+                        className={styles.input} 
+                        placeholder="e.g. 123 Independence Ave" 
+                        value={streetAddress} 
+                        onChange={e => setStreetAddress(e.target.value)} 
+                      />
+                    </div>
 
-                  <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                    <label className={styles.label}>Street Name / Detailed Address</label>
-                    <input type="text" required className={styles.input} placeholder="123 Independence Ave" value={address} onChange={e => setAddress(e.target.value)} />
+                    <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+                      <label className={styles.label}>3. Additional Delivery Instructions (Optional)</label>
+                      <textarea 
+                        className={styles.input} 
+                        rows={2}
+                        style={{ resize: 'vertical', fontFamily: 'inherit' }}
+                        placeholder="e.g. Blue gate next to the Shell station. Call upon arrival." 
+                        value={additionalInfo} 
+                        onChange={e => setAdditionalInfo(e.target.value)} 
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -278,8 +311,8 @@ export default function CheckoutPage() {
                 <span>{formatCurrency(cartTotal)}</span>
               </div>
               <div className={styles.summaryRow}>
-                <span>Estimated VAT (5%)</span>
-                <span>{formatCurrency(tax)}</span>
+                <span>Estimated Tax</span>
+                <span>{formatCurrency(0)}</span>
               </div>
               <div className={styles.summaryRow}>
                 <span>{paymentMethod === 'pickup' ? 'Pickup' : `Delivery (${region})`}</span>

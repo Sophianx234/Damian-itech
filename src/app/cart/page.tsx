@@ -155,6 +155,15 @@ export default function CartPage() {
                     Proceed to Checkout
                   </motion.button>
                 </Link>
+
+                <Link href="/" style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+                  <motion.button 
+                    whileTap={{ scale: 0.98 }}
+                    className={styles.continueShoppingBtn}
+                  >
+                    Continue Shopping
+                  </motion.button>
+                </Link>
                 
                 <div className={styles.secureCheckout}>
                   <ShieldCheck size={16} />

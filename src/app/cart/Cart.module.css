@@ -230,6 +230,27 @@
   opacity: 0.9;
 }
 
+.continueShoppingBtn {
+  width: 100%;
+  padding: 16px;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.continueShoppingBtn:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
 .secureCheckout {
   display: flex;
   align-items: center;
