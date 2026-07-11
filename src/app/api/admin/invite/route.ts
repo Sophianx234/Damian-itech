@@ -44,16 +44,34 @@ export async function POST(req: Request) {
       expiresAt,
     });
 
-    // Simulate sending a WhatsApp message
+    // Format phone number for WhatsApp
+    let formattedPhone = phone.replace(/\D/g, "");
+    if (formattedPhone.startsWith("0")) {
+      formattedPhone = "233" + formattedPhone.substring(1);
+    }
+    if (!formattedPhone.includes("@c.us")) {
+      formattedPhone = `${formattedPhone}@c.us`;
+    }
+
     const message = `Hello ${fullName}, you've been invited to join the Damian iTech admin team as a ${role}.\n\nYour verification code is: ${otp}\n\nPlease click the link below to accept the invitation and set up your password:\n\nhttp://localhost:3000/admin-accept-invite?inviteId=${invite._id}`;
     
-    // In a real app, integrate with Twilio or WhatsApp Business API here.
-    console.log("========== WHATSAPP SIMULATION ==========");
-    console.log(`To: ${phone}`);
-    console.log(message);
-    console.log("=========================================");
+    // Send to WhatsApp microservice
+    try {
+      const response = await fetch("http://localhost:3001/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formattedPhone, message }),
+      });
 
-    return NextResponse.json({ success: true, message: "Invitation sent successfully." });
+      if (!response.ok) {
+        throw new Error("Microservice returned an error");
+      }
+    } catch (error) {
+      console.error("WhatsApp Microservice Error:", error);
+      return NextResponse.json({ success: false, error: "Failed to send WhatsApp message. Please ensure the notification service is running." }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: "Invitation sent successfully via WhatsApp." });
   } catch (error: any) {
     console.error("Invite Admin Error:", error);
     return NextResponse.json(
