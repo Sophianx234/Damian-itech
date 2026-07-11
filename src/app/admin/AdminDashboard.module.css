@@ -1,182 +1,191 @@
 .dashboardContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  padding: 32px;
+  background-color: #0d0d0d;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
 }
 
+/* KPI Overview Grid */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
+  margin-bottom: 32px;
 }
 
 .statCard {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-primary);
+  background-color: #000000;
+  border: 1px solid #1a1a1a;
   padding: 24px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.iconWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border-primary);
-  border-radius: 10%;
-  background-color: var(--bg-primary);
-  color: var(--primary-color);
-  flex-shrink: 0;
-}
-
-.statInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.statValue {
-  font-size: 24px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1;
-  font-family: 'Poppins', sans-serif;
-}
-
-.statLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-}
-
-.chartsGrid {
-  display: grid;
-  grid-template-columns: 65% calc(35% - 24px);
-  gap: 24px;
-}
-
-.chartCard,
-.tableCard {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-primary);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.cardTitle {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0 0 24px 0;
-}
-
-.tablesGrid {
-  display: grid;
-  grid-template-columns: 65% calc(35% - 24px);
-  gap: 24px;
-}
-
-/* Orders Table */
-.ordersTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.ordersTable th {
-  text-align: left;
-  padding-bottom: 16px;
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-primary);
-}
-
-.ordersTable td {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border-primary);
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.ordersTable tr:last-child td {
-  border-bottom: none;
-}
-
-.statusCompleted {
-  color: var(--text-primary);
-}
-
-.statusPending {
-  color: var(--text-muted);
-}
-
-.statusCancelled {
-  color: #a3a3a3;
-  text-decoration: line-through;
-}
-
-/* Top Sold Items */
-.topSoldList {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.topSoldItem {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.itemHeader {
-  display: flex;
-  justify-content: space-between;
+.statLabel {
+  color: #a1a1aa;
   font-size: 14px;
-  color: var(--text-primary);
+  font-weight: 500;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.itemValue {
-  color: var(--text-primary);
+.statValue {
+  font-family: 'Poppins', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Analytics Section */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 60% 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chartCard {
+  background-color: #000000;
+  border: 1px solid #1a1a1a;
+  padding: 24px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 24px 0;
+}
+
+/* Tables Section */
+.tablesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.tableCard {
+  background-color: #000000;
+  border: 1px solid #1a1a1a;
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dataTable th {
+  text-align: left;
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 16px 12px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.dataTable td {
+  padding: 16px 12px;
+  font-size: 14px;
+  color: #ffffff;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.dataTable tr:last-child td {
+  border-bottom: none;
+}
+
+.textMuted {
+  color: #a1a1aa;
+}
+
+/* Status text styling */
+.statusCompleted {
+  font-weight: 400;
+  color: #ffffff;
+}
+
+.statusPending {
+  font-weight: 400;
+  color: #71717a;
+}
+
+.statusCancelled {
+  font-weight: 400;
+  color: #52525b;
+  text-decoration: line-through;
+}
+
+.swapList {
+  display: flex;
+  flex-direction: column;
+}
+
+.swapItem {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  padding: 16px 12px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 14px;
+}
+
+.swapItem:last-child {
+  border-bottom: none;
+}
+
+.swapHeader {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  padding: 16px 12px;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 12px;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   font-weight: 500;
 }
 
-.progressBarContainer {
-  height: 2px;
-  width: 100%;
-  background-color: var(--border-primary);
-  border-radius: 2px;
-  overflow: hidden;
+.swapUser {
+  color: #ffffff;
 }
 
-.progressBar {
-  height: 100%;
-  background-color: var(--primary-color);
+.swapTarget {
+  color: #ffffff;
 }
 
-@media (max-width: 1200px) {
-  .chartsGrid,
-  .tablesGrid {
+.swapOffered {
+  color: #a1a1aa;
+}
+
+/* Loader */
+.loaderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #0d0d0d;
+}
+
+@media (max-width: 1024px) {
+  .chartsGrid, .tablesGrid {
     grid-template-columns: 1fr;
-  }
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
   .statsGrid {
     grid-template-columns: 1fr;
   }
