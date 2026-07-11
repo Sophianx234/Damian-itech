@@ -13,12 +13,12 @@ export default function SettingsPage() {
   // Shipping settings state
   const [isLocalPickupEnabled, setIsLocalPickupEnabled] = useState(true);
   const [isDeliveryEnabled, setIsDeliveryEnabled] = useState(true);
-  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true });
+  const [expandedSections, setExpandedSections] = useState({ general: true, zones: false, adminAlerts: true, customerAlerts: true, teamMembers: true, security: true });
 
   // Notifications settings state
   const [isLowStockAlertEnabled, setIsLowStockAlertEnabled] = useState(true);
 
-  const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts') => {
+  const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts' | 'teamMembers' | 'security') => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
@@ -421,7 +421,113 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {["payments", "security"].includes(activeTab) && (
+          {activeTab === "security" && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Team & Security</h2>
+                <button className={styles.btnPrimary}>Save Settings</button>
+              </div>
+              <p className={styles.sectionSubtitle}>Manage your team members, roles, and global security policies.</p>
+
+              <div className={styles.settingsBlock}>
+                <div 
+                  onClick={() => toggleSection('teamMembers')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.teamMembers ? '16px' : '0' }}
+                >
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Team Members</h3>
+                  {expandedSections.teamMembers ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
+                
+                {expandedSections.teamMembers && (
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <p className={styles.helpText} style={{ margin: 0 }}>Invite colleagues to help manage your store. Assign roles to restrict access.</p>
+                      <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}>
+                        <Plus size={16} /> Invite Member
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {[
+                        { id: 1, name: "Damian X", email: "admin@damian-itech.com", role: "Super Admin", isCurrent: true },
+                        { id: 2, name: "Sarah Jane", email: "sarah@damian-itech.com", role: "Manager", isCurrent: false },
+                        { id: 3, name: "Mike Ross", email: "mike@damian-itech.com", role: "Support Staff", isCurrent: false }
+                      ].map(member => (
+                        <div key={member.id} className={styles.zoneRow} style={{ padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                            <div className={styles.avatarCircle} style={{ width: '40px', height: '40px', fontSize: '16px' }}>
+                              {member.name.charAt(0)}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
+                                {member.name} {member.isCurrent && <span style={{ fontSize: '12px', color: 'var(--primary-color)', fontWeight: 'normal' }}>(You)</span>}
+                              </p>
+                              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>{member.email}</p>
+                            </div>
+                            <div style={{ width: '150px' }}>
+                              <select className={styles.formInput} defaultValue={member.role} disabled={member.isCurrent} style={{ padding: '8px 12px' }}>
+                                <option>Super Admin</option>
+                                <option>Manager</option>
+                                <option>Support Staff</option>
+                              </select>
+                            </div>
+                          </div>
+                          {!member.isCurrent && (
+                            <button className={styles.iconBtnDanger} aria-label="Remove Member" style={{ marginTop: 0 }}>
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.settingsBlock}>
+                <div 
+                  onClick={() => toggleSection('security')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.security ? '16px' : '0' }}
+                >
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>Global Security Policies</h3>
+                  {expandedSections.security ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
+
+                {expandedSections.security && (
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="require2FA" className={styles.checkboxInput} />
+                      <label htmlFor="require2FA" className={styles.checkboxLabel}>
+                        <strong>Require Two-Factor Authentication (2FA)</strong>
+                        <span className={styles.helpText}>Force all staff members to use an authenticator app to log in. Highly recommended.</span>
+                      </label>
+                    </div>
+
+                    <div className={styles.checkboxGroup}>
+                      <input type="checkbox" id="sessionTimeout" className={styles.checkboxInput} defaultChecked />
+                      <label htmlFor="sessionTimeout" className={styles.checkboxLabel}>
+                        <strong>Strict Session Timeout</strong>
+                        <span className={styles.helpText}>Automatically log out inactive admins after 30 minutes of no activity.</span>
+                      </label>
+                    </div>
+
+                    <div style={{ paddingLeft: '30px', marginTop: '8px' }}>
+                      <button className={styles.btnSecondary} style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                        Force Logout All Devices
+                      </button>
+                      <span className={styles.helpText} style={{ display: 'block', marginTop: '8px' }}>
+                        This will instantly log out every active session across all devices, except your current one.
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {["payments"].includes(activeTab) && (
             <div className={styles.comingSoon}>
               <ImageIcon size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
               <h2 className={styles.sectionTitle}>Coming Soon</h2>
