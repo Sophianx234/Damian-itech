@@ -72,8 +72,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
           <>
             <div className={styles.valueRow}>
-              <span className={styles.valueLabel}>Est. Value: <span className={styles.price}>{estValue}</span></span>
-              <span className={styles.valueLabel}>Wants: <strong>{lookingFor}</strong></span>
+              {estValue && <span className={styles.valueLabel}>Est. Value: <span className={styles.price}>{estValue}</span></span>}
+              {lookingFor && <span className={styles.valueLabel}>Wants: <strong>{lookingFor}</strong></span>}
             </div>
             <button className={`btn-primary ${styles.swapBtn}`}>Propose Swap</button>
           </>

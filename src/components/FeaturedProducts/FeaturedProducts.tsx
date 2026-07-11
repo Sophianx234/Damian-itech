@@ -1,26 +1,31 @@
 import React from 'react';
 import styles from './FeaturedProducts.module.css';
 import ProductCard from '../ProductCard/ProductCard';
-import { getShopProducts } from '../../data/products';
+import dbConnect from '@/lib/mongodb';
+import Product from '@/models/Product';
 
-const FeaturedProducts = () => {
-  // Grab the first 5 shop products for this section
-  const products = getShopProducts().slice(0, 5);
+const FeaturedProducts = async () => {
+  await dbConnect();
+
+  const dbProducts = await Product.find({
+    status: 'Active',
+    isSwappable: false
+  }).sort({ createdAt: -1 }).limit(5);
 
   return (
     <section className={styles.section}>
       <div className="container">
         <h2 className={styles.sectionTitle}>Featured Products</h2>
         <div className={styles.grid}>
-          {products.map(product => (
+          {dbProducts.map(product => (
             <ProductCard
-              key={product.id}
-              id={product.id}
+              key={product._id.toString()}
+              id={product._id.toString()}
               slug={product.slug}
-              name={product.name}
-              image={product.images[0]}
-              price={product.price}
-              oldPrice={product.oldPrice}
+              name={product.title}
+              image={product.images && product.images.length > 0 ? product.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&h=500&fit=crop"}
+              price={`₵${product.price}`}
+              oldPrice={product.oldPrice ? `₵${product.oldPrice}` : undefined}
               tag={product.tag}
               tagType={product.tagType}
               variant="shop"

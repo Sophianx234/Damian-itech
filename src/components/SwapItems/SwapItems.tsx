@@ -1,11 +1,16 @@
 import React from 'react';
 import styles from './SwapItems.module.css';
 import ProductCard from '../ProductCard/ProductCard';
-import { getSwapProducts } from '../../data/products';
+import dbConnect from '@/lib/mongodb';
+import Product from '@/models/Product';
 
-const SwapItems = () => {
-  // Grab the first 5 swap items for this section
-  const swapItems = getSwapProducts().slice(0, 5);
+const SwapItems = async () => {
+  await dbConnect();
+
+  const swapItems = await Product.find({
+    status: 'Active',
+    isSwappable: true
+  }).sort({ createdAt: -1 }).limit(5);
 
   return (
     <section className={styles.section}>
@@ -14,13 +19,13 @@ const SwapItems = () => {
         <div className={styles.grid}>
           {swapItems.map(item => (
             <ProductCard
-              key={item.id}
-              id={item.id}
+              key={item._id.toString()}
+              id={item._id.toString()}
               slug={item.slug}
-              name={item.name}
-              image={item.images[0]}
-              estValue={item.estValue}
-              lookingFor={item.lookingFor}
+              name={item.title}
+              image={item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&h=500&fit=crop"}
+              estValue={item.estValue ? `₵${item.estValue}` : undefined}
+              lookingFor={item.lookingFor || "Offers"}
               tag={item.tag}
               tagType={item.tagType}
               variant="swap"
