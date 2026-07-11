@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, ChevronUp, ChevronDown } from "lucide-react";
+import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
 import styles from "./Settings.module.css";
 
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
@@ -20,6 +20,44 @@ export default function SettingsPage() {
 
   const toggleSection = (section: 'general' | 'zones' | 'adminAlerts' | 'customerAlerts' | 'teamMembers' | 'security') => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  // Invite Modal State
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteData, setInviteData] = useState({ fullName: "", phone: "", role: "Manager" });
+  const [isInviting, setIsInviting] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsInviting(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+
+    try {
+      const res = await fetch("/api/admin/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inviteData),
+      });
+      const data = await res.json();
+      
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to send invitation.");
+      }
+
+      setInviteSuccess("Invitation sent successfully via WhatsApp!");
+      setTimeout(() => {
+        setIsInviteModalOpen(false);
+        setInviteSuccess(null);
+        setInviteData({ fullName: "", phone: "", role: "Manager" });
+      }, 3000);
+    } catch (err: any) {
+      setInviteError(err.message);
+    } finally {
+      setIsInviting(false);
+    }
   };
 
   useEffect(() => {
@@ -442,7 +480,11 @@ export default function SettingsPage() {
                   <div style={{ marginTop: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <p className={styles.helpText} style={{ margin: 0 }}>Invite colleagues to help manage your store. Assign roles to restrict access.</p>
-                      <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}>
+                      <button 
+                        className={styles.btnSecondary} 
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
+                        onClick={() => setIsInviteModalOpen(true)}
+                      >
                         <Plus size={16} /> Invite Member
                       </button>
                     </div>
@@ -536,6 +578,68 @@ export default function SettingsPage() {
           )}
         </main>
       </div>
+
+      {/* Invite Member Modal */}
+      {isInviteModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'var(--card-bg)', width: '100%', maxWidth: '450px', borderRadius: '12px', padding: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', border: '1px solid var(--border-primary)', position: 'relative' }}>
+            <button 
+              onClick={() => setIsInviteModalOpen(false)}
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+            >
+              <X size={20} />
+            </button>
+            <h2 className={styles.sectionTitle} style={{ margin: '0 0 8px 0' }}>Invite Team Member</h2>
+            <p className={styles.sectionSubtitle} style={{ marginBottom: '24px' }}>Send an invitation link via WhatsApp with an OTP.</p>
+
+            <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                <label className={styles.formLabel}>Full Name</label>
+                <input 
+                  type="text" 
+                  required 
+                  className={styles.formInput} 
+                  placeholder="e.g. John Doe"
+                  value={inviteData.fullName}
+                  onChange={(e) => setInviteData({...inviteData, fullName: e.target.value})}
+                />
+              </div>
+
+              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                <label className={styles.formLabel}>Phone Number (WhatsApp)</label>
+                <input 
+                  type="tel" 
+                  required 
+                  className={styles.formInput} 
+                  placeholder="e.g. 0241234567"
+                  value={inviteData.phone}
+                  onChange={(e) => setInviteData({...inviteData, phone: e.target.value})}
+                />
+              </div>
+
+              <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                <label className={styles.formLabel}>Role</label>
+                <select 
+                  className={styles.formInput} 
+                  value={inviteData.role}
+                  onChange={(e) => setInviteData({...inviteData, role: e.target.value})}
+                >
+                  <option value="Manager">Manager</option>
+                  <option value="Support Staff">Support Staff</option>
+                  <option value="Super Admin">Super Admin</option>
+                </select>
+              </div>
+
+              {inviteError && <div style={{ color: '#ef4444', fontSize: '13px', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '4px' }}>{inviteError}</div>}
+              {inviteSuccess && <div style={{ color: '#10b981', fontSize: '13px', backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '4px' }}>{inviteSuccess}</div>}
+
+              <button type="submit" className={styles.btnPrimary} disabled={isInviting} style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                {isInviting ? <><Loader2 size={18} className="animate-spin" /> Sending...</> : "Send WhatsApp Invitation"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
