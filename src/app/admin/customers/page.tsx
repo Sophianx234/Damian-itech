@@ -41,6 +41,7 @@ export default function AdminCustomersPage() {
   const [typeFilter, setTypeFilter] = useState("");
   
   const [customerToView, setCustomerToView] = useState<Customer | null>(null);
+  const [customerToSuspend, setCustomerToSuspend] = useState<Customer | null>(null);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -84,9 +85,14 @@ export default function AdminCustomersPage() {
     if (customer) setCustomerToView(customer);
   };
 
-  const handleSuspend = async (id: string, isSuspended: boolean) => {
-    const customer = customers.find(c => c.id === id);
-    if (!customer || customer.isGuest) return;
+  const confirmSuspend = (customer: Customer) => {
+    setCustomerToSuspend(customer);
+  };
+
+  const executeSuspend = async () => {
+    if (!customerToSuspend) return;
+    const id = customerToSuspend.id;
+    const isSuspended = !customerToSuspend.isSuspended;
 
     // Optimistic UI update
     setCustomers((prev) =>
@@ -97,6 +103,8 @@ export default function AdminCustomersPage() {
     if (customerToView?.id === id) {
       setCustomerToView({ ...customerToView, isSuspended });
     }
+
+    setCustomerToSuspend(null);
 
     try {
       const res = await fetch(`/api/admin/customers/${id}/suspend`, {
@@ -270,7 +278,7 @@ export default function AdminCustomersPage() {
                       <ActionDropdown 
                         customer={customer}
                         handleView={handleQuickView}
-                        handleSuspend={handleSuspend}
+                        confirmSuspend={confirmSuspend}
                         styles={styles} 
                         isLast={isLast}
                       />
@@ -394,7 +402,7 @@ export default function AdminCustomersPage() {
                  <button 
                    className={customerToView.isSuspended ? styles.confirmDeleteBtn : styles.cancelBtn} 
                    style={{ marginRight: 'auto', backgroundColor: customerToView.isSuspended ? '#10b981' : '#ef4444', color: 'white', border: 'none' }}
-                   onClick={() => handleSuspend(customerToView.id, !customerToView.isSuspended)}
+                   onClick={() => confirmSuspend(customerToView)}
                  >
                    {customerToView.isSuspended ? 'Unsuspend Account' : 'Suspend Account'}
                  </button>
@@ -406,11 +414,39 @@ export default function AdminCustomersPage() {
           </div>
         </div>
       )}
+
+      {/* Suspend Confirmation Modal */}
+      {customerToSuspend && (
+        <div className={styles.modalOverlay} onClick={() => setCustomerToSuspend(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>
+              {customerToSuspend.isSuspended ? 'Unsuspend Customer' : 'Suspend Customer'}
+            </h3>
+            <p className={styles.modalText}>
+              Are you sure you want to {customerToSuspend.isSuspended ? 'unsuspend' : 'suspend'} <strong>{customerToSuspend.fullName}</strong>?
+              {!customerToSuspend.isSuspended && " This will prevent them from making any new orders."}
+            </p>
+            
+            <div className={styles.modalActions}>
+              <button className={styles.cancelBtn} onClick={() => setCustomerToSuspend(null)}>
+                Cancel
+              </button>
+              <button 
+                className={styles.confirmDeleteBtn} 
+                style={{ backgroundColor: customerToSuspend.isSuspended ? '#10b981' : '#ef4444' }}
+                onClick={executeSuspend}
+              >
+                {customerToSuspend.isSuspended ? 'Yes, Unsuspend' : 'Yes, Suspend'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-const ActionDropdown = ({ customer, handleView, handleSuspend, styles, isLast }: { customer: Customer, handleView: (id: string) => void, handleSuspend: (id: string, isSuspended: boolean) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ customer, handleView, confirmSuspend, styles, isLast }: { customer: Customer, handleView: (id: string) => void, confirmSuspend: (customer: Customer) => void, styles: any, isLast?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -449,7 +485,7 @@ const ActionDropdown = ({ customer, handleView, handleSuspend, styles, isLast }:
           {!customer.isGuest && (
             <button 
               onClick={() => {
-                handleSuspend(customer.id, !customer.isSuspended);
+                confirmSuspend(customer);
                 setIsOpen(false);
               }} 
               className={`${styles.actionMenuItem} ${!customer.isSuspended ? styles.actionMenuItemDanger : ""}`}
