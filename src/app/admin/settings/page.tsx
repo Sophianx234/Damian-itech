@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, ChevronUp, ChevronDown, X, Loader2 } from "lucide-react";
 import styles from "./Settings.module.css";
 
+
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
 
 export default function SettingsPage() {
@@ -178,10 +179,13 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className={styles.pageTitle}>Settings</h1>
+      <div className={styles.headerActions}>
+        <div>
+          <h1 className={styles.pageTitle}>Settings</h1>
+          <p className={styles.pageSubtitle}>Manage your store preferences and account configurations.</p>
+        </div>
         {saveMessage && (
-          <div style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '14px', backgroundColor: saveMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: saveMessage.type === 'success' ? '#10b981' : '#ef4444' }}>
+          <div className={`${styles.toast} ${saveMessage.type === 'success' ? styles.toastSuccess : styles.toastError}`}>
             {saveMessage.text}
           </div>
         )}
@@ -197,7 +201,7 @@ export default function SettingsPage() {
                 className={`${styles.tabBtn} ${activeTab === tab.id ? styles.tabBtnActive : ""}`}
                 onClick={() => setActiveTab(tab.id as Tab)}
               >
-                <Icon size={18} />
+                <Icon size={18} strokeWidth={2.5} />
                 {tab.label}
               </button>
             );
@@ -206,74 +210,77 @@ export default function SettingsPage() {
 
         <main className={styles.settingsContent}>
           {activeTab === "profile" && (
-            <div>
-              <h2 className={styles.sectionTitle}>Profile & Account</h2>
-              <p className={styles.sectionSubtitle}>Manage your personal information and account settings.</p>
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Profile</h2>
+                <p className={styles.sectionSubtitle}>Update your personal information and photo.</p>
+              </div>
 
-              <div className={styles.profileAvatarSection}>
+              <div className={styles.profileHeader}>
                 <div className={styles.avatarCircle}>
                   {user ? user.fullName.charAt(0).toUpperCase() : "A"}
                 </div>
                 <div className={styles.avatarActions}>
-                  <button className={styles.btnPrimary}>Upload Avatar</button>
-                  <button className={styles.btnSecondary}>Remove</button>
+                  <button className={styles.btnSecondary}>Upload photo</button>
+                  <button className={styles.btnDanger}>Remove</button>
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Full Name</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  defaultValue={user?.fullName || ""} 
-                  placeholder="e.g. Damian X"
-                />
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Full name</label>
+                  <input 
+                    type="text" 
+                    className={styles.formInput} 
+                    defaultValue={user?.fullName || ""} 
+                    placeholder="e.g. Damian X"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Phone number</label>
+                  <input 
+                    type="text" 
+                    className={styles.formInput} 
+                    defaultValue={user?.phone || ""} 
+                    placeholder="e.g. 0241234567"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Role</label>
+                  <input 
+                    type="text" 
+                    className={styles.formInput} 
+                    defaultValue={user?.role === "admin" ? "Super Admin" : user?.role === "manager" ? "Manager" : user?.role === "support" ? "Support Staff" : "User"} 
+                    disabled
+                  />
+                </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Phone Number</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  defaultValue={user?.phone || ""} 
-                  placeholder="e.g. 0241234567"
-                />
+              <div>
+                <button className={styles.btnPrimary}>Save changes</button>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Role</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  defaultValue={user?.role === "admin" ? "Super Admin" : user?.role === "manager" ? "Manager" : user?.role === "support" ? "Support Staff" : "User"} 
-                  disabled
-                  style={{ opacity: 0.7, cursor: "not-allowed" }}
-                />
-              </div>
+              <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '24px 0' }} />
 
-              <button className={styles.btnPrimary}>Save Changes</button>
-
-              <div className={styles.divider}></div>
-
-              <h2 className={styles.sectionTitle}>Change Password</h2>
-              <p className={styles.sectionSubtitle}>Ensure your account is using a long, random password to stay secure.</p>
-              
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Current Password</label>
-                <input type="password" className={styles.formInput} />
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Password</h2>
+                <p className={styles.sectionSubtitle}>Update your password to stay secure.</p>
               </div>
               
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>New Password</label>
-                <input type="password" className={styles.formInput} />
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Current password</label>
+                  <input type="password" className={styles.formInput} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>New password</label>
+                  <input type="password" className={styles.formInput} />
+                </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Confirm New Password</label>
-                <input type="password" className={styles.formInput} />
+              <div>
+                <button className={styles.btnPrimary}>Update password</button>
               </div>
-
-              <button className={styles.btnPrimary}>Update Password</button>
             </div>
           )}
 
