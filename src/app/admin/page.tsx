@@ -37,11 +37,11 @@ function DashboardSkeleton() {
       <div className={styles.statsGrid}>
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className={styles.statCard}>
-            <div className={`${styles.skeleton} ${styles.skeletonIcon}`}></div>
-            <div className={styles.statInfo} style={{ width: '100%' }}>
-              <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
-              <div className={`${styles.skeleton} ${styles.skeletonValue}`}></div>
+            <div className={styles.statHeader}>
+              <div className={`${styles.skeleton} ${styles.skeletonIcon}`}></div>
+              <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '40%', marginBottom: 0 }}></div>
             </div>
+            <div className={`${styles.skeleton} ${styles.skeletonValue}`} style={{ width: '80%' }}></div>
           </div>
         ))}
       </div>
@@ -108,76 +108,76 @@ export default function DashboardMainContent() {
       {/* 1. KPI Overview Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <DollarSign size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <DollarSign size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Total Revenue</h3>
-            <p className={styles.statValue}>₵{kpis.totalRevenue.toLocaleString()}</p>
           </div>
+          <p className={styles.statValue}>₵{kpis.totalRevenue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <ShoppingCart size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <ShoppingCart size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Total Orders</h3>
-            <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
           </div>
+          <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <Users size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <Users size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Total Customers</h3>
-            <p className={styles.statValue}>{kpis.totalCustomers}</p>
           </div>
+          <p className={styles.statValue}>{kpis.totalCustomers}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <CreditCard size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <CreditCard size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Avg Order Value</h3>
-            <p className={styles.statValue}>₵{kpis.averageOrderValue.toLocaleString()}</p>
           </div>
+          <p className={styles.statValue}>₵{kpis.averageOrderValue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <Package size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <Package size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Active Inventory</h3>
-            <p className={styles.statValue}>{kpis.activeInventory}</p>
           </div>
+          <p className={styles.statValue}>{kpis.activeInventory}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <Clock size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <Clock size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Pending Orders</h3>
-            <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
           </div>
+          <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <XCircle size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <XCircle size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Failed Orders</h3>
-            <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
           </div>
+          <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.iconContainer}>
-            <RefreshCw size={24} className={styles.statIcon} />
-          </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer}>
+              <RefreshCw size={18} className={styles.statIcon} />
+            </div>
             <h3 className={styles.statLabel}>Active Swaps</h3>
-            <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
           </div>
+          <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
         </div>
       </div>
 

@@ -20,6 +20,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  gap: 16px;
   position: relative;
   transition: all 0.2s ease-in-out;
 }
@@ -31,23 +32,24 @@
 
 .statHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .statInfo {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .iconContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background-color: rgba(139, 92, 246, 0.1); /* light cyber violet bg */
   color: var(--primary-color);
 }
