@@ -32,15 +32,12 @@ export default function CartPage() {
     );
   }
 
-  const shipping = cartTotal > 100 ? 0 : (cart.length > 0 ? 15 : 0);
-  const tax = cartTotal * 0.08; // 8% generic tax
-  const finalTotal = cartTotal + shipping + tax;
+  const deliveryFee = cartTotal > 10000 ? 0 : (cart.length > 0 ? 50 : 0); // 50 GHS delivery fee, free over 10000
+  
+  const finalTotal = cartTotal + deliveryFee;
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
+    return `₵${Number(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   return (
@@ -136,12 +133,12 @@ export default function CartPage() {
                 
                 <div className={styles.summaryRow}>
                   <span>Estimated Tax</span>
-                  <span>{formatCurrency(tax)}</span>
+                  <span>{formatCurrency(0)}</span>
                 </div>
                 
                 <div className={styles.summaryRow}>
-                  <span>Shipping</span>
-                  <span>{shipping === 0 ? "Free" : formatCurrency(shipping)}</span>
+                  <span>Delivery</span>
+                  <span>{deliveryFee === 0 ? "Free Delivery" : formatCurrency(deliveryFee)}</span>
                 </div>
 
                 <div className={`${styles.summaryRow} ${styles.totalRow}`}>
