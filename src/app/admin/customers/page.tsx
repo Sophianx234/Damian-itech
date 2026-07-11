@@ -39,6 +39,8 @@ export default function AdminCustomersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   
   const [customerToView, setCustomerToView] = useState<Customer | null>(null);
   const [customerToSuspend, setCustomerToSuspend] = useState<Customer | null>(null);
@@ -82,12 +84,27 @@ export default function AdminCustomersPage() {
       ));
       
     const matchesType = typeFilter === "registered" ? !c.isGuest : typeFilter === "guest" ? c.isGuest : true;
-    return matchesSearch && matchesType;
+    const matchesStatus = statusFilter === "suspended" ? c.isSuspended : statusFilter === "active" ? !c.isSuspended : true;
+    
+    return matchesSearch && matchesType && matchesStatus;
+  }).sort((a, b) => {
+    if (sortBy === "newest") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    } else if (sortBy === "oldest") {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    } else if (sortBy === "highest_spent") {
+      return b.totalSpent - a.totalSpent;
+    } else if (sortBy === "most_orders") {
+      return b.totalOrders - a.totalOrders;
+    }
+    return 0;
   });
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setTypeFilter("");
+    setStatusFilter("");
+    setSortBy("newest");
   };
 
   const handleQuickView = (id: string) => {
@@ -157,11 +174,25 @@ export default function AdminCustomersPage() {
       {/* Filter Row */}
       <div className={styles.filterRow}>
         <select className={styles.filterSelect} value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-          <option value="">All Customers</option>
+          <option value="">All Types</option>
           <option value="registered">Registered</option>
           <option value="guest">Guest</option>
         </select>
-        {(typeFilter || searchQuery) && (
+
+        <select className={styles.filterSelect} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+
+        <select className={styles.filterSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="newest">Sort by: Newest</option>
+          <option value="oldest">Sort by: Oldest</option>
+          <option value="highest_spent">Sort by: Highest Spent</option>
+          <option value="most_orders">Sort by: Most Orders</option>
+        </select>
+
+        {(typeFilter || statusFilter || sortBy !== "newest" || searchQuery) && (
           <button className={styles.resetButton} onClick={handleResetFilters}>
             Reset Filters
           </button>
