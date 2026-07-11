@@ -31,6 +31,54 @@ import styles from "./AdminDashboard.module.css";
 
 const INVENTORY_COLORS = ['var(--primary-color)', 'var(--text-primary)'];
 
+function DashboardSkeleton() {
+  return (
+    <div className={styles.dashboardContainer}>
+      <div className={styles.statsGrid}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className={styles.statCard}>
+            <div className={styles.statHeader}>
+              <div className={styles.statInfo} style={{ width: '100%' }}>
+                <div className={`${styles.skeleton} ${styles.skeletonText}`}></div>
+                <div className={`${styles.skeleton} ${styles.skeletonValue}`}></div>
+              </div>
+              <div className={`${styles.skeleton} ${styles.skeletonIcon}`}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className={styles.chartsGrid}>
+        <div className={styles.chartCard}>
+          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
+          <div className={`${styles.skeleton} ${styles.skeletonChart}`}></div>
+        </div>
+        <div className={styles.chartCard}>
+          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
+          <div className={`${styles.skeleton} ${styles.skeletonChart}`}></div>
+        </div>
+      </div>
+      <div className={styles.fullWidthTable}>
+        <div className={styles.tableCard}>
+          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className={`${styles.skeleton} ${styles.skeletonTableRow}`}></div>
+          ))}
+        </div>
+      </div>
+      <div className={styles.secondaryTablesGrid}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className={styles.tableCard}>
+            <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
+            {Array.from({ length: 4 }).map((_, j) => (
+              <div key={j} className={`${styles.skeleton} ${styles.skeletonTableRow}`}></div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardMainContent() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -48,11 +96,7 @@ export default function DashboardMainContent() {
   }, []);
 
   if (loading) {
-    return (
-      <div className={styles.loaderContainer}>
-        <Loader2 className="animate-spin" size={48} style={{ color: "var(--primary-color)" }} />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!data) {

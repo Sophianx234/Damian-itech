@@ -217,13 +217,54 @@
   font-weight: 500;
 }
 
-/* Loader */
-.loaderContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: var(--bg-primary);
+/* Skeleton Loader */
+.skeleton {
+  background-color: var(--border-primary);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.5; }
+}
+
+.skeletonText {
+  height: 14px;
+  width: 50%;
+  margin-bottom: 8px;
+}
+
+.skeletonValue {
+  height: 32px;
+  width: 70%;
+  border-radius: 8px;
+}
+
+.skeletonIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.skeletonTitle {
+  height: 20px;
+  width: 30%;
+  margin-bottom: 24px;
+}
+
+.skeletonChart {
+  height: 300px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.skeletonTableRow {
+  height: 40px;
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: 4px;
 }
 
 @media (max-width: 1024px) {
