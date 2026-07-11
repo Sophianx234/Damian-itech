@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { ShoppingBag, Truck, ShieldCheck, Lock } from 'lucide-react';
 import ProductCard from '../../../components/ProductCard/ProductCard';
+import SwapProposalModal from '../../../components/SwapProposalModal/SwapProposalModal';
 import styles from './ProductDetails.module.css';
 import { useCart } from '../../../context/CartContext';
 
@@ -15,6 +17,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
   const [isAdded, setIsAdded] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -168,6 +171,15 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
 
         {/* Right: Info */}
         <div className={styles.infoColumn}>
+          
+          {/* Meta Badges */}
+          <div className={styles.metaBadges}>
+            <span className={styles.metaBadge}>{product.category}</span>
+            <span className={styles.metaBadge}>{product.productType}</span>
+            {product.condition && <span className={styles.metaBadge}>{product.condition}</span>}
+            {product.isSwappable && <span className={styles.metaBadge} style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', borderColor: 'rgba(139, 92, 246, 0.2)' }}>Swappable</span>}
+          </div>
+
           <h1 className={styles.title}>{product.title}</h1>
           <div className={styles.ratingRow}>
             <div className={styles.stars}>
@@ -219,8 +231,9 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
                 className={styles.addToCartBtn}
                 onClick={handleAddToCart}
                 disabled={isAdded || (product.stock !== undefined && product.stock === 0) || product.status !== 'Active'}
-                style={{ backgroundColor: isAdded ? 'var(--brand-primary)' : '' }}
+                style={{ backgroundColor: isAdded ? 'var(--brand-primary)' : '', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
+                {!isAdded && product.status === 'Active' && product.stock !== 0 && <ShoppingBag size={20} />}
                 {product.status !== 'Active' ? 'Not Available' : isAdded ? "Added ✓" : (product.stock === 0 ? "Out of Stock" : "Add to Cart")}
               </motion.button>
             ) : (
@@ -228,7 +241,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className={styles.swapBtn}
-                onClick={() => alert('Swap proposal coming soon!')}
+                onClick={() => setIsSwapModalOpen(true)}
                 disabled={product.status !== 'Active'}
               >
                 {product.status !== 'Active' ? 'Unavailable' : 'Propose Swap'}
@@ -246,6 +259,22 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
               <svg width="18" height="18" viewBox="0 0 24 24" fill={isWishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
               <span>{isWishlisted ? 'Added to Wishlist' : 'Add to Wishlist'}</span>
             </button>
+          </div>
+
+          {/* Trust Badges */}
+          <div className={styles.trustBadges}>
+            <div className={styles.trustBadge}>
+              <Truck strokeWidth={1.5} className={styles.trustIcon} />
+              <span>Free & Fast<br/>Delivery</span>
+            </div>
+            <div className={styles.trustBadge}>
+              <ShieldCheck strokeWidth={1.5} className={styles.trustIcon} />
+              <span>1 Year<br/>Warranty</span>
+            </div>
+            <div className={styles.trustBadge}>
+              <Lock strokeWidth={1.5} className={styles.trustIcon} />
+              <span>Secure<br/>Checkout</span>
+            </div>
           </div>
 
         </div>
@@ -323,6 +352,13 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
           </div>
         </div>
       )}
+
+      <SwapProposalModal 
+        isOpen={isSwapModalOpen}
+        onClose={() => setIsSwapModalOpen(false)}
+        storeProductTitle={product.title}
+        storeProductPrice={Number(product.estValue || product.price || 0).toLocaleString()}
+      />
     </div>
   );
 }

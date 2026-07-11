@@ -36,7 +36,7 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
-        <div className={styles.logo}>
+        <Link href="/" className={styles.logo}>
           <Image
             src="/imgs/logo-1.png"
             alt="Damian iTech Logo"
@@ -55,7 +55,7 @@ const Header = () => {
             style={{ objectFit: "contain", width: "auto", height: "40px" }}
             priority
           />
-        </div>
+        </Link>
 
         <nav className={styles.nav}>
           <a href="#" className={styles.navLink}>
