@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import dbConnect from "@/lib/mongodb";
 import AdminInvitation from "@/models/AdminInvitation";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    await connectDB();
+    await dbConnect();
     const { inviteId, otp, password } = await req.json();
 
     if (!inviteId || !otp || !password) {

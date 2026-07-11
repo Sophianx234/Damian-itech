@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import dbConnect from "@/lib/mongodb";
 import AdminInvitation from "@/models/AdminInvitation";
 
 export async function POST(req: Request) {
   try {
-    await connectDB();
+    await dbConnect();
     const { inviteId, otp } = await req.json();
 
     if (!inviteId || !otp) {

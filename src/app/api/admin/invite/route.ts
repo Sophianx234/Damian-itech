@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
+import dbConnect from "@/lib/mongodb";
 import AdminInvitation from "@/models/AdminInvitation";
 import User from "@/models/User";
 
@@ -10,7 +10,7 @@ function generateOTP() {
 
 export async function POST(req: Request) {
   try {
-    await connectDB();
+    await dbConnect();
     const { fullName, phone, role } = await req.json();
 
     if (!fullName || !phone || !role) {
