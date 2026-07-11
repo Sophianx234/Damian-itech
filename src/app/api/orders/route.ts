@@ -112,6 +112,38 @@ export async function POST(request: Request) {
       }
     }
 
+    // Send WhatsApp notification
+    if (shippingDetails?.phone) {
+      let formattedPhone = shippingDetails.phone.replace(/\D/g, "");
+      if (formattedPhone.startsWith("0")) {
+        formattedPhone = "233" + formattedPhone.substring(1);
+      }
+      if (!formattedPhone.includes("@c.us")) {
+        formattedPhone = `${formattedPhone}@c.us`;
+      }
+
+      let message = "";
+      if (paymentMethod === 'pickup') {
+        message = `Hello ${shippingDetails.fullName || 'Customer'}, your order at Damian iTech has been confirmed! Order ID: ${newOrder._id}. Please have your payment ready when you arrive at ${pickupLocation}. We will prepare your items shortly.`;
+      } else {
+        message = `Hello ${shippingDetails.fullName || 'Customer'}, your payment was successfully processed! Order ID: ${newOrder._id}. Your items will be dispatched to your location soon. Thank you for choosing Damian iTech!`;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3001/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formattedPhone, message }),
+        });
+
+        if (!response.ok) {
+          console.error("WhatsApp Microservice returned an error:", response.statusText);
+        }
+      } catch (error) {
+        console.error("WhatsApp Microservice Error:", error);
+      }
+    }
+
     return NextResponse.json({ success: true, orderId: newOrder._id });
   } catch (error: any) {
     console.error('Order creation error:', error);

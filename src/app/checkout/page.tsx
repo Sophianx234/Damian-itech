@@ -81,7 +81,7 @@ export default function CheckoutPage() {
     reference: (new Date()).getTime().toString(),
     email: email || "customer@example.com",
     amount: Math.round(finalTotal * 100), // Amount is in pesewas
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
     currency: 'GHS',
   };
 
@@ -402,14 +402,14 @@ export default function CheckoutPage() {
                 <Check size={32} />
               </div>
               <h2 className={styles.successTitle}>Order Confirmed!</h2>
-              <p className={styles.successDesc}>
-                {paymentMethod === 'pickup' 
-                  ? `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Please have your payment ready when you arrive at ${pickupLocation}.`
-                  : paymentMethod === 'paystack'
-                  ? `Thank you for your purchase! Your payment was successfully processed. We will send your receipt and delivery tracking details via WhatsApp shortly. Your items will be dispatched to your location soon.`
-                  : `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Your items will be dispatched to your location soon.`
-                }
-              </p>
+             <p className={styles.successDesc}>
+  {paymentMethod === 'pickup' 
+    ? `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Please have your payment ready when you arrive at ${pickupLocation}.`
+    : paymentMethod === 'paystack'
+    ? `Thank you for your purchase! Your payment was successfully processed. We will send your receipt and delivery tracking details via WhatsApp shortly. Your items will be dispatched to your location soon.`
+    : `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Your items will be dispatched to your location soon.`
+  }
+</p>
               <Link href="/" className={styles.placeOrderBtn} style={{ textDecoration: 'none' }}>
                 Return to Home
               </Link>
