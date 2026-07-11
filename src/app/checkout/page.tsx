@@ -320,7 +320,15 @@ export default function CheckoutPage() {
                     </div>
                     <div className={styles.summaryItemInfo}>
                       <div className={styles.summaryItemName}>{item.name}</div>
-                      <div className={styles.summaryItemPrice}>{formatCurrency(parseFloat(item.price.replace(/[^0-9.-]+/g, "")))}</div>
+                      <div className={styles.summaryItemPrice}>
+                        {formatCurrency(parseFloat(item.price.replace(/[^0-9.-]+/g, "")))}
+                        {item.oldPrice && <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '0.8rem', marginLeft: '6px' }}>{item.oldPrice}</span>}
+                      </div>
+                      {item.attributes && item.attributes.length > 0 && (
+                        <div style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {item.attributes.map((a: any) => `${a.label}: ${a.value}`).join(' • ')}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -377,7 +385,7 @@ export default function CheckoutPage() {
 
       {/* Success Modal Overlay */}
       <AnimatePresence>
-        {orderSuccess && (
+        {!orderSuccess && (
           <motion.div 
             className={styles.successOverlay}
             initial={{ opacity: 0 }}

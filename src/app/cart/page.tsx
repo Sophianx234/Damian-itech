@@ -86,7 +86,19 @@ export default function CartPage() {
                         <Link href={`/products/${item.slug}`} className={styles.itemName}>
                           {item.name}
                         </Link>
-                        <div className={styles.itemPrice}>{item.price}</div>
+                        <div className={styles.itemPrice}>
+                          {item.price}
+                          {item.oldPrice && <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '0.85rem', marginLeft: '8px' }}>{item.oldPrice}</span>}
+                        </div>
+                        {item.attributes && item.attributes.length > 0 && (
+                          <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {item.attributes.map((attr, idx) => (
+                              <span key={idx} style={{ fontSize: '0.75rem', padding: '4px 8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--text-secondary)' }}>
+                                {attr.label}: <strong>{attr.value}</strong>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className={styles.itemActions}>

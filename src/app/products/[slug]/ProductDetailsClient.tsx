@@ -83,22 +83,8 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
     setActiveImage((prev) => (prev === 0 ? (product.images?.length || 1) - 1 : prev - 1));
   };
 
-  const handleAddToCart = () => {
-    addToCart({
-      id: product._id,
-      slug: product.slug,
-      name: product.title,
-      price: `₵${Number(product.price).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
-      image: product.images?.[0] || 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=400&fit=crop',
-      quantity: quantity,
-      stock: product.stock,
-    });
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
-
   // Compile specs
-  const specs = [];
+  const specs: { label: string; value: string }[] = [];
   if (product.brand) specs.push({ label: "Brand", value: product.brand });
   if (product.batteryHealth) specs.push({ label: "Battery Health", value: `${product.batteryHealth}%` });
   if (product.ram) specs.push({ label: "RAM", value: product.ram });
@@ -109,6 +95,24 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
       specs.push({ label: spec.key, value: spec.value });
     });
   }
+
+  const handleAddToCart = () => {
+    const essentialSpecs = specs.filter(s => ['Color', 'Storage', 'RAM', 'Battery Health', 'Condition'].includes(s.label));
+    
+    addToCart({
+      id: product._id,
+      slug: product.slug,
+      name: product.title,
+      price: `₵${Number(product.price).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+      oldPrice: product.oldPrice ? `₵${Number(product.oldPrice).toLocaleString("en-US", { maximumFractionDigits: 0 })}` : undefined,
+      image: product.images?.[0] || 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=400&fit=crop',
+      quantity: quantity,
+      stock: product.stock,
+      attributes: essentialSpecs,
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
 
   const formattedPrice = `₵${Number(product.price).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
   const hasImages = product.images && product.images.length > 0;

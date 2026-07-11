@@ -13,9 +13,11 @@ export interface CartItem {
   slug: string;
   name: string;
   price: string;
+  oldPrice?: string;
   image: string;
   quantity: number;
   stock?: number;
+  attributes?: { label: string; value: string }[];
 }
 
 interface CartContextType {
