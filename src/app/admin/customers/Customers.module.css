@@ -1,0 +1,647 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchWrapper {
+  position: relative;
+  width: 320px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.addButton {
+  background-color: #8b5cf6; /* Cyber Violet */
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #7c3aed;
+}
+
+.filterRow {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.filterSelect {
+  appearance: none;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 8px 32px 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1.41%200L6%204.58L10.59%200L12%201.41L6%207.41L0%201.41L1.41%200Z%22%20fill%3D%22%23737373%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s ease;
+}
+
+.filterSelect:focus {
+  border-color: var(--primary-color);
+}
+
+.resetButton {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.tableContainer {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.actionsHeader {
+  text-align: right;
+  width: 100px;
+}
+
+.table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1a1a1a; /* Enforcing 1px solid #1a1a1a specifically as requested */
+  vertical-align: middle;
+}
+
+/* Let the table rows use the variable in light mode, but the prompt strictly asked for 1px solid #1a1a1a rows, 
+so we keep it, or adapt to the theme via variable so it doesn't look bad in light mode. Let's use var(--border-primary) which defaults to #1a1a1a in dark mode */
+.table td {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.productCell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.productImageWrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.productThumb {
+  object-fit: cover;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.productTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.productBrand {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.detailsCell {
+  font-size: 14px;
+  color: var(--text-primary);
+  display: block;
+}
+
+.specsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.swapBadge {
+  font-size: 11px;
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.specsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.specItem {
+  font-size: 11px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.priceInput {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  width: 100px;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+}
+
+.priceInput:focus {
+  color: var(--primary-color);
+}
+
+.statusSelect {
+  appearance: none;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  padding: 0 16px 0 0;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%226%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201L5%205L9%201%22%20stroke%3D%22%23737373%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  font-family: inherit;
+}
+
+/* Status Variations via Typography */
+.statusActive {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.statusReserved {
+  color: var(--text-muted);
+}
+
+.statusSold {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Actions Column CSS (Vertical Dots Dropdown) */
+.actionMenuWrapper {
+  position: relative;
+  display: inline-block;
+  text-align: right;
+  width: 100%;
+}
+
+.actionMenuTrigger {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionMenuTrigger:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.actionMenuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 4px;
+  min-width: 160px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actionMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+  text-align: left;
+  font-family: inherit;
+}
+
+.actionMenuItem:hover {
+  background-color: var(--bg-primary);
+}
+
+.actionMenuItemDanger {
+  color: #ef4444;
+}
+
+.actionMenuItemDanger:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Custom Status Dropdown CSS */
+.customSelectWrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.customSelectTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.customSelectIcon {
+  color: var(--text-muted);
+}
+
+.customSelectMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 4px 0;
+  min-width: 120px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.customSelectOption {
+  padding: 8px 16px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.customSelectOption:hover {
+  background-color: var(--bg-primary);
+}
+
+.dropdownUp {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+}
+
+/* Skeleton Loader */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}
+
+.skeleton {
+  animation: pulse 1.5s infinite ease-in-out;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+}
+
+.skeletonImg {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.skeletonText {
+  height: 14px;
+  width: 100px;
+  margin-bottom: 6px;
+}
+
+.skeletonTextSm {
+  height: 12px;
+  width: 60px;
+}
+
+.skeletonBadge {
+  height: 18px;
+  width: 40px;
+  border-radius: 4px;
+}
+
+.skeletonAction {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+}
+
+/* Delete Confirmation Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modalTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.modalText {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background-color: var(--bg-primary);
+}
+
+.confirmDeleteBtn {
+  background-color: #ef4444;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmDeleteBtn:hover {
+  background-color: #dc2626;
+}
+
+.modalProductPreview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--bg-primary);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
+  margin-bottom: 24px;
+}
+
+/* Quick View Modal Specifics */
+.quickViewModal {
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+.qvHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--card-bg);
+  z-index: 2;
+  border-radius: 8px 8px 0 0;
+}
+.qvScrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
+  /* Google-inspired scroll shadows */
+  background:
+    linear-gradient(var(--card-bg) 30%, transparent),
+    linear-gradient(transparent, var(--card-bg) 70%) 0 100%,
+    radial-gradient(farthest-side at 50% 0, rgba(128, 128, 128, 0.25), transparent),
+    radial-gradient(farthest-side at 50% 100%, rgba(128, 128, 128, 0.25), transparent) 0 100%;
+  background-repeat: no-repeat;
+  background-color: var(--card-bg);
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
+}
+.qvScrollArea::-webkit-scrollbar {
+  display: none;
+}
+.qvFooter {
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--border-primary);
+  background-color: var(--card-bg);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 2;
+  border-radius: 0 0 8px 8px;
+}
+.qvBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.qvImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+}
+.qvImage {
+  object-fit: contain;
+}
+.qvInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qvPrice {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: "Poppins", sans-serif;
+}
+.qvGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.qvItem {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
+}
+.qvLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.qvValue {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.closeBtn:hover {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.statusPending { color: #f59e0b; font-weight: 500; }
+.statusProcessing { color: #3b82f6; font-weight: 500; }
+.statusShipped { color: #8b5cf6; font-weight: 500; }
+.statusDelivered { color: #10b981; font-weight: 500; }
+.statusCancelled { color: #ef4444; font-weight: 500; text-decoration: line-through; }
+
