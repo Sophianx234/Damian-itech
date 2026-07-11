@@ -68,8 +68,18 @@ export default function AdminCustomersPage() {
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch = 
       (c.fullName && c.fullName.toLowerCase().includes(searchLower)) || 
-      (c.phone && c.phone.includes(searchLower)) ||
-      (c.email && c.email.toLowerCase().includes(searchLower));
+      (c.phone && c.phone.toLowerCase().includes(searchLower)) ||
+      (c.email && c.email.toLowerCase().includes(searchLower)) ||
+      (c.createdAt && c.createdAt.toLowerCase().includes(searchLower)) ||
+      (c.totalSpent.toString().includes(searchLower)) ||
+      (c.totalOrders.toString().includes(searchLower)) ||
+      (c.isSuspended ? "suspended" : "active").includes(searchLower) ||
+      (c.isVerified ? "verified" : "unverified").includes(searchLower) ||
+      (c.orders && c.orders.some(o => 
+        o._id.toLowerCase().includes(searchLower) ||
+        o.orderStatus.toLowerCase().includes(searchLower) ||
+        (o.items && o.items.some(item => item.name.toLowerCase().includes(searchLower)))
+      ));
       
     const matchesType = typeFilter === "registered" ? !c.isGuest : typeFilter === "guest" ? c.isGuest : true;
     return matchesSearch && matchesType;
@@ -136,7 +146,7 @@ export default function AdminCustomersPage() {
           <Search size={16} className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Search customers by name, phone or email..."
+            placeholder="Search by name, phone, email, order ID, product, or status..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -237,7 +247,7 @@ export default function AdminCustomersPage() {
                     <td>
                       <div className={styles.productInfo}>
                         <h4 className={styles.productTitle} style={{ fontSize: '13px' }}>{customer.phone || 'N/A'}</h4>
-                        <p className={styles.productBrand} style={{ fontSize: '12px' }}>{customer.email || 'N/A'}</p>
+                        {customer.email && <p className={styles.productBrand} style={{ fontSize: '12px' }}>{customer.email || 'N/A'}</p>}
                       </div>
                     </td>
 
