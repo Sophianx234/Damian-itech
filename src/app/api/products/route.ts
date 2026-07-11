@@ -10,13 +10,19 @@ export async function POST(req: Request) {
     
     const title = formData.get("title");
     const slug = formData.get("slug");
-    const price = Number(formData.get("price"));
+    const priceStr = formData.get("price");
+    const price = priceStr ? Number(priceStr) : undefined;
+    const oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
+    const tag = formData.get("tag") || undefined;
+    const tagType = formData.get("tagType") || undefined;
     const brand = formData.get("brand");
     const description = formData.get("description");
     const stock = Number(formData.get("stock"));
     const productType = formData.get("productType");
     const condition = formData.get("condition");
     const isSwappable = formData.get("isSwappable") === "true";
+    const estValue = formData.get("estValue") ? Number(formData.get("estValue")) : undefined;
+    const lookingFor = formData.get("lookingFor") || undefined;
     const category = formData.get("category");
     
     const batteryHealth = formData.get("batteryHealth");
@@ -39,12 +45,17 @@ export async function POST(req: Request) {
       title,
       slug,
       price,
+      oldPrice,
+      tag,
+      tagType,
       brand,
       description,
       stock,
       productType,
       condition: condition || undefined,
       isSwappable,
+      estValue,
+      lookingFor,
       category,
       batteryHealth: batteryHealth ? Number(batteryHealth) : undefined,
       ram: ram || undefined,
@@ -54,8 +65,9 @@ export async function POST(req: Request) {
       status: "Active"
     });
 
-    // Revalidate the products master table cache
+    // Revalidate the products master table cache and homepage
     revalidatePath("/admin/products");
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, data: newProduct, message: "Product created successfully" });
   } catch (error) {

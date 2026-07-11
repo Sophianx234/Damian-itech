@@ -8,13 +8,21 @@ const SpecSchema = new mongoose.Schema({
 const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
-  price: { type: Number, required: true },
+  price: { 
+    type: Number, 
+    required: function(this: any) { return !this.isSwappable; } 
+  },
+  oldPrice: { type: Number },
+  tag: { type: String },
+  tagType: { type: String },
   brand: { type: String, required: true },
   description: { type: String, required: true },
   stock: { type: Number, required: true, default: 1 },
   productType: { type: String, enum: ['Store', 'Used'], required: true },
   condition: { type: String }, // Optional for 'Store'
   isSwappable: { type: Boolean, default: false },
+  estValue: { type: Number },
+  lookingFor: { type: String },
   category: { type: String, required: true },
   
   // Hardcoded standard specs

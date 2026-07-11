@@ -26,6 +26,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [category, setCategory] = useState("");
   const [productType, setProductType] = useState<"Store" | "Used">("Store");
   const [isSwappable, setIsSwappable] = useState(false);
+  const [tag, setTag] = useState("");
+  const [tagType, setTagType] = useState("");
+  const [oldPrice, setOldPrice] = useState("");
+  const [estValue, setEstValue] = useState("");
+  const [lookingFor, setLookingFor] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [customSpecs, setCustomSpecs] = useState<{ key: string; value: string }[]>([]);
@@ -44,6 +49,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setCategory(p.category || "");
           setProductType(p.productType || "Store");
           setIsSwappable(p.isSwappable || false);
+          setTag(p.tag || "");
+          setTagType(p.tagType || "");
+          setOldPrice(p.oldPrice ? String(p.oldPrice) : "");
+          setEstValue(p.estValue ? String(p.estValue) : "");
+          setLookingFor(p.lookingFor || "");
           setCustomSpecs(p.customSpecs || []);
           setExistingImages(p.images || []);
         }
@@ -122,12 +132,20 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       // 3. Combine existing + new images
       const combinedImages = [...existingImages, ...newUploadedImageUrls];
 
-      // 4. Pass data to Backend API
+      // 3. Update database
       const formData = new FormData(form);
-      formData.append("slug", slug);
-      formData.append("isSwappable", String(isSwappable));
-      formData.append("customSpecs", JSON.stringify(customSpecs));
-      formData.append("imageUrls", JSON.stringify(combinedImages));
+      formData.set("slug", slug);
+      formData.set("isSwappable", String(isSwappable));
+      formData.set("customSpecs", JSON.stringify(customSpecs));
+      formData.set("imageUrls", JSON.stringify(combinedImages));
+
+      if (isSwappable) {
+        if (estValue) formData.set("estValue", estValue);
+        if (lookingFor) formData.set("lookingFor", lookingFor);
+      } else {
+        formData.delete("estValue");
+        formData.delete("lookingFor");
+      }
 
       const res = await fetch(`/api/products/${productId}`, {
         method: "PUT",
@@ -148,8 +166,24 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
-        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
-          Loading product data...
+        <div className={styles.header}>
+          <div className={`${styles.skeleton} ${styles.backButton}`}></div>
+          <div className={styles.skeleton} style={{ width: "200px", height: "32px" }}></div>
+        </div>
+        <div className={styles.form}>
+          {[1, 2, 3].map(i => (
+            <div key={i} className={styles.sectionCard}>
+              <div className={styles.sectionHeader}>
+                <div className={styles.skeleton} style={{ width: "150px", height: "24px" }}></div>
+                <div className={styles.skeleton} style={{ width: "250px", height: "16px", marginTop: "8px" }}></div>
+              </div>
+              <div className={styles.skeleton} style={{ width: "100%", height: "44px", marginTop: "16px" }}></div>
+              <div className={styles.row} style={{ marginTop: "16px" }}>
+                <div className={styles.skeleton} style={{ width: "100%", height: "44px" }}></div>
+                <div className={styles.skeleton} style={{ width: "100%", height: "44px" }}></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -178,13 +212,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <input type="text" id="title" name="title" required className={styles.input} defaultValue={initialData?.title} />
           </div>
           <div className={styles.row}>
-            <div className={styles.formGroup}>
-              <label htmlFor="price" className={styles.label}>Price</label>
-              <input type="number" id="price" name="price" required className={styles.input} defaultValue={initialData?.price} />
-            </div>
+            {!isSwappable && (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="price" className={styles.label}>Price</label>
+                  <input type="number" id="price" name="price" required={!isSwappable} className={styles.input} defaultValue={initialData?.price} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="oldPrice" className={styles.label}>Old Price (Optional)</label>
+                  <input type="number" id="oldPrice" name="oldPrice" className={styles.input} value={oldPrice} onChange={e => setOldPrice(e.target.value)} />
+                </div>
+              </>
+            )}
             <div className={styles.formGroup}>
               <label htmlFor="stock" className={styles.label}>Stock Quantity</label>
-              <input type="number" id="stock" name="stock" required className={styles.input} defaultValue={initialData?.stock ?? 1} min={0} />
+              <input type="number" id="stock" name="stock" required className={styles.input} defaultValue={initialData?.stock || 1} min={0} />
             </div>
           </div>
           <div className={styles.row}>
@@ -248,14 +290,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             className={styles.checkboxCard} 
             onClick={() => setIsSwappable(!isSwappable)}
           >
-            <input 
-              type="checkbox" 
-              checked={isSwappable} 
-              readOnly 
-              className={styles.checkboxInput} 
-            />
-            <span className={styles.checkboxLabel}>Available for Swap</span>
+            <input type="checkbox" name="isSwappable" checked={isSwappable} readOnly className={styles.checkboxInput} />
+            <label className={styles.checkboxLabel}>Available for Swapping</label>
           </div>
+
+          {isSwappable && (
+            <div className={styles.row} style={{ marginTop: '16px' }}>
+              <div className={styles.formGroup}>
+                <label htmlFor="estValue" className={styles.label}>Estimated Value</label>
+                <input type="number" id="estValue" name="estValue" className={styles.input} value={estValue} onChange={e => setEstValue(e.target.value)} placeholder="e.g. 1000" required />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="lookingFor" className={styles.label}>Looking For</label>
+                <input type="text" id="lookingFor" name="lookingFor" className={styles.input} value={lookingFor} onChange={e => setLookingFor(e.target.value)} placeholder="e.g. iPhone 13 Pro" required />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Dynamic Specifications Card */}
@@ -333,6 +383,29 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
+        {/* Marketing Card */}
+        <div className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Marketing & Badges</h2>
+            <p className={styles.sectionSubtitle}>Add promotional tags like "Sale" or "New" to appear on the product card.</p>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.formGroup}>
+              <label htmlFor="tag" className={styles.label}>Badge Text</label>
+              <input type="text" id="tag" name="tag" className={styles.input} value={tag} onChange={e => setTag(e.target.value)} placeholder="e.g. Sale, New, -10%" />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="tagType" className={styles.label}>Badge Color Style</label>
+              <select id="tagType" name="tagType" className={styles.select} value={tagType} onChange={e => setTagType(e.target.value)}>
+                <option value="" disabled>Select Style</option>
+                <option value="sale">Sale (Red)</option>
+                <option value="new">New (Blue/Green)</option>
+                <option value="discount">Discount (Purple)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {/* Images Card */}
         <div className={styles.sectionCard}>
           <div className={styles.sectionHeader}>
@@ -403,7 +476,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
         <div className={styles.submitActionRow}>
           <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="animate-spin" size={20}  />}
+            {isSubmitting && <Loader2 className={styles.spin} size={20} />}
             {isSubmitting ? "Updating..." : "Save Changes"}
           </button>
         </div>

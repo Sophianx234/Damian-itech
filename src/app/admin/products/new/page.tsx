@@ -64,6 +64,12 @@ export default function NewProductPage() {
     const title = (form.elements.namedItem("title") as HTMLInputElement).value;
     const slug = slugify(title);
 
+    const tag = (form.elements.namedItem("tag") as HTMLInputElement)?.value;
+    const tagType = (form.elements.namedItem("tagType") as HTMLSelectElement)?.value;
+    const oldPrice = (form.elements.namedItem("oldPrice") as HTMLInputElement)?.value;
+    const estValue = (form.elements.namedItem("estValue") as HTMLInputElement)?.value;
+    const lookingFor = (form.elements.namedItem("lookingFor") as HTMLInputElement)?.value;
+
     try {
       // 1. Fetch Cloudinary Signature
       const signRes = await fetch("/api/cloudinary/sign");
@@ -91,15 +97,25 @@ export default function NewProductPage() {
       }
 
       // 3. Pass data to Backend API
-      const formData = new FormData(form);
-      formData.append("slug", slug);
-      formData.append("isSwappable", String(isSwappable));
-      formData.append("customSpecs", JSON.stringify(customSpecs));
-      formData.append("imageUrls", JSON.stringify(uploadedImageUrls));
+      const productData = new FormData(form);
+      productData.set("slug", slug);
+      productData.set("isSwappable", String(isSwappable));
+      productData.set("customSpecs", JSON.stringify(customSpecs));
+      productData.set("imageUrls", JSON.stringify(uploadedImageUrls));
+      
+      if (isSwappable) {
+        const estVal = (form.elements.namedItem("estValue") as HTMLInputElement)?.value;
+        const lfVal = (form.elements.namedItem("lookingFor") as HTMLInputElement)?.value;
+        if (estVal) productData.set("estValue", estVal);
+        if (lfVal) productData.set("lookingFor", lfVal);
+      } else {
+        productData.delete("estValue");
+        productData.delete("lookingFor");
+      }
 
       const res = await fetch("/api/products", {
         method: "POST",
-        body: formData,
+        body: productData,
       });
 
       if (!res.ok) {
@@ -136,10 +152,18 @@ export default function NewProductPage() {
             <input type="text" id="title" name="title" required className={styles.input} placeholder="e.g. iPhone 15 Pro Max" />
           </div>
           <div className={styles.row}>
-            <div className={styles.formGroup}>
-              <label htmlFor="price" className={styles.label}>Price</label>
-              <input type="number" id="price" name="price" required className={styles.input} placeholder="e.g. 1199" />
-            </div>
+            {!isSwappable && (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="price" className={styles.label}>Price</label>
+                  <input type="number" id="price" name="price" required={!isSwappable} className={styles.input} placeholder="e.g. 1199" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="oldPrice" className={styles.label}>Old Price (Optional)</label>
+                  <input type="number" id="oldPrice" name="oldPrice" className={styles.input} placeholder="e.g. 1299" />
+                </div>
+              </>
+            )}
             <div className={styles.formGroup}>
               <label htmlFor="stock" className={styles.label}>Stock Quantity</label>
               <input type="number" id="stock" name="stock" required className={styles.input} placeholder="e.g. 5" defaultValue={1} min={0} />
@@ -206,14 +230,22 @@ export default function NewProductPage() {
             className={styles.checkboxCard} 
             onClick={() => setIsSwappable(!isSwappable)}
           >
-            <input 
-              type="checkbox" 
-              checked={isSwappable} 
-              readOnly 
-              className={styles.checkboxInput} 
-            />
-            <span className={styles.checkboxLabel}>Available for Swap</span>
+            <input type="checkbox" name="isSwappable" checked={isSwappable} readOnly className={styles.checkboxInput} />
+            <label className={styles.checkboxLabel}>Available for Swapping</label>
           </div>
+
+          {isSwappable && (
+            <div className={styles.row} style={{ marginTop: '16px' }}>
+              <div className={styles.formGroup}>
+                <label htmlFor="estValue" className={styles.label}>Estimated Value</label>
+                <input type="number" id="estValue" name="estValue" className={styles.input} placeholder="e.g. 1000" required />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="lookingFor" className={styles.label}>Looking For</label>
+                <input type="text" id="lookingFor" name="lookingFor" className={styles.input} placeholder="e.g. iPhone 13 Pro" required />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Dynamic Specifications Card */}
@@ -291,6 +323,29 @@ export default function NewProductPage() {
           </div>
         )}
 
+        {/* Marketing Card */}
+        <div className={styles.sectionCard}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Marketing & Badges</h2>
+            <p className={styles.sectionSubtitle}>Add promotional tags like "Sale" or "New" to appear on the product card.</p>
+          </div>
+          <div className={styles.row}>
+            <div className={styles.formGroup}>
+              <label htmlFor="tag" className={styles.label}>Badge Text</label>
+              <input type="text" id="tag" name="tag" className={styles.input} placeholder="e.g. Sale, New, -10%" />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="tagType" className={styles.label}>Badge Color Style</label>
+              <select id="tagType" name="tagType" className={styles.select} defaultValue="">
+                <option value="" disabled>Select Style</option>
+                <option value="sale">Sale (Red)</option>
+                <option value="new">New (Blue/Green)</option>
+                <option value="discount">Discount (Purple)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {/* Images Card */}
         <div className={styles.sectionCard}>
           <div className={styles.sectionHeader}>
@@ -342,7 +397,7 @@ export default function NewProductPage() {
 
         <div className={styles.submitActionRow}>
           <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="animate-spin" size={20}  />}
+            {isSubmitting && <Loader2 className={styles.spin} size={20} />}
             {isSubmitting ? "Creating..." : "Create Product"}
           </button>
         </div>

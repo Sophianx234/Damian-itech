@@ -29,7 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     // Extract standard fields if they exist
     const fields = [
       "title", "slug", "brand", "description", "productType", 
-      "condition", "category", "status"
+      "condition", "category", "status", "tag", "tagType", "lookingFor"
     ];
     
     fields.forEach(field => {
@@ -39,8 +39,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     // Extract numeric/boolean fields
     if (formData.get("price") !== null) updateData.price = Number(formData.get("price"));
+    if (formData.get("oldPrice") !== null) updateData.oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
     if (formData.get("stock") !== null) updateData.stock = Number(formData.get("stock"));
-    if (formData.get("isSwappable") !== null) updateData.isSwappable = formData.get("isSwappable") === "true";
+    if (formData.get("isSwappable") !== null) {
+      updateData.isSwappable = formData.get("isSwappable") === "true";
+      if (!updateData.isSwappable) {
+        updateData.$unset = { estValue: 1, lookingFor: 1 };
+      }
+    }
+    if (formData.get("estValue") !== null && formData.get("isSwappable") === "true") {
+      updateData.estValue = formData.get("estValue") ? Number(formData.get("estValue")) : undefined;
+    }
     
     if (formData.get("batteryHealth") !== null) updateData.batteryHealth = formData.get("batteryHealth") ? Number(formData.get("batteryHealth")) : undefined;
     if (formData.get("ram") !== null) updateData.ram = formData.get("ram") || undefined;
@@ -65,6 +74,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
 
     revalidatePath("/admin/products");
+    revalidatePath("/");
     
     return NextResponse.json({ success: true, data: updatedProduct, message: "Product updated successfully" });
   } catch (error) {
@@ -84,6 +94,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     }
 
     revalidatePath("/admin/products");
+    revalidatePath("/");
     
     return NextResponse.json({ success: true, message: "Product deleted successfully" });
   } catch (error) {
