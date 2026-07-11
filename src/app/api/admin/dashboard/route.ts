@@ -18,12 +18,14 @@ export async function GET() {
     // Active Inventory (Combined Store & Used)
     const activeInventory = await Product.countDocuments({ status: "Active" });
 
-    // Pending Orders
+    // Orders Count
+    const totalOrdersCount = await Order.countDocuments();
     const pendingOrdersCount = await Order.countDocuments({ orderStatus: "pending" });
 
+    // AOV
+    const averageOrderValue = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
+
     // Active Swap Proposals
-    // Assuming a swap proposal is when someone orders a swap (we don't have a Swap model right now, so we will estimate or check if any order has a swap item, or simply return 0 or a mock number if no data exists. Wait, Product has lookingFor/isSwappable. We can count products that are isSwappable). Let's count active swappable products for "Active Swap Proposals" or just mock it as 12 if no model exists. 
-    // Actually, looking at the instructions: "Active Swap Proposals (Crucial for our business logic)" - I'll count Products where isSwappable: true and status: 'Active'.
     const activeSwapProposals = await Product.countDocuments({ isSwappable: true, status: "Active" });
 
     // 2. Revenue Overview (Bar Chart - Last 7 Days)
@@ -87,7 +89,7 @@ export async function GET() {
     // We will just fetch products that are reserved or swappable.
     const swapOffersRaw = await Product.find({ isSwappable: true })
       .sort({ createdAt: -1 })
-      .limit(5)
+      .limit(6)
       .lean();
       
     const swapOffers = swapOffersRaw.map((p: any) => ({
@@ -97,11 +99,47 @@ export async function GET() {
       offeredDevice: p.lookingFor || "Cash + Trade-in"
     }));
 
+    // 6. Low Stock Alerts
+    const lowStockRaw = await Product.find({ stock: { $lte: 5 }, status: "Active" })
+      .sort({ stock: 1 })
+      .limit(6)
+      .lean();
+    
+    const lowStockAlerts = lowStockRaw.map((p: any) => ({
+      id: p._id.toString(),
+      product: p.title,
+      stock: p.stock
+    }));
+
+    // 7. Top Customers
+    const topCustomersRaw = await Order.aggregate([
+      { $match: { orderStatus: { $ne: "cancelled" } } },
+      { 
+        $group: { 
+          _id: "$shippingDetails.email", 
+          name: { $first: "$shippingDetails.fullName" },
+          totalSpent: { $sum: "$totalAmount" },
+          ordersCount: { $sum: 1 }
+        } 
+      },
+      { $sort: { totalSpent: -1 } },
+      { $limit: 6 }
+    ]);
+    
+    const topCustomers = topCustomersRaw.map(c => ({
+      email: c._id || "Guest",
+      name: c.name || "Guest Customer",
+      spent: `$${c.totalSpent.toLocaleString()}`,
+      orders: c.ordersCount
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
         kpis: {
           totalRevenue,
+          totalOrdersCount,
+          averageOrderValue,
           activeInventory,
           pendingOrdersCount,
           activeSwapProposals
@@ -109,7 +147,9 @@ export async function GET() {
         salesData,
         inventoryBreakdown,
         recentOrders,
-        swapOffers
+        swapOffers,
+        lowStockAlerts,
+        topCustomers
       }
     });
   } catch (error: any) {
