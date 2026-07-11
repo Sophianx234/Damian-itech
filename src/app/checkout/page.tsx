@@ -237,10 +237,16 @@ export default function CheckoutPage() {
                 
                 <div className={styles.mapContainerWrapper}>
                   <label className={styles.label}>1. Pinpoint your delivery location on the map</label>
-                  <LocationMap onLocationSelect={(lat, lng, addr) => {
+                  <LocationMap onLocationSelect={(lat, lng, addr, regionStr) => {
                     setLat(lat.toString());
                     setLng(lng.toString());
                     setStreetAddress(addr);
+                    if (regionStr) {
+                      const matchedRegion = GHANA_REGIONS.find(r => regionStr.toLowerCase().includes(r.toLowerCase()));
+                      if (matchedRegion) {
+                        setRegion(matchedRegion);
+                      }
+                    }
                   }} />
                   
                   <div className={styles.inputGrid} style={{ marginTop: '24px' }}>

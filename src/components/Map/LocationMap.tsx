@@ -6,7 +6,7 @@ import "@maptiler/sdk/dist/maptiler-sdk.css";
 import { GeocodingControl } from "@maptiler/geocoding-control/maptilersdk";
 
 interface LocationMapProps {
-  onLocationSelect: (lat: number, lng: number, addressStr: string) => void;
+  onLocationSelect: (lat: number, lng: number, addressStr: string, regionStr?: string) => void;
 }
 
 export default function LocationMap({ onLocationSelect }: LocationMapProps) {
@@ -49,17 +49,26 @@ export default function LocationMap({ onLocationSelect }: LocationMapProps) {
       
     marker.current = markerInstance;
 
-    const reverseGeocode = async (lng: number, lat: number, defaultPlaceName?: string) => {
+    const reverseGeocode = async (lng: number, lat: number, defaultPlaceName?: string, explicitRegion?: string) => {
       try {
         const result = await maptilersdk.geocoding.reverse([lng, lat]);
         if (result && result.features && result.features.length > 0) {
-          onLocationSelectRef.current(lat, lng, result.features[0].place_name);
+          const feature = result.features[0];
+          let regionStr = explicitRegion || "";
+          
+          if (!regionStr && feature.context) {
+            const regionCtx = feature.context.find((c: any) => c.id.startsWith("region") || c.id.startsWith("state") || c.id.startsWith("province"));
+            if (regionCtx) regionStr = regionCtx.text;
+          }
+          if (!regionStr) regionStr = feature.place_name;
+
+          onLocationSelectRef.current(lat, lng, feature.place_name, regionStr);
         } else {
-          onLocationSelectRef.current(lat, lng, defaultPlaceName || `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+          onLocationSelectRef.current(lat, lng, defaultPlaceName || `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`, explicitRegion);
         }
       } catch (err) {
         console.error("Reverse geocoding failed", err);
-        onLocationSelectRef.current(lat, lng, defaultPlaceName || `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+        onLocationSelectRef.current(lat, lng, defaultPlaceName || `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`, explicitRegion);
       }
     };
 
@@ -80,7 +89,15 @@ export default function LocationMap({ onLocationSelect }: LocationMapProps) {
       if (event && event.center) {
         const [pickedLng, pickedLat] = event.center;
         markerInstance.setLngLat([pickedLng, pickedLat]);
-        onLocationSelectRef.current(pickedLat, pickedLng, event.place_name || "");
+        
+        let regionStr = "";
+        if (event.context) {
+          const regionCtx = event.context.find((c: any) => c.id.startsWith("region") || c.id.startsWith("state") || c.id.startsWith("province"));
+          if (regionCtx) regionStr = regionCtx.text;
+        }
+        if (!regionStr) regionStr = event.place_name;
+
+        onLocationSelectRef.current(pickedLat, pickedLng, event.place_name || "", regionStr);
       }
     });
     
