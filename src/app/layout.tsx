@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { CartProvider } from "../context/CartContext";
+import { SettingsProvider } from "../context/SettingsContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,9 +18,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-          <CartProvider>
-            {children}
-          </CartProvider>
+          <SettingsProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>

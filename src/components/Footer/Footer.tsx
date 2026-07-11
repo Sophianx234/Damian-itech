@@ -1,7 +1,13 @@
+"use client";
+
 import React from "react";
+import { useSettings } from "../../context/SettingsContext";
 import styles from "./Footer.module.css";
 
 const Footer = () => {
+  const { settings } = useSettings();
+  const storeName = settings?.storeName || "Damian iTech";
+
   return (
     <footer className={styles.footer}>
       {/* Newsletter Section */}
@@ -123,7 +129,7 @@ const Footer = () => {
 
         <div className={`container ${styles.bottomBar}`}>
           <p>
-            &copy; 2024 Damian iTech. All Rights Reserved. Powered by Shopify.
+            &copy; {new Date().getFullYear()} {storeName}. All Rights Reserved.
           </p>
         </div>
       </div>

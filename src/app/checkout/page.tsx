@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import { useCart } from '../../context/CartContext';
+import { useSettings } from '../../context/SettingsContext';
 import styles from './Checkout.module.css';
 
 const LocationMap = dynamic(() => import('../../components/Map/LocationMap'), {
@@ -21,11 +22,7 @@ const LocationMap = dynamic(() => import('../../components/Map/LocationMap'), {
   )
 });
 
-const GHANA_REGIONS = [
-  "Greater Accra", "Ashanti", "Western", "Central", "Eastern", "Volta",
-  "Northern", "Upper East", "Upper West", "Bono", "Bono East", "Ahafo",
-  "Oti", "Savannah", "North East", "Western North"
-];
+
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -34,17 +31,30 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
+  const { settings, loading: settingsLoading } = useSettings();
+
   // Form State
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
-  const [region, setRegion] = useState("Greater Accra");
+  const [region, setRegion] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("paystack");
-  const [pickupLocation, setPickupLocation] = useState("Main Store, Accra");
+  const [pickupLocation, setPickupLocation] = useState("");
+
+  useEffect(() => {
+    if (settings && !settingsLoading) {
+      if (settings.deliveryZones && settings.deliveryZones.length > 0 && !region) {
+        setRegion(settings.deliveryZones[0].name);
+      }
+      if (settings.pickupLocations && settings.pickupLocations.length > 0 && !pickupLocation) {
+        setPickupLocation(settings.pickupLocations[0].name);
+      }
+    }
+  }, [settings, settingsLoading, region, pickupLocation]);
 
   useEffect(() => {
     setMounted(true);
@@ -68,8 +78,19 @@ export default function CheckoutPage() {
     return null;
   }
 
-  // Delivery within Ghana (e.g. Free delivery for Greater Accra, fixed for outside)
-  const deliveryFee = paymentMethod === 'pickup' ? 0 : (region === "Greater Accra" ? 20 : 50);
+  // Delivery Fee Calculation using Settings
+  let deliveryFee = 0;
+  if (paymentMethod !== 'pickup' && settings && region) {
+    const activeZone = settings.deliveryZones?.find((z) => z.name === region);
+    if (activeZone) {
+      deliveryFee = activeZone.rate;
+    }
+    // Apply free delivery threshold if applicable
+    if (settings.freeDeliveryThreshold && cartTotal >= settings.freeDeliveryThreshold) {
+      deliveryFee = 0;
+    }
+  }
+  
   const finalTotal = cartTotal + deliveryFee; // VAT removed to align with cart logic
 
   const formatCurrency = (value: number) => {
@@ -241,10 +262,10 @@ export default function CheckoutPage() {
                     setLat(lat.toString());
                     setLng(lng.toString());
                     setStreetAddress(addr);
-                    if (regionStr) {
-                      const matchedRegion = GHANA_REGIONS.find(r => regionStr.toLowerCase().includes(r.toLowerCase()));
+                    if (regionStr && settings?.deliveryZones) {
+                      const matchedRegion = settings.deliveryZones.find(r => regionStr.toLowerCase().includes(r.name.toLowerCase()));
                       if (matchedRegion) {
-                        setRegion(matchedRegion);
+                        setRegion(matchedRegion.name);
                       }
                     }
                   }} />
@@ -253,8 +274,8 @@ export default function CheckoutPage() {
                     <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                       <label className={styles.label}>Region (For Delivery Fee Calculation)</label>
                       <select required className={styles.select} value={region} onChange={e => setRegion(e.target.value)}>
-                        {GHANA_REGIONS.map(r => (
-                          <option key={r} value={r}>{r}</option>
+                        {settings?.deliveryZones?.map((z) => (
+                          <option key={z.id} value={z.name}>{z.name} - ₵{z.rate}</option>
                         ))}
                       </select>
                     </div>
@@ -296,9 +317,9 @@ export default function CheckoutPage() {
                     <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                       <label className={styles.label}>Select Pickup Location</label>
                       <select required className={styles.select} value={pickupLocation} onChange={e => setPickupLocation(e.target.value)}>
-                        <option value="Main Store, Accra">Main Store, Accra</option>
-                        <option value="Branch Office, Kumasi">Branch Office, Kumasi</option>
-                        <option value="Outlet, Tema">Outlet, Tema</option>
+                        {settings?.pickupLocations?.map((loc) => (
+                          <option key={loc.id} value={loc.name}>{loc.name} - {loc.address}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
