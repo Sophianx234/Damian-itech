@@ -385,7 +385,7 @@ export default function CheckoutPage() {
 
       {/* Success Modal Overlay */}
       <AnimatePresence>
-        {!orderSuccess && (
+        {orderSuccess && (
           <motion.div 
             className={styles.successOverlay}
             initial={{ opacity: 0 }}
@@ -403,7 +403,12 @@ export default function CheckoutPage() {
               </div>
               <h2 className={styles.successTitle}>Order Confirmed!</h2>
               <p className={styles.successDesc}>
-                Thank you for your purchase. We've sent a confirmation email to you with tracking details. Your gear will be delivered to {region} shortly.
+                {paymentMethod === 'pickup' 
+                  ? `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your digital receipt. Please have it ready when you arrive at ${pickupLocation}.`
+                  : paymentMethod === 'paystack'
+                  ? `Thank you for your purchase! Your payment was successfully processed. We will send your digital receipt and delivery tracking details via WhatsApp shortly. Your items will be dispatched to ${region}.`
+                  : `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your digital receipt and live delivery updates. Your items will be dispatched to ${region}.`
+                }
               </p>
               <Link href="/" className={styles.placeOrderBtn} style={{ textDecoration: 'none' }}>
                 Return to Home
