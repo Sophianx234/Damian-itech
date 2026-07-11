@@ -404,10 +404,10 @@ export default function CheckoutPage() {
               <h2 className={styles.successTitle}>Order Confirmed!</h2>
               <p className={styles.successDesc}>
                 {paymentMethod === 'pickup' 
-                  ? `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your digital receipt. Please have it ready when you arrive at ${pickupLocation}.`
+                  ? `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Please have your payment ready when you arrive at ${pickupLocation}.`
                   : paymentMethod === 'paystack'
-                  ? `Thank you for your purchase! Your payment was successfully processed. We will send your digital receipt and delivery tracking details via WhatsApp shortly. Your items will be dispatched to ${region}.`
-                  : `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your digital receipt and live delivery updates. Your items will be dispatched to ${region}.`
+                  ? `Thank you for your purchase! Your payment was successfully processed. We will send your receipt and delivery tracking details via WhatsApp shortly. Your items will be dispatched to your location soon.`
+                  : `Thank you for choosing Damian iTech! Your order has been securely confirmed. We will reach out to you via WhatsApp shortly with your order summary. Your items will be dispatched to your location soon.`
                 }
               </p>
               <Link href="/" className={styles.placeOrderBtn} style={{ textDecoration: 'none' }}>
