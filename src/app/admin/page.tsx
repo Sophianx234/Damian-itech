@@ -67,59 +67,91 @@ export default function DashboardMainContent() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Total Revenue</h3>
-            <DollarSign size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Total Revenue</h3>
+              <p className={styles.statValue}>${kpis.totalRevenue.toLocaleString()}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <DollarSign size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>${kpis.totalRevenue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Total Orders</h3>
-            <ShoppingCart size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Total Orders</h3>
+              <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <ShoppingCart size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Total Customers</h3>
-            <Users size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Total Customers</h3>
+              <p className={styles.statValue}>{kpis.totalCustomers}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <Users size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.totalCustomers}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Avg Order Value</h3>
-            <CreditCard size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Avg Order Value</h3>
+              <p className={styles.statValue}>${kpis.averageOrderValue.toLocaleString()}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <CreditCard size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>${kpis.averageOrderValue.toLocaleString()}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Active Inventory</h3>
-            <Package size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Active Inventory</h3>
+              <p className={styles.statValue}>{kpis.activeInventory}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <Package size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.activeInventory}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Pending Orders</h3>
-            <Clock size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Pending Orders</h3>
+              <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <Clock size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Failed Orders</h3>
-            <XCircle size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Failed Orders</h3>
+              <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <XCircle size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
-            <h3 className={styles.statLabel}>Active Swaps</h3>
-            <RefreshCw size={18} className={styles.statIcon} />
+            <div className={styles.statInfo}>
+              <h3 className={styles.statLabel}>Active Swaps</h3>
+              <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
+            </div>
+            <div className={styles.iconContainer}>
+              <RefreshCw size={24} className={styles.statIcon} />
+            </div>
           </div>
-          <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
         </div>
       </div>
 
