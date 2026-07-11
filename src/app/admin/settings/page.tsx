@@ -285,38 +285,39 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "store" && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Store Configuration</h2>
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 className={styles.sectionTitle}>Store details</h2>
+                  <p className={styles.sectionSubtitle}>Configure your store's public facing information.</p>
+                </div>
                 <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save Configuration"}
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
                 </button>
               </div>
-              <p className={styles.sectionSubtitle}>Manage global settings for your e-commerce platform.</p>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Store Name</label>
-                <input type="text" className={styles.formInput} value={settings.storeName} onChange={(e) => handleUpdateSetting('storeName', e.target.value)} />
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Store name</label>
+                  <input type="text" className={styles.formInput} value={settings.storeName} onChange={(e) => handleUpdateSetting('storeName', e.target.value)} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Support email</label>
+                  <input type="email" className={styles.formInput} value={settings.supportEmail} onChange={(e) => handleUpdateSetting('supportEmail', e.target.value)} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Contact phone</label>
+                  <input type="text" className={styles.formInput} value={settings.contactPhone} onChange={(e) => handleUpdateSetting('contactPhone', e.target.value)} />
+                </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Support Email</label>
-                <input type="email" className={styles.formInput} value={settings.supportEmail} onChange={(e) => handleUpdateSetting('supportEmail', e.target.value)} />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Contact Phone</label>
-                <input type="text" className={styles.formInput} value={settings.contactPhone} onChange={(e) => handleUpdateSetting('contactPhone', e.target.value)} />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Physical Address (For Invoices)</label>
+              <div className={styles.formGroup} style={{ maxWidth: '600px' }}>
+                <label className={styles.formLabel}>Physical address</label>
                 <textarea 
                   className={styles.formInput} 
-                  rows={3} 
                   value={settings.physicalAddress}
                   onChange={(e) => handleUpdateSetting('physicalAddress', e.target.value)}
-                  style={{ resize: "vertical" }}
+                  placeholder="Full physical address for invoices"
                 ></textarea>
               </div>
             </div>
