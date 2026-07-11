@@ -177,7 +177,33 @@ export default function SettingsPage() {
                   </label>
                 </div>
 
-                <div className={styles.formGroup} style={{ marginTop: '24px' }}>
+                <div style={{ marginTop: '24px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Pickup Locations</h4>
+                    <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}>
+                      <Plus size={14} /> Add Location
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {[
+                      { id: 1, name: "Main HQ", address: "123 Oxford Street, Osu, Accra" },
+                      { id: 2, name: "Kumasi Branch", address: "Adum, Kumasi City Mall" }
+                    ].map(loc => (
+                      <div key={loc.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                          <input type="text" className={styles.formInput} defaultValue={loc.name} placeholder="Location Name" style={{ marginBottom: '8px' }} />
+                          <input type="text" className={styles.formInput} defaultValue={loc.address} placeholder="Full Address" />
+                        </div>
+                        <button className={styles.iconBtnDanger} aria-label="Delete Location" style={{ marginTop: '4px' }}>
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.formGroup} style={{ marginTop: '32px' }}>
                   <label className={styles.formLabel}>Free Shipping Threshold (₵)</label>
                   <input type="number" className={styles.formInput} defaultValue={5000} placeholder="e.g. 5000" />
                   <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
