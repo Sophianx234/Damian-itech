@@ -37,6 +37,55 @@ function InviteForm() {
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
+  const handleOtpChange = (index: number, value: string) => {
+    // only allow digits
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = otp.split("");
+    while (newOtp.length < 6) newOtp.push("");
+    newOtp[index] = value;
+    const otpString = newOtp.join("").slice(0, 6);
+    setOtp(otpString);
+
+    if (value !== "" && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace") {
+      const newOtp = otp.split("");
+      while (newOtp.length < 6) newOtp.push("");
+      if (newOtp[index] === "" && index > 0) {
+        const prevInput = document.getElementById(`otp-${index - 1}`);
+        if (prevInput) prevInput.focus();
+        newOtp[index - 1] = "";
+      } else {
+        newOtp[index] = "";
+      }
+      setOtp(newOtp.join(""));
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .slice(0, 6)
+      .replace(/\D/g, "");
+    if (pastedData) {
+      setOtp(pastedData);
+      const targetIndex = Math.min(pastedData.length, 5);
+      const targetInput = document.getElementById(
+        `otp-${targetIndex === 6 ? 5 : targetIndex}`,
+      );
+      if (targetInput) targetInput.focus();
+    }
+  };
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteId) {
@@ -153,21 +202,42 @@ function InviteForm() {
 
               <form className={styles.form} onSubmit={handleVerifyOtp}>
                 <div className={styles.inputGroup}>
-                  <label htmlFor="otp" className={styles.label}>
-                    Verification Code (OTP)
-                  </label>
-                  <div className={styles.inputWrapper}>
-                    <ShieldCheck className={styles.inputIcon} size={18} />
-                    <input
-                      type="text"
-                      id="otp"
-                      required
-                      className={`${styles.input} ${styles.inputWithIcon}`}
-                      placeholder="e.g. 123456"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      style={{ letterSpacing: "2px", fontWeight: 600 }}
-                    />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      justifyContent: "center",
+                      margin: "16px 0",
+                    }}
+                  >
+                    {[0, 1, 2, 3, 4, 5].map((index) => {
+                      const digit = otp[index] || "";
+                      return (
+                        <input
+                          key={index}
+                          id={`otp-${index}`}
+                          type="text"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) =>
+                            handleOtpChange(index, e.target.value)
+                          }
+                          onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                          onPaste={handleOtpPaste}
+                          required={index === 0 ? false : undefined}
+                          className={styles.input}
+                          style={{
+                            width: "48px",
+                            height: "56px",
+                            textAlign: "center",
+                            fontSize: "24px",
+                            fontWeight: "bold",
+                            borderRadius: "12px",
+                            padding: "0",
+                          }}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
 
