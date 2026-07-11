@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus } from "lucide-react";
+import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, ChevronUp, ChevronDown } from "lucide-react";
 import styles from "./Settings.module.css";
 
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
@@ -9,6 +9,15 @@ type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "se
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [user, setUser] = useState<{ fullName: string; email: string; role: string } | null>(null);
+  
+  // Shipping settings state
+  const [isLocalPickupEnabled, setIsLocalPickupEnabled] = useState(true);
+  const [isDeliveryEnabled, setIsDeliveryEnabled] = useState(true);
+  const [expandedSections, setExpandedSections] = useState({ general: true, zones: true });
+
+  const toggleSection = (section: 'general' | 'zones') => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -164,89 +173,137 @@ export default function SettingsPage() {
                 <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Shipping & Delivery</h2>
                 <button className={styles.btnPrimary}>Save Settings</button>
               </div>
-              <p className={styles.sectionSubtitle}>Configure your delivery zones, shipping rates, and pickup options.</p>
+              <p className={styles.sectionSubtitle}>Setup your delivery zones, shipping rates, and pickup options.</p>
 
               <div className={styles.settingsBlock}>
-                <h3 className={styles.blockTitle}>General Options</h3>
+                <div 
+                  onClick={() => toggleSection('general')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.general ? '16px' : '0' }}
+                >
+                  <h3 className={styles.blockTitle} style={{ margin: 0 }}>General Options</h3>
+                  {expandedSections.general ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
                 
-                <div className={styles.checkboxGroup}>
-                  <input type="checkbox" id="localPickup" className={styles.checkboxInput} defaultChecked />
-                  <label htmlFor="localPickup" className={styles.checkboxLabel}>
-                    <strong>Enable Local Pickup</strong>
-                    <span className={styles.helpText}>Allow customers to pick up their orders from your physical store for free.</span>
-                  </label>
-                </div>
+                {expandedSections.general && (
+                  <div style={{ marginTop: '16px' }}>
+                    <div className={styles.checkboxGroup}>
+                      <input 
+                        type="checkbox" 
+                        id="localPickup" 
+                        className={styles.checkboxInput} 
+                        checked={isLocalPickupEnabled}
+                        onChange={(e) => setIsLocalPickupEnabled(e.target.checked)}
+                      />
+                      <label htmlFor="localPickup" className={styles.checkboxLabel}>
+                        <strong>Enable Local Pickup</strong>
+                        <span className={styles.helpText}>Allow customers to pick up their orders from your physical store for free.</span>
+                      </label>
+                    </div>
 
-                <div style={{ marginTop: '24px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Pickup Locations</h4>
-                    <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}>
-                      <Plus size={14} /> Add Location
-                    </button>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {[
-                      { id: 1, name: "Main HQ", address: "123 Oxford Street, Osu, Accra" },
-                      { id: 2, name: "Kumasi Branch", address: "Adum, Kumasi City Mall" }
-                    ].map(loc => (
-                      <div key={loc.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                        <div style={{ flex: 1 }}>
-                          <input type="text" className={styles.formInput} defaultValue={loc.name} placeholder="Location Name" style={{ marginBottom: '8px' }} />
-                          <input type="text" className={styles.formInput} defaultValue={loc.address} placeholder="Full Address" />
+                    {isLocalPickupEnabled && (
+                      <div style={{ marginTop: '24px', paddingLeft: '30px', borderLeft: '2px solid var(--border-primary)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Pickup Locations</h4>
+                          <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}>
+                            <Plus size={14} /> Add Location
+                          </button>
                         </div>
-                        <button className={styles.iconBtnDanger} aria-label="Delete Location" style={{ marginTop: '4px' }}>
-                          <Trash2 size={18} />
-                        </button>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          {[
+                            { id: 1, name: "Main HQ", address: "123 Oxford Street, Osu, Accra" },
+                            { id: 2, name: "Kumasi Branch", address: "Adum, Kumasi City Mall" }
+                          ].map(loc => (
+                            <div key={loc.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                              <div style={{ flex: 1 }}>
+                                <input type="text" className={styles.formInput} defaultValue={loc.name} placeholder="Location Name" style={{ marginBottom: '8px' }} />
+                                <input type="text" className={styles.formInput} defaultValue={loc.address} placeholder="Full Address" />
+                              </div>
+                              <button className={styles.iconBtnDanger} aria-label="Delete Location" style={{ marginTop: '4px' }}>
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    )}
 
-                <div className={styles.formGroup} style={{ marginTop: '32px' }}>
-                  <label className={styles.formLabel}>Free Shipping Threshold (₵)</label>
-                  <input type="number" className={styles.formInput} defaultValue={5000} placeholder="e.g. 5000" />
-                  <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
-                </div>
+                    <div className={styles.formGroup} style={{ marginTop: '32px' }}>
+                      <label className={styles.formLabel}>Free Delivery Threshold (₵)</label>
+                      <input type="number" className={styles.formInput} defaultValue={5000} placeholder="e.g. 5000" />
+                      <span className={styles.helpText} style={{ display: 'block', marginTop: '6px' }}>Orders above this amount will automatically qualify for free shipping. Leave blank or 0 to disable.</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.divider}></div>
 
               <div className={styles.settingsBlock}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div 
+                  onClick={() => toggleSection('zones')}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: expandedSections.zones ? '16px' : '0' }}
+                >
                   <h3 className={styles.blockTitle} style={{ margin: 0 }}>Delivery Zones</h3>
-                  <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}>
-                    <Plus size={16} /> Add Zone
-                  </button>
+                  {expandedSections.zones ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </div>
-                
-                <div className={styles.zonesContainer}>
-                  {[
-                    { id: 1, name: "Accra", time: "1-2 Business Days", rate: 50 },
-                    { id: 2, name: "Kumasi", time: "3-5 Business Days", rate: 80 },
-                    { id: 3, name: "Other Regions", time: "5-7 Business Days", rate: 120 }
-                  ].map(zone => (
-                    <div key={zone.id} className={styles.zoneRow}>
-                      <div className={styles.zoneGrid}>
-                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Zone Name</label>
-                          <input type="text" className={styles.formInput} defaultValue={zone.name} />
-                        </div>
-                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Est. Delivery Time</label>
-                          <input type="text" className={styles.formInput} defaultValue={zone.time} />
-                        </div>
-                        <div className={styles.formGroup} style={{ marginBottom: 0 }}>
-                          <label className={styles.formLabel} style={{ fontSize: '12px' }}>Flat Rate (₵)</label>
-                          <input type="number" className={styles.formInput} defaultValue={zone.rate} />
-                        </div>
-                      </div>
-                      <button className={styles.iconBtnDanger} aria-label="Delete Zone">
-                        <Trash2 size={18} />
-                      </button>
+
+                {expandedSections.zones && (
+                  <div style={{ marginTop: '16px' }}>
+                    <div className={styles.checkboxGroup} style={{ marginBottom: '24px' }}>
+                      <input 
+                        type="checkbox" 
+                        id="homeDelivery" 
+                        className={styles.checkboxInput} 
+                        checked={isDeliveryEnabled}
+                        onChange={(e) => setIsDeliveryEnabled(e.target.checked)}
+                      />
+                      <label htmlFor="homeDelivery" className={styles.checkboxLabel}>
+                        <strong>Enable Home Delivery</strong>
+                        <span className={styles.helpText}>Allow customers to have orders delivered to their address.</span>
+                      </label>
                     </div>
-                  ))}
-                </div>
+
+                    {isDeliveryEnabled && (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                          <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)' }}>Configured Zones</h4>
+                          <button className={styles.btnSecondary} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}>
+                            <Plus size={16} /> Add Zone
+                          </button>
+                        </div>
+                        
+                        <div className={styles.zonesContainer}>
+                          {[
+                            { id: 1, name: "Accra", time: "1-2 Business Days", rate: 50 },
+                            { id: 2, name: "Kumasi", time: "3-5 Business Days", rate: 80 },
+                            { id: 3, name: "Other Regions", time: "5-7 Business Days", rate: 120 }
+                          ].map(zone => (
+                            <div key={zone.id} className={styles.zoneRow}>
+                              <div className={styles.zoneGrid}>
+                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Zone Name</label>
+                                  <input type="text" className={styles.formInput} defaultValue={zone.name} />
+                                </div>
+                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Est. Delivery Time</label>
+                                  <input type="text" className={styles.formInput} defaultValue={zone.time} />
+                                </div>
+                                <div className={styles.formGroup} style={{ marginBottom: 0 }}>
+                                  <label className={styles.formLabel} style={{ fontSize: '12px' }}>Flat Rate (₵)</label>
+                                  <input type="number" className={styles.formInput} defaultValue={zone.rate} />
+                                </div>
+                              </div>
+                              <button className={styles.iconBtnDanger} aria-label="Delete Zone">
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
