@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { User, Store, CreditCard, Truck, BellRing, Shield, Zap, Image as ImageIcon, Trash2, Plus, X, Loader2 } from "lucide-react";
 import styles from "./Settings.module.css";
 
