@@ -58,7 +58,7 @@ export default function SettingsPage() {
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
 
   const [products, setProducts] = useState<any[]>([]);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -81,8 +81,8 @@ export default function SettingsPage() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.products) {
-          setProducts(data.products);
+        if (data.success && data.data) {
+          setProducts(data.data);
         }
       })
       .catch((err) => console.error("Failed to fetch products", err));
@@ -118,54 +118,57 @@ export default function SettingsPage() {
       handleUpdateSetting('flashSaleNewPrice', selected.price);
       if (selected.images && selected.images.length > 0) {
         handleUpdateSetting('flashSaleImage', selected.images[0]);
+        setPendingImage(null); // Clear any pending local image upload
       }
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
-    setUploadingImage(true);
-    try {
-      const file = e.target.files[0];
-      const signRes = await fetch("/api/cloudinary/sign");
-      if (!signRes.ok) throw new Error("Failed to get upload signature");
-      const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
-
-      const uploadData = new FormData();
-      uploadData.append("file", file);
-      uploadData.append("api_key", apiKey);
-      uploadData.append("timestamp", timestamp);
-      uploadData.append("signature", signature);
-      uploadData.append("folder", folder);
-
-      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: "POST",
-        body: uploadData,
-      });
-      
-      if (!uploadRes.ok) throw new Error("Failed to upload image");
-      const cloudinaryData = await uploadRes.json();
-      handleUpdateSetting('flashSaleImage', cloudinaryData.secure_url);
-    } catch (error) {
-      console.error("Image upload failed", error);
-      alert("Image upload failed. Please try again.");
-    } finally {
-      setUploadingImage(false);
-      if (imageInputRef.current) imageInputRef.current.value = '';
-    }
+    const file = e.target.files[0];
+    setPendingImage(file);
+    const objectUrl = URL.createObjectURL(file);
+    handleUpdateSetting('flashSaleImage', objectUrl);
+    if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
     setSaveMessage(null);
     try {
+      let finalSettings = { ...settings };
+
+      if (pendingImage) {
+        const signRes = await fetch("/api/cloudinary/sign");
+        if (!signRes.ok) throw new Error("Failed to get upload signature");
+        const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
+
+        const uploadData = new FormData();
+        uploadData.append("file", pendingImage);
+        uploadData.append("api_key", apiKey);
+        uploadData.append("timestamp", timestamp);
+        uploadData.append("signature", signature);
+        uploadData.append("folder", folder);
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: uploadData,
+        });
+        
+        if (!uploadRes.ok) throw new Error("Failed to upload image to Cloudinary");
+        const cloudinaryData = await uploadRes.json();
+        finalSettings.flashSaleImage = cloudinaryData.secure_url;
+      }
+
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(finalSettings),
       });
       const data = await res.json();
       if (data.success) {
+        setSettings(finalSettings);
+        setPendingImage(null);
         setSaveMessage({ type: 'success', text: 'Settings saved successfully' });
       } else {
         throw new Error(data.error);
@@ -454,23 +457,27 @@ export default function SettingsPage() {
                           accept="image/*" 
                           ref={imageInputRef}
                           style={{ display: 'none' }}
-                          onChange={handleImageUpload}
+                          onChange={handleImageSelect}
                         />
                         <button 
                           type="button"
                           className={styles.btnSecondary} 
                           onClick={() => imageInputRef.current?.click()}
-                          disabled={uploadingImage}
+                          disabled={isSaving}
                           style={{ whiteSpace: 'nowrap' }}
                         >
-                          {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />} 
-                          {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                          <ImageIcon size={16} /> Select Local Image
                         </button>
                       </div>
                       {settings.flashSaleImage && (
                         <div style={{ width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-primary)' }}>
                           <img src={settings.flashSaleImage} alt="Flash Sale" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
+                      )}
+                      {pendingImage && (
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                          Image selected but not uploaded yet. Click "Save changes" above to upload and save.
+                        </p>
                       )}
                     </div>
 
