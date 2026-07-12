@@ -97,6 +97,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
   transition: all 0.2s ease;
   border-radius: 0 4px 4px 0;
 }

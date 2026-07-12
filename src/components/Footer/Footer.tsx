@@ -3,6 +3,7 @@
 import React from "react";
 import { useSettings } from "../../context/SettingsContext";
 import styles from "./Footer.module.css";
+import { Loader2 } from "lucide-react";
 
 const Footer = () => {
   const { settings } = useSettings();
@@ -60,6 +61,7 @@ const Footer = () => {
               disabled={status === 'loading'}
             />
             <button type="submit" className={styles.newsletterSubmit} disabled={status === 'loading'}>
+              {status === 'loading' && <Loader2 className='animate-spin' size={16} />}
               {status === 'loading' ? 'Submitting...' : 'Submit'}
             </button>
           </form>
