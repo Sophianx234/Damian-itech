@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { User, Store, CreditCard, Truck, BellRing, Shield, Image as ImageIcon, Trash2, Plus, X, Loader2 } from "lucide-react";
+import { User, Store, CreditCard, Truck, BellRing, Shield, Zap, Image as ImageIcon, Trash2, Plus, X, Loader2 } from "lucide-react";
 import styles from "./Settings.module.css";
 
-type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security";
+type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security" | "flashsale";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
@@ -38,6 +38,14 @@ export default function SettingsPage() {
     customerEmailWelcome: true,
     require2FA: false,
     sessionTimeout: true,
+    flashSaleActive: true,
+    flashSaleTitle: "Sony WH-1000XM5 Wireless Noise Canceling",
+    flashSaleDescription: "Industry-leading noise cancellation. Two processors control 8 microphones for unprecedented noise cancellation.",
+    flashSaleImage: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1000&auto=format&fit=crop",
+    flashSaleNewPrice: 298.00,
+    flashSaleOldPrice: 398.00,
+    flashSaleEndTime: new Date(new Date().getTime() + (14 * 60 * 60 * 1000) + (45 * 60 * 1000)).toISOString().slice(0, 16),
+    flashSaleLink: "/products/sony-wh-1000xm5"
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -48,6 +56,10 @@ export default function SettingsPage() {
   const [isInviting, setIsInviting] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -66,6 +78,15 @@ export default function SettingsPage() {
       })
       .catch((err) => console.error("Failed to fetch settings", err));
 
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.products) {
+          setProducts(data.products);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch products", err));
+
     fetchTeamMembers();
   }, []);
 
@@ -83,6 +104,55 @@ export default function SettingsPage() {
 
   const handleUpdateSetting = (key: string, value: any) => {
     setSettings((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  const handleProductSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const slug = e.target.value;
+    if (!slug) return;
+    const selected = products.find(p => p.slug === slug);
+    if (selected) {
+      handleUpdateSetting('flashSaleLink', `/products/${selected.slug}`);
+      handleUpdateSetting('flashSaleTitle', selected.title);
+      handleUpdateSetting('flashSaleDescription', selected.description || '');
+      handleUpdateSetting('flashSaleOldPrice', selected.oldPrice || selected.price);
+      handleUpdateSetting('flashSaleNewPrice', selected.price);
+      if (selected.images && selected.images.length > 0) {
+        handleUpdateSetting('flashSaleImage', selected.images[0]);
+      }
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    setUploadingImage(true);
+    try {
+      const file = e.target.files[0];
+      const signRes = await fetch("/api/cloudinary/sign");
+      if (!signRes.ok) throw new Error("Failed to get upload signature");
+      const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
+
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      uploadData.append("api_key", apiKey);
+      uploadData.append("timestamp", timestamp);
+      uploadData.append("signature", signature);
+      uploadData.append("folder", folder);
+
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: uploadData,
+      });
+      
+      if (!uploadRes.ok) throw new Error("Failed to upload image");
+      const cloudinaryData = await uploadRes.json();
+      handleUpdateSetting('flashSaleImage', cloudinaryData.secure_url);
+    } catch (error) {
+      console.error("Image upload failed", error);
+      alert("Image upload failed. Please try again.");
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
   };
 
   const handleSaveSettings = async () => {
@@ -158,6 +228,7 @@ export default function SettingsPage() {
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "store", label: "Store details", icon: Store },
+    { id: "flashsale", label: "Flash Sale Popup", icon: Zap },
     { id: "payments", label: "Payments", icon: CreditCard },
     { id: "shipping", label: "Shipping", icon: Truck },
     { id: "notifications", label: "Notifications", icon: BellRing },
@@ -307,6 +378,121 @@ export default function SettingsPage() {
                   placeholder="Full physical address for invoices"
                 ></textarea>
               </div>
+            </div>
+          )}
+
+          {activeTab === "flashsale" && (
+            <div className={styles.sectionGroup}>
+              <div className={styles.sectionHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 className={styles.sectionTitle}>Flash Sale Popup</h2>
+                  <p className={styles.sectionSubtitle}>Manage the first-visit global deal popup.</p>
+                </div>
+                <button className={styles.btnPrimary} onClick={handleSaveSettings} disabled={isSaving}>
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : "Save changes"}
+                </button>
+              </div>
+
+              <div className={styles.toggleGroup}>
+                <div className={styles.toggleInfo}>
+                  <span className={styles.toggleLabel}>Enable Flash Sale</span>
+                  <span className={styles.toggleDesc}>Show the flash sale popup to new visitors</span>
+                </div>
+                <label className={styles.switch}>
+                  <input 
+                    type="checkbox" 
+                    checked={settings.flashSaleActive}
+                    onChange={(e) => handleUpdateSetting('flashSaleActive', e.target.checked)}
+                  />
+                  <span className={styles.slider}></span>
+                </label>
+              </div>
+
+              {settings.flashSaleActive && (
+                <>
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px' }}>
+                      <label className={styles.formLabel}>Quick Select from Existing Products</label>
+                      <select 
+                        className={styles.formInput} 
+                        onChange={handleProductSelect}
+                        defaultValue=""
+                      >
+                        <option value="" disabled>-- Select a product to autofill fields --</option>
+                        {products.map(p => (
+                          <option key={p._id} value={p.slug}>{p.title} (${p.price})</option>
+                        ))}
+                      </select>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                        Selecting a product will automatically fill the title, description, image, prices, and link below.
+                      </p>
+                    </div>
+
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                      <label className={styles.formLabel}>Deal Title</label>
+                      <input type="text" className={styles.formInput} value={settings.flashSaleTitle} onChange={(e) => handleUpdateSetting('flashSaleTitle', e.target.value)} />
+                    </div>
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                      <label className={styles.formLabel}>Description</label>
+                      <textarea className={styles.formInput} value={settings.flashSaleDescription} onChange={(e) => handleUpdateSetting('flashSaleDescription', e.target.value)} rows={3} />
+                    </div>
+                    
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                      <label className={styles.formLabel}>Image Source</label>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
+                        <input 
+                          type="text" 
+                          className={styles.formInput} 
+                          value={settings.flashSaleImage} 
+                          onChange={(e) => handleUpdateSetting('flashSaleImage', e.target.value)} 
+                          placeholder="https://" 
+                          style={{ flex: 1 }}
+                        />
+                        <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>OR</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          ref={imageInputRef}
+                          style={{ display: 'none' }}
+                          onChange={handleImageUpload}
+                        />
+                        <button 
+                          type="button"
+                          className={styles.btnSecondary} 
+                          onClick={() => imageInputRef.current?.click()}
+                          disabled={uploadingImage}
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />} 
+                          {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                        </button>
+                      </div>
+                      {settings.flashSaleImage && (
+                        <div style={{ width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-primary)' }}>
+                          <img src={settings.flashSaleImage} alt="Flash Sale" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>End Date & Time</label>
+                      <input type="datetime-local" className={styles.formInput} value={settings.flashSaleEndTime} onChange={(e) => handleUpdateSetting('flashSaleEndTime', e.target.value)} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Target Product Link</label>
+                      <input type="text" className={styles.formInput} value={settings.flashSaleLink} onChange={(e) => handleUpdateSetting('flashSaleLink', e.target.value)} placeholder="/products/..." />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>New Deal Price ($)</label>
+                      <input type="number" step="0.01" className={styles.formInput} value={settings.flashSaleNewPrice} onChange={(e) => handleUpdateSetting('flashSaleNewPrice', parseFloat(e.target.value))} />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Original Price ($)</label>
+                      <input type="number" step="0.01" className={styles.formInput} value={settings.flashSaleOldPrice} onChange={(e) => handleUpdateSetting('flashSaleOldPrice', parseFloat(e.target.value))} />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

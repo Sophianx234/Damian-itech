@@ -7,30 +7,36 @@ import styles from './DealOfTheDay.module.css';
 
 const DealOfTheDay = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [dealData, setDealData] = useState<any>(null);
   const [timeLeft, setTimeLeft] = useState({
-    hours: 14,
-    minutes: 45,
+    hours: 0,
+    minutes: 0,
     seconds: 0
   });
 
   useEffect(() => {
-    // Check if user has seen the deal popup
     const hasSeenDeal = localStorage.getItem('hasSeenFlashDeal');
-    
-    if (!hasSeenDeal) {
-      // Delay popup slightly for better UX
-      const showTimer = setTimeout(() => {
-        setIsVisible(true);
-      }, 3500);
-      return () => clearTimeout(showTimer);
-    }
+    if (hasSeenDeal) return;
+
+    // Fetch dynamic deal settings from DB
+    fetch("/api/admin/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings && data.settings.flashSaleActive) {
+          setDealData(data.settings);
+          const showTimer = setTimeout(() => {
+            setIsVisible(true);
+          }, 3500);
+          return () => clearTimeout(showTimer);
+        }
+      })
+      .catch(err => console.error("Failed to load flash sale settings", err));
   }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !dealData || !dealData.flashSaleEndTime) return;
 
-    // We create a fake expiration time 14h 45m from mount
-    const expireTime = new Date().getTime() + (14 * 60 * 60 * 1000) + (45 * 60 * 1000);
+    const expireTime = new Date(dealData.flashSaleEndTime).getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -48,17 +54,21 @@ const DealOfTheDay = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isVisible]);
+  }, [isVisible, dealData]);
 
   const handleClose = () => {
     setIsVisible(false);
     localStorage.setItem('hasSeenFlashDeal', 'true');
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !dealData) return null;
 
-  // Ensure double digits
   const formatTime = (time: number) => time.toString().padStart(2, '0');
+
+  // Calculate percentage discount
+  const oldPrice = dealData.flashSaleOldPrice || 0;
+  const newPrice = dealData.flashSaleNewPrice || 0;
+  const discountPercent = oldPrice > 0 ? Math.round(((oldPrice - newPrice) / oldPrice) * 100) : 0;
 
   return (
     <div className={styles.overlay}>
@@ -73,24 +83,26 @@ const DealOfTheDay = () => {
 
         <div className={styles.dealCard}>
           <div className={styles.imageWrapper}>
-            <span className={styles.badge}>Save 25%</span>
+            {discountPercent > 0 && (
+              <span className={styles.badge}>Save {discountPercent}%</span>
+            )}
             <img 
-              src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1000&auto=format&fit=crop" 
-              alt="Sony WH-1000XM5 Wireless Headphones" 
+              src={dealData.flashSaleImage || "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1000&auto=format&fit=crop"} 
+              alt={dealData.flashSaleTitle || "Deal of the Day"} 
               className={styles.image}
               style={{ width: '80%', height: 'auto', objectFit: 'contain' }}
             />
           </div>
           
           <div className={styles.content}>
-            <h2 className={styles.title}>Sony WH-1000XM5 Wireless Noise Canceling</h2>
-            <p className={styles.description}>
-              Industry-leading noise cancellation. Two processors control 8 microphones for unprecedented noise cancellation. With Auto NC Optimizer, noise canceling is automatically optimized based on your wearing conditions.
-            </p>
+            <h2 className={styles.title}>{dealData.flashSaleTitle}</h2>
+            <p className={styles.description}>{dealData.flashSaleDescription}</p>
             
             <div className={styles.priceContainer}>
-              <span className={styles.newPrice}>$298.00</span>
-              <span className={styles.oldPrice}>$398.00</span>
+              <span className={styles.newPrice}>${Number(newPrice).toFixed(2)}</span>
+              {oldPrice > 0 && (
+                <span className={styles.oldPrice}>${Number(oldPrice).toFixed(2)}</span>
+              )}
             </div>
             
             <span className={styles.timerLabel}>Hurry up! Offer ends in:</span>
@@ -110,7 +122,7 @@ const DealOfTheDay = () => {
             </div>
             
             <Link 
-              href="/products/sony-wh-1000xm5" 
+              href={dealData.flashSaleLink || "/"} 
               className={styles.shopButton}
               onClick={handleClose}
             >
