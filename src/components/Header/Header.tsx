@@ -3,9 +3,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Sun, Moon, User, Package, Heart, LogOut } from "lucide-react";
+import { Sun, Moon, User, Package, Heart, LogOut, Search, X } from "lucide-react";
 import styles from "./Header.module.css";
 import { useCart } from "../../context/CartContext";
 
@@ -17,6 +17,34 @@ const Header = () => {
   const { cartCount } = useCart();
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [headerProducts, setHeaderProducts] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (isSearchOpen && headerProducts.length === 0) {
+      setIsSearching(true);
+      fetch('/api/products')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) setHeaderProducts(data.data);
+          setIsSearching(false);
+        })
+        .catch(() => setIsSearching(false));
+    }
+  }, [isSearchOpen, headerProducts.length]);
+
+  const liveSearchResults = React.useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return headerProducts.filter(p => 
+      p.title?.toLowerCase().includes(q) || 
+      p.brand?.toLowerCase().includes(q)
+    ).slice(0, 4);
+  }, [searchQuery, headerProducts]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -46,6 +74,15 @@ const Header = () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIsUserMenuOpen(false);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
   };
 
   const navLinks = [
@@ -108,18 +145,8 @@ const Header = () => {
               </>
             )}
           </button>
-          <button aria-label="Search">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.3-4.3" />
-            </svg>
+          <button aria-label="Search" onClick={() => setIsSearchOpen(true)}>
+            <Search size={20} />
           </button>
 
           <div className={styles.userMenuContainer} ref={menuRef}>
@@ -145,6 +172,8 @@ const Header = () => {
                 </span>
               )}
             </button>
+
+
 
             {isUserMenuOpen && (
               <div className={styles.userDropdown}>
@@ -210,6 +239,73 @@ const Header = () => {
           </Link>
         </div>
       </div>
+
+      {/* Full Screen Search Overlay */}
+      {isSearchOpen && (
+        <div className={styles.searchOverlay}>
+          <div className={styles.searchOverlayContent}>
+            <button className={styles.closeSearchBtn} onClick={() => setIsSearchOpen(false)}>
+              <X size={32} />
+            </button>
+            <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
+              <Search size={28} className={styles.searchFormIcon} />
+              <input
+                type="text"
+                placeholder="Search products, brands, or categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchOverlayInput}
+                autoFocus
+              />
+              <button type="submit" className={styles.searchSubmitBtn}>Search</button>
+            </form>
+
+            {searchQuery.trim() !== "" && (
+              <div className={styles.liveResultsContainer}>
+                {isSearching ? (
+                  <div className={styles.liveResultsList}>
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className={styles.liveResultSkeleton}>
+                        <div className={styles.skeletonImageSmall}></div>
+                        <div className={styles.skeletonTextSmall}></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : liveSearchResults.length > 0 ? (
+                  <div className={styles.liveResultsList}>
+                    {liveSearchResults.map(product => (
+                      <Link 
+                        key={product._id} 
+                        href={`/products/${product.slug || product.title?.toLowerCase().replace(/\s+/g, '-')}`} 
+                        className={styles.liveResultItem}
+                        onClick={() => {
+                          setIsSearchOpen(false);
+                          setSearchQuery("");
+                        }}
+                      >
+                        <Image 
+                          src={product.images?.[0] || "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=200&auto=format&fit=crop"} 
+                          alt={product.title} 
+                          width={48} 
+                          height={48} 
+                          className={styles.liveResultImage} 
+                        />
+                        <div className={styles.liveResultInfo}>
+                          <p className={styles.liveResultTitle}>{product.title}</p>
+                          <p className={styles.liveResultPrice}>${product.price?.toFixed(2)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.noResultsText}>No products found.</p>
+                )}
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
     </header>
   );
 };

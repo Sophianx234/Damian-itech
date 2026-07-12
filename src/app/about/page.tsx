@@ -1,33 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import TeamCarousel from "@/components/TeamCarousel/TeamCarousel";
+import Testimonials from "@/components/Testimonials/Testimonials";
+import { Award, HeadphonesIcon, Shield, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Shield, Truck, HeadphonesIcon, Award } from "lucide-react";
-import MainLayoutWrapper from "@/components/MainLayoutWrapper/MainLayoutWrapper";
-import Testimonials from "@/components/Testimonials/Testimonials";
 import styles from "./About.module.css";
 
 export default function AboutPage() {
+  const ctaImages = [
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?q=80&w=2000&auto=format&fit=crop"
+  ];
+
+  const [activeCtaIndex, setActiveCtaIndex] = useState(0);
+
+  useEffect(() => {
+    const ctaInterval = setInterval(() => {
+      setActiveCtaIndex((current) => (current + 1) % ctaImages.length);
+    }, 5000);
+    return () => clearInterval(ctaInterval);
+  }, [ctaImages.length]);
+
   const values = [
     {
-      title: "Premium Curated Selection",
-      description: "We don't just sell electronics. We hand-pick the finest, highest-performing hardware globally so you never have to guess.",
+      title: "No Clutter, Just the Best",
+      description: "We hate scrolling through pages of mediocre tech just as much as you do. That’s why we do the homework, filtering out the noise so you only see gear that’s genuinely worth your money.",
       icon: <Award className={styles.valueIcon} size={28} />
     },
     {
-      title: "Uncompromising Quality",
-      description: "Every item in our inventory undergoes rigorous quality checks. We strictly partner with authorized distributors.",
+      title: "Zero Knock-offs",
+      description: "You shouldn't have to wonder if what you're buying is the real deal. We work directly with verified brands to make sure every single item you unbox is 100% authentic and ready to perform.",
       icon: <Shield className={styles.valueIcon} size={28} />
     },
     {
-      title: "Lightning Fast Delivery",
-      description: "Time is your most valuable asset. Our robust logistics network ensures your next upgrade reaches your door in record time.",
+      title: "We Don't Like Waiting Either",
+      description: "When you buy a new piece of tech, you want it yesterday. Our shipping network is built to get your next upgrade from our warehouse to your front door before the hype wears off.",
       icon: <Truck className={styles.valueIcon} size={28} />
     },
     {
-      title: "24/7 Elite Support",
-      description: "Tech issues don't follow a schedule, and neither do we. Our expert support team is always available to assist you.",
+      title: "Actual Humans, Actually Helping",
+      description: "Got a question at 2 AM? Ran into a weird glitch? We don’t hide behind automated bots. You get direct access to real tech enthusiasts who actually care about getting your setup running perfectly.",
       icon: <HeadphonesIcon className={styles.valueIcon} size={28} />
     }
   ];
@@ -105,22 +120,50 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Team Section */}
+        <TeamCarousel />
+
         {/* Testimonials Section */}
         <Testimonials />
 
         {/* CTA Section */}
         <section className={styles.ctaSection}>
-          <div className="container">
+          <div className={styles.ctaBackgroundWrapper}>
+            <div 
+              className={styles.ctaBackgroundTrack}
+              style={{ transform: `translateX(-${activeCtaIndex * 100}%)` }}
+            >
+              {ctaImages.map((src, idx) => (
+                <div key={idx} className={styles.ctaBackgroundImage}>
+                  <Image src={src} alt="Tech Setup" fill className={styles.ctaImg} />
+                </div>
+              ))}
+            </div>
+            <div className={styles.ctaOverlay}></div>
+          </div>
+
+          <div className={`container ${styles.ctaContentContainer}`}>
             <div className={styles.ctaBox}>
-              <h2 className={styles.ctaTitle}>Ready to get your tech product?</h2>
-              <p className={styles.ctaSubtitle}>Explore our latest curated collection of high-performance devices.</p>
+              <h2 className={styles.ctaTitle}>Ready to elevate your setup?</h2>
+              <p className={styles.ctaSubtitle}>Explore our latest curated collection of high-performance devices and transform your digital lifestyle.</p>
               <div className={styles.ctaButtons}>
-                <Link href="/shop" className={styles.primaryBtn}>
+                <Link href="/shop" className={styles.primaryBtnDark}>
                   Shop Now
                 </Link>
-                <Link href="/contact" className={styles.secondaryBtn}>
+                <Link href="/contact" className={styles.secondaryBtnDark}>
                   Contact Us
                 </Link>
+              </div>
+
+              <div className={styles.ctaDots}>
+                {ctaImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveCtaIndex(index)}
+                    className={`${styles.ctaDot} ${index === activeCtaIndex ? styles.activeCtaDot : ''}`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
               </div>
             </div>
           </div>

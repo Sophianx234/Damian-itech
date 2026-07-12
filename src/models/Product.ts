@@ -35,6 +35,10 @@ const ProductSchema = new mongoose.Schema({
   
   images: [{ type: String }],
   
+  salesCount: { type: Number, default: 0 },
+  rating: { type: Number, default: 0 },
+  reviewsCount: { type: Number, default: 0 },
+  
   status: { type: String, enum: ['Active', 'Reserved', 'Sold'], default: 'Active' },
 }, { timestamps: true });
 

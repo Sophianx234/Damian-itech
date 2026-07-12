@@ -1,0 +1,241 @@
+.pageContainer {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.pageHeader {
+  margin-bottom: 48px;
+}
+
+.pageTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Main Section */
+.mainSection {
+  padding: 60px 0 120px;
+}
+
+/* Controls Container */
+.controlsContainer {
+  margin-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Search and Sort Row */
+.searchSortRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+}
+
+.sortWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sortLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.sortSelect {
+  padding: 12px 36px 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22none%22%20stroke%3D%22%23666%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.sortSelect:focus {
+  border-color: var(--primary-color);
+}
+
+/* Filter Bar */
+.filterBar {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 10px 24px;
+  border-radius: 30px; /* Pill shape */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+
+.activeFilter {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Products Grid */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+
+@media (max-width: 1200px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .productsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .productsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+.emptyState {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+/* Skeleton Loader */
+.skeletonCard {
+  background: var(--bg-light);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: var(--border-primary);
+  opacity: 0.6;
+  animation: subtlePulse 2s infinite ease-in-out;
+}
+
+.skeletonInfo {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.skeletonTitle {
+  width: 90%;
+  height: 18px;
+  background-color: var(--border-primary);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+  animation: subtlePulse 2s infinite ease-in-out;
+}
+
+.skeletonTitleShort {
+  width: 60%;
+  height: 18px;
+  background-color: var(--border-primary);
+  border-radius: 2px;
+  margin-bottom: 24px;
+  opacity: 0.6;
+  animation: subtlePulse 2s infinite ease-in-out;
+}
+
+.skeletonPrice {
+  width: 40%;
+  height: 20px;
+  background-color: var(--border-primary);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+  animation: subtlePulse 2s infinite ease-in-out;
+}
+
+.skeletonButton {
+  width: 100%;
+  height: 44px;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+  margin-top: auto;
+  opacity: 0.4;
+  animation: subtlePulse 2s infinite ease-in-out;
+}
+
+@keyframes subtlePulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.4; }
+}

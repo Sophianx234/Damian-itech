@@ -1,0 +1,127 @@
+/* TeamCarousel.module.css */
+.teamSection {
+  padding: 100px 0;
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.teamHeader {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.sectionTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.teamSubtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+/* Carousel Mechanics */
+.carouselContainer {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: var(--carousel-gap, 32px);
+}
+
+.carouselSlide {
+  flex: 0 0 calc(25% - (var(--carousel-gap, 32px) * 3 / 4)); /* 4 cards */
+  transition: transform var(--transition-duration, 0.6s) cubic-bezier(0.25, 1, 0.5, 1);
+  transform: translateX(calc(var(--active-index, 0) * -100% - var(--active-index, 0) * var(--carousel-gap, 32px)));
+}
+
+@media (max-width: 1024px) {
+  .carouselSlide {
+    flex: 0 0 calc(50% - (var(--carousel-gap, 32px) / 2)); /* 2 cards */
+  }
+}
+
+@media (max-width: 600px) {
+  .carouselTrack {
+    --carousel-gap: 16px;
+  }
+  .carouselSlide {
+    flex: 0 0 calc(100% - (var(--carousel-gap, 16px) * 0)); /* 1 card */
+  }
+}
+
+/* Team Card Styles */
+.teamCard {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  height: 100%;
+}
+
+.teamImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+  background-color: var(--card-bg);
+}
+
+.teamImage {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.teamCard:hover .teamImage {
+  transform: scale(1.05);
+}
+
+.teamInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.teamName {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.teamRole {
+  font-size: 14px;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+/* Dots Navigation */
+.dotsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 64px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--border-primary);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.activeDot {
+  background-color: var(--primary-color);
+  transform: scale(1.4);
+}

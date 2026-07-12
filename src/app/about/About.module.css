@@ -229,32 +229,80 @@
   margin: 0;
 }
 
-/* CTA Section */
+/* CTA Section with Background Carousel */
 .ctaSection {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   padding: 100px 0;
 }
 
+.ctaBackgroundWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.ctaBackgroundTrack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.ctaBackgroundImage {
+  flex: 0 0 100%;
+  height: 100%;
+  position: relative;
+}
+
+.ctaImg {
+  object-fit: cover;
+}
+
+.ctaOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Deep contrast overlay */
+  z-index: 1;
+}
+
+.ctaContentContainer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
 .ctaBox {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-primary);
-  padding: 80px 40px;
-  border-radius: 12px;
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .ctaTitle {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 48px;
+  font-weight: 700;
   font-family: 'Poppins', sans-serif;
-  margin: 0 0 16px 0;
+  color: #ffffff; /* Must be white on dark background */
+  margin: 0 0 24px 0;
+  letter-spacing: -0.02em;
 }
 
 .ctaSubtitle {
-  font-size: 16px;
-  color: var(--text-muted);
-  margin: 0 0 40px 0;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 auto 48px auto;
+  line-height: 1.6;
+  max-width: 600px;
 }
 
 .ctaButtons {
@@ -270,36 +318,61 @@
   }
 }
 
-.primaryBtn {
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
-  padding: 16px 40px;
+.primaryBtnDark {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 16px 48px;
   border-radius: 4px;
   font-weight: 600;
   font-size: 15px;
   text-decoration: none;
-  transition: all 0.2s ease;
-  border: 1px solid var(--text-primary);
+  transition: all 0.3s ease;
+  border: 1px solid #ffffff;
 }
 
-.primaryBtn:hover {
-  background-color: var(--primary-color);
+.primaryBtnDark:hover {
+  background-color: var(--primary-color); /* Cyber Violet */
   border-color: var(--primary-color);
-  color: #fff;
+  color: #ffffff;
 }
 
-.secondaryBtn {
+.secondaryBtnDark {
   background-color: transparent;
-  color: var(--text-primary);
-  padding: 16px 40px;
+  color: #ffffff;
+  padding: 16px 48px;
   border-radius: 4px;
   font-weight: 600;
   font-size: 15px;
   text-decoration: none;
-  transition: all 0.2s ease;
-  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.secondaryBtn:hover {
-  border-color: var(--text-primary);
+.secondaryBtnDark:hover {
+  border-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
 }
+
+.ctaDots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 48px;
+}
+
+.ctaDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.activeCtaDot {
+  background-color: var(--primary-color);
+  transform: scale(1.5);
+}
+
