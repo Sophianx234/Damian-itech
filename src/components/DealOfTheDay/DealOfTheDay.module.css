@@ -1,0 +1,290 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+.container {
+  max-width: 1000px;
+  width: 100%;
+  animation: slideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.closeButton {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.dealCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .dealCard {
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+}
+
+.dealCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--primary-color);
+  z-index: 2;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px; /* Reduced from 400px */
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px; /* Reduced from 40px */
+  border-right: 1px solid var(--border-primary);
+}
+
+@media (max-width: 992px) {
+  .imageWrapper {
+    border-right: none;
+    border-bottom: 1px solid var(--border-primary);
+    min-height: 200px;
+    padding: 24px;
+  }
+}
+
+.image {
+  object-fit: contain;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.dealCard:hover .image {
+  transform: scale(1.08);
+}
+
+.badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  z-index: 2;
+}
+
+.content {
+  padding: 40px; /* Reduced from 60px */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.8rem; /* Reduced from 2.2rem */
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.description {
+  font-size: 0.95rem; /* Reduced from 1rem */
+  color: var(--text-muted);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.newPrice {
+  font-size: 2.2rem; /* Reduced from 2.5rem */
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.oldPrice {
+  font-size: 1.1rem; /* Reduced from 1.25rem */
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  margin-bottom: 4px;
+  opacity: 0.6;
+}
+
+.timerLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.timerGrid {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.timeBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px; /* Reduced from 70px */
+  height: 60px; /* Reduced from 70px */
+  background: var(--bg-primary);
+  border: 1px solid var(--text-primary);
+}
+
+.timeValue {
+  font-size: 1.4rem; /* Reduced from 1.75rem */
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.timeLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+  letter-spacing: 0.1em;
+}
+
+.shopButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--primary-color);
+  color: white;
+  padding: 14px 28px; /* Reduced padding */
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+  border: 2px solid var(--primary-color);
+}
+
+.shopButton:hover {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+@media (max-width: 992px) {
+  .dealCard {
+    grid-template-columns: 1fr;
+  }
+  .imageWrapper {
+    min-height: 250px;
+    padding: 32px 20px;
+  }
+  .content {
+    padding: 32px;
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+  .closeButton {
+    top: -16px;
+    right: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .overlay {
+    padding: 16px;
+  }
+  .content {
+    padding: 24px 16px;
+  }
+  .newPrice {
+    font-size: 2rem;
+  }
+  .timerGrid {
+    gap: 8px;
+  }
+  .timeBox {
+    width: 60px;
+    height: 60px;
+  }
+  .timeValue {
+    font-size: 1.25rem;
+  }
+  .shopButton {
+    width: 100%;
+  }
+}
