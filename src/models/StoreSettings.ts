@@ -29,6 +29,16 @@ export interface IStoreSettings extends Document {
   // Security
   require2FA: boolean;
   sessionTimeout: boolean;
+
+  // Flash Sale
+  flashSaleActive: boolean;
+  flashSaleTitle: string;
+  flashSaleDescription: string;
+  flashSaleImage: string;
+  flashSaleNewPrice: number;
+  flashSaleOldPrice: number;
+  flashSaleEndTime: string;
+  flashSaleLink: string;
 }
 
 const StoreSettingsSchema = new Schema(
@@ -69,6 +79,15 @@ const StoreSettingsSchema = new Schema(
 
     require2FA: { type: Boolean, default: false },
     sessionTimeout: { type: Boolean, default: true },
+
+    flashSaleActive: { type: Boolean, default: true },
+    flashSaleTitle: { type: String, default: "Sony WH-1000XM5 Wireless Noise Canceling" },
+    flashSaleDescription: { type: String, default: "Industry-leading noise cancellation. Two processors control 8 microphones for unprecedented noise cancellation." },
+    flashSaleImage: { type: String, default: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1000&auto=format&fit=crop" },
+    flashSaleNewPrice: { type: Number, default: 298.00 },
+    flashSaleOldPrice: { type: Number, default: 398.00 },
+    flashSaleEndTime: { type: String, default: "" },
+    flashSaleLink: { type: String, default: "/products/sony-wh-1000xm5" },
   },
   { timestamps: true }
 );
