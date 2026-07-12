@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Trash2, ShieldCheck } from 'lucide-react';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
+
+
 import { useCart } from '../../context/CartContext';
 import styles from './Cart.module.css';
 
@@ -21,14 +21,12 @@ export default function CartPage() {
   if (!mounted) {
     return (
       <>
-        <Header />
         <main className={styles.main}>
           <div className="container">
             <h1 className={styles.title}>Your Cart</h1>
           </div>
         </main>
-        <Footer />
-      </>
+        </>
     );
   }
 
@@ -42,7 +40,6 @@ export default function CartPage() {
 
   return (
     <>
-      <Header />
       <main className={styles.main}>
         <div className="container">
           <h1 className={styles.title}>Your Cart</h1>
@@ -187,7 +184,6 @@ export default function CartPage() {
           )}
         </div>
       </main>
-      <Footer />
-    </>
+      </>
   );
 }

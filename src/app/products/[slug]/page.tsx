@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from '../../../components/Header/Header';
-import Footer from '../../../components/Footer/Footer';
+
+
 import styles from './ProductDetails.module.css';
 import ProductDetailsClient from './ProductDetailsClient';
 import dbConnect from '@/lib/mongodb';
@@ -17,15 +17,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) {
     return (
       <>
-        <Header />
         <main className={styles.main}>
           <div className={`container ${styles.container}`} style={{ textAlign: 'center', paddingTop: '100px' }}>
             <h1>Product Not Found</h1>
             <p>The product you are looking for does not exist.</p>
           </div>
         </main>
-        <Footer />
-      </>
+        </>
     );
   }
 
@@ -42,11 +40,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <Header />
       <main className={styles.main}>
         <ProductDetailsClient product={productJson} relatedProducts={relatedProductsJson} />
       </main>
-      <Footer />
-    </>
+      </>
   );
 }

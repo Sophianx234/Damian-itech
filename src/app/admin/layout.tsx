@@ -20,7 +20,8 @@ import {
   Info,
   X,
   ChevronDown,
-  Truck
+  Truck,
+  MessageSquare
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -30,6 +31,7 @@ const navItems = [
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Support", href: "/admin/support", icon: MessageSquare },
   { label: "Delivery", href: "/admin/delivery", icon: Truck },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

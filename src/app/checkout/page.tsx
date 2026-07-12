@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ShieldCheck, Lock, Loader2, ArrowLeft } from 'lucide-react';
 import { usePaystackPayment } from 'react-paystack';
 import dynamic from 'next/dynamic';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
+
+
 import { useCart } from '../../context/CartContext';
 import { useSettings } from '../../context/SettingsContext';
 import styles from './Checkout.module.css';
@@ -173,7 +173,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Header />
       <main className={styles.main}>
         <div className="container">
           
@@ -402,8 +401,6 @@ export default function CheckoutPage() {
           </form>
         </div>
       </main>
-      <Footer />
-
       {/* Success Modal Overlay */}
       <AnimatePresence>
         {orderSuccess && (

@@ -4,8 +4,8 @@ import { verifySession } from '@/lib/session';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import OrdersClient from './OrdersClient';
-import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer';
+
+
 
 export const metadata = {
   title: 'Your Orders - Damian iTech',
@@ -49,9 +49,7 @@ export default async function OrdersPage() {
 
   return (
     <>
-      <Header />
       <OrdersClient orders={serializedOrders} />
-      <Footer />
-    </>
+      </>
   );
 }

@@ -83,9 +83,9 @@ const Header = () => {
           <a href="#" className={styles.navLink}>
             About
           </a>
-          <a href="#" className={styles.navLink}>
+          <Link href="/contact" className={styles.navLink}>
             Contact
-          </a>
+          </Link>
         </nav>
 
         <div className={styles.icons}>

@@ -5,8 +5,8 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Order from '@/models/Order';
 import AccountClient from './AccountClient';
-import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer';
+
+
 
 export const metadata = {
   title: 'My Account - Damian iTech',
@@ -63,9 +63,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <Header />
       <AccountClient user={serializedUser} orders={serializedOrders} />
-      <Footer />
-    </>
+      </>
   );
 }

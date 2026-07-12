@@ -11,21 +11,16 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       {/* Newsletter Section */}
-      <div className={styles.newsletterSection}>
-        <div className={`container ${styles.newsletterInner}`}>
-          <div className={styles.newsletterText}>
-            <h3>Join Our Newsletter</h3>
-            <p>Get the latest deals & updates</p>
-          </div>
-          <form className={styles.newsletterForm}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className={styles.input}
-            />
-            <button type="submit" className={`btn-primary ${styles.submitBtn}`}>
-              Subscribe
-            </button>
+      <div className={styles.newsletterBanner}>
+        <div className={styles.newsletterImage} />
+        <div className={styles.newsletterContent}>
+          <h2 className={styles.newsletterTitle}>Unlock 15% off your next product upgrade.</h2>
+          <form className={styles.newsletterForm} onSubmit={(e) => {
+            e.preventDefault();
+            alert("Subscribed! Check your email for your 15% off code.");
+          }}>
+            <input type="email" className={styles.newsletterInput} placeholder="Enter email here" required />
+            <button type="submit" className={styles.newsletterSubmit}>Submit</button>
           </form>
         </div>
       </div>
@@ -34,19 +29,27 @@ const Footer = () => {
       <div className={styles.mainFooter}>
         <div className={`container ${styles.footerGrid}`}>
           <div className={styles.column}>
+            <h4 className={styles.colTitle}>{storeName}</h4>
+            <p className={styles.aboutText} style={{ color: '#737373', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px', maxWidth: '250px' }}>
+              Your premium destination for the latest gadgets and electronics. We deliver cutting-edge technology with unparalleled customer service.
+            </p>
+            <a href="mailto:support@damianitech.com" style={{ color: '#FFFFFF', fontSize: '14px', textDecoration: 'none', fontWeight: '500' }}>support@damianitech.com</a>
+          </div>
+
+          <div className={styles.column}>
             <h4 className={styles.colTitle}>Quick Links</h4>
             <ul className={styles.links}>
               <li>
-                <a href="#">Shop</a>
+                <a href="#">Shop Collection</a>
               </li>
               <li>
                 <a href="#">About Us</a>
               </li>
               <li>
-                <a href="#">Contact</a>
+                <a href="/contact">Contact</a>
               </li>
               <li>
-                <a href="#">Blog</a>
+                <a href="#">Our Blog</a>
               </li>
             </ul>
           </div>
@@ -70,12 +73,12 @@ const Footer = () => {
           </div>
 
           <div className={styles.column}>
-            <h4 className={styles.colTitle}>Follow Us:</h4>
+            <h4 className={styles.colTitle}>Follow Us</h4>
             <div className={styles.socialIcons}>
               <a href="#" aria-label="Facebook">
                 <svg
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -86,8 +89,8 @@ const Footer = () => {
               </a>
               <a href="#" aria-label="Twitter">
                 <svg
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -98,8 +101,8 @@ const Footer = () => {
               </a>
               <a href="#" aria-label="Instagram">
                 <svg
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -112,8 +115,8 @@ const Footer = () => {
               </a>
               <a href="#" aria-label="YouTube">
                 <svg
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -127,10 +130,14 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className={`container ${styles.bottomBar}`}>
+        <div className={styles.bottomBar}>
           <p>
             &copy; {new Date().getFullYear()} {storeName}. All Rights Reserved.
           </p>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <a href="#" style={{ color: '#737373', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.color = '#FFFFFF'} onMouseOut={(e) => e.currentTarget.style.color = '#737373'}>Privacy Policy</a>
+            <a href="#" style={{ color: '#737373', textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.color = '#FFFFFF'} onMouseOut={(e) => e.currentTarget.style.color = '#737373'}>Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>
