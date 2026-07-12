@@ -20,13 +20,13 @@ const slides = [
     image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
     cta: "Explore Audio"
   },
-  {
+  /* {
     id: 3,
     title: "Smart Workspace",
     subtitle: "Boost your productivity with our curated essentials.",
     image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
     cta: "Upgrade Workspace"
-  }
+  } */
 ];
 
 const HeroCarousel = () => {

@@ -8,11 +8,14 @@ import PromoBanner from '../components/PromoBanner/PromoBanner';
 import Categories from '../components/Categories/Categories';
 import AboutFaq from '../components/AboutFaq/AboutFaq';
 
+import TopBrands from '../components/TopBrands/TopBrands';
+
 export default function Home() {
   return (
     <main>
       <HeroCarousel />
       <FeaturesBar />
+      <TopBrands />
       <TrendingGadgets />
       <FeaturedProducts />
       <SwapItems />
