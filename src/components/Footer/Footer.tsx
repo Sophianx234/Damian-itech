@@ -8,6 +8,40 @@ const Footer = () => {
   const { settings } = useSettings();
   const storeName = settings?.storeName || "Damian iTech";
 
+  const [email, setEmail] = React.useState('');
+  const [status, setStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = React.useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus('success');
+        setMessage(data.message);
+        setEmail('');
+      } else {
+        setStatus('error');
+        setMessage(data.error || 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setStatus('error');
+      setMessage('Failed to connect to server.');
+    }
+  };
+
   return (
     <footer className={styles.footer}>
       {/* Newsletter Section */}
@@ -15,13 +49,25 @@ const Footer = () => {
         <div className={styles.newsletterImage} />
         <div className={styles.newsletterContent}>
           <h2 className={styles.newsletterTitle}>Unlock 15% off your next product upgrade.</h2>
-          <form className={styles.newsletterForm} onSubmit={(e) => {
-            e.preventDefault();
-            alert("Subscribed! Check your email for your 15% off code.");
-          }}>
-            <input type="email" className={styles.newsletterInput} placeholder="Enter email here" required />
-            <button type="submit" className={styles.newsletterSubmit}>Submit</button>
+          <form className={styles.newsletterForm} onSubmit={handleSubscribe}>
+            <input 
+              type="email" 
+              className={styles.newsletterInput} 
+              placeholder="Enter email here" 
+              required 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={status === 'loading'}
+            />
+            <button type="submit" className={styles.newsletterSubmit} disabled={status === 'loading'}>
+              {status === 'loading' ? 'Submitting...' : 'Submit'}
+            </button>
           </form>
+          {message && (
+            <p style={{ marginTop: '16px', fontSize: '14px', color: status === 'success' ? '#10b981' : '#ef4444', fontWeight: 500 }}>
+              {message}
+            </p>
+          )}
         </div>
       </div>
 
