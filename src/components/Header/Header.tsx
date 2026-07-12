@@ -86,7 +86,7 @@ const Header = () => {
   };
 
   const navLinks = [
-    { name: "Shop", href: "/shop" },
+    { name: "Shop", href: "/" },
     { name: "New Arrivals", href: "/new-arrivals" },
     { name: "Best Sellers", href: "/best-sellers" },
     { name: "About", href: "/about" },
@@ -119,7 +119,10 @@ const Header = () => {
 
         <nav className={styles.nav}>
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            let isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            if (link.name === "Shop" && (pathname?.startsWith('/product/') || pathname?.startsWith('/products/'))) {
+              isActive = true;
+            }
             return (
               <Link 
                 key={link.name} 
