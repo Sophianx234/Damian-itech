@@ -172,7 +172,7 @@ export default function AdminOrdersPage() {
           <option value="">Order Status</option>
           <option value="pending">Pending</option>
           <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
+          <option value="shipped">Out for Delivery</option>
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
@@ -493,7 +493,7 @@ export default function AdminOrdersPage() {
               >
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
+                <option value="shipped">Out for Delivery</option>
                 <option value="delivered">Delivered</option>
                 <option value="cancelled">Cancelled</option>
               </select>
@@ -526,7 +526,6 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: OrderStatu
   if (value === "shipped") statusClass = styles.statusShipped;
   if (value === "delivered") statusClass = styles.statusDelivered;
   if (value === "cancelled") statusClass = styles.statusCancelled;
-
   return (
     <div className={styles.customSelectWrapper} ref={wrapperRef}>
       <div 
@@ -534,7 +533,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: OrderStatu
         onClick={() => setIsOpen(!isOpen)}
         style={{ textTransform: 'capitalize' }}
       >
-        {value}
+        {value === 'shipped' ? 'out for delivery' : value}
         <ChevronDown size={14} className={styles.customSelectIcon} />
       </div>
       {isOpen && (
@@ -551,7 +550,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: OrderStatu
                 }}
                 style={{ textTransform: 'capitalize' }}
               >
-                {status}
+                {status === 'shipped' ? 'out for delivery' : status}
               </div>
             );
           })}

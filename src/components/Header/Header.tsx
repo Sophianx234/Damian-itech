@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -14,6 +14,19 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { cartCount } = useCart();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -102,7 +115,7 @@ const Header = () => {
             </svg>
           </button>
 
-          <div className={styles.userMenuContainer}>
+          <div className={styles.userMenuContainer} ref={menuRef}>
             <button
               aria-label="User Account"
               className={styles.userBtn}
@@ -184,7 +197,9 @@ const Header = () => {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
+          {cartCount > 0 && (
             <span className={styles.cartBadge}>{cartCount}</span>
+          )}
           </Link>
         </div>
       </div>

@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   Info,
   X,
-  ChevronDown
+  ChevronDown,
+  Truck
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -29,6 +30,7 @@ const navItems = [
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { label: "Customers", href: "/admin/customers", icon: Users },
+  { label: "Delivery", href: "/admin/delivery", icon: Truck },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
@@ -185,7 +187,15 @@ export default function AdminLayout({
         </div>
 
         <nav className={styles.nav}>
-          {navItems.map((item) => {
+          {navItems.filter(item => {
+            if (!user) return false;
+            // Riders only see Delivery
+            if (user.role === 'rider' || user.role === 'delivery') {
+              return item.label === 'Delivery';
+            }
+            // Admins/Managers see everything, or filter as needed
+            return true;
+          }).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (

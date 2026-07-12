@@ -547,8 +547,8 @@ export default function SettingsPage() {
                 </div>
                 <div className={styles.toggleGroup}>
                   <div className={styles.toggleInfo}>
-                    <span className={styles.toggleLabel}>Order shipped</span>
-                    <span className={styles.toggleDesc}>Send a notification when order status is marked as shipped</span>
+                    <span className={styles.toggleLabel}>Order out for delivery</span>
+                    <span className={styles.toggleDesc}>Send a notification when order status is marked as out for delivery</span>
                   </div>
                   <label className={styles.switch}>
                     <input type="checkbox" checked={settings.customerEmailOrderShipped} onChange={(e) => handleUpdateSetting('customerEmailOrderShipped', e.target.checked)} />

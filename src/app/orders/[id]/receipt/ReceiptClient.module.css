@@ -1,0 +1,222 @@
+.receiptContainer {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 48px;
+  background-color: #ffffff;
+  color: #111111;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  font-family: var(--font-family);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 48px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 32px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logo {
+  max-width: 150px;
+  margin-bottom: 16px;
+}
+
+.brandName {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--primary-color);
+  letter-spacing: -0.02em;
+}
+
+.brandDetails {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.5;
+}
+
+.receiptTitle {
+  text-align: right;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #111111;
+}
+
+.orderNumber {
+  font-size: 16px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #888888;
+  letter-spacing: 0.05em;
+}
+
+.infoContent {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333333;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 48px;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 0;
+  border-bottom: 2px solid #111111;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.table th:last-child {
+  text-align: right;
+}
+
+.table td {
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 15px;
+  color: #333333;
+}
+
+.table td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+
+.itemName {
+  font-weight: 600;
+  color: #111111;
+  margin-bottom: 4px;
+}
+
+.totals {
+  width: 300px;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: #666666;
+}
+
+.grandTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111111;
+  padding-top: 16px;
+  border-top: 2px solid #111111;
+}
+
+.footer {
+  margin-top: 64px;
+  text-align: center;
+  font-size: 14px;
+  color: #888888;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 32px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.printBtn {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.printBtn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.backBtn {
+  background-color: transparent;
+  color: #666666;
+  border: 1px solid #dddddd;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.backBtn:hover {
+  background-color: #f5f5f5;
+  color: #111111;
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+  }
+  .receiptContainer {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+  .actions {
+    display: none !important;
+  }
+}
