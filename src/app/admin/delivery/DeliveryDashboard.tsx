@@ -19,7 +19,7 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
     return true;
   });
 
-  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+  const handleUpdateStatus = async (orderId: string, newStatus: string, customerPhone?: string) => {
     setUpdatingId(orderId);
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
@@ -195,7 +195,7 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
                   {isShipped && (
                     <button 
                       className={styles.btnPrimary}
-                      onClick={() => handleUpdateStatus(order._id, "delivered")}
+                      onClick={() => handleUpdateStatus(order._id, "delivered", phone)}
                       disabled={updatingId === order._id}
                       style={{ backgroundColor: "#16a34a" }}
                     >
