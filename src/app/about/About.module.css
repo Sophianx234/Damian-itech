@@ -8,12 +8,15 @@
 
 /* Hero Section */
 .heroSection {
-  padding: 160px 0 120px;
-  background-color: var(--card-bg);
-  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop');
+  position: relative;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
   text-align: center;
   border-bottom: 1px solid var(--border-primary);
 }
@@ -42,7 +45,7 @@
 
 @media (max-width: 768px) {
   .heroSection {
-    padding: 100px 0 80px;
+    height: 300px;
   }
   .heroTitle {
     font-size: 40px;

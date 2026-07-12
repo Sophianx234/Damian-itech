@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Shield, Truck, HeadphonesIcon, Award } from "lucide-react";
 import MainLayoutWrapper from "@/components/MainLayoutWrapper/MainLayoutWrapper";
+import Testimonials from "@/components/Testimonials/Testimonials";
 import styles from "./About.module.css";
 
 export default function AboutPage() {
@@ -103,6 +104,9 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* Testimonials Section */}
+        <Testimonials />
 
         {/* CTA Section */}
         <section className={styles.ctaSection}>
