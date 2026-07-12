@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import Link from 'next/link';
 import styles from './HeroCarousel.module.css';
 
 const slides = [
@@ -11,21 +12,24 @@ const slides = [
     title: "Top Tech Gear",
     subtitle: "Explore the latest gadgets & accessories for your lifestyle.",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    cta: "Shop Now"
+    cta: "Shop Now",
+    link: "/new-arrivals"
   },
   {
     id: 2,
     title: "Pro Audio",
     subtitle: "Experience sound like never before with premium headphones.",
     image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    cta: "Explore Audio"
+    cta: "Explore Audio",
+    link: "/search?q=audio"
   },
   /* {
     id: 3,
     title: "Smart Workspace",
     subtitle: "Boost your productivity with our curated essentials.",
     image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    cta: "Upgrade Workspace"
+    cta: "Upgrade Workspace",
+    link: "/search?q=workspace"
   } */
 ];
 
@@ -63,7 +67,9 @@ const HeroCarousel = () => {
                 <div className={`container ${styles.content}`}>
                   <h1 className={styles.title}>{slide.title}</h1>
                   <p className={styles.subtitle}>{slide.subtitle}</p>
-                  <button className="btn-primary">{slide.cta}</button>
+                  <Link href={slide.link} className="btn-primary">
+                    {slide.cta}
+                  </Link>
                 </div>
               </div>
             </div>
