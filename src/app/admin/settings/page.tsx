@@ -414,16 +414,17 @@ export default function SettingsPage() {
               {settings.flashSaleActive && (
                 <>
                   <div className={styles.formGrid}>
-                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px' }}>
+                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1', border: '1px dashed var(--border-primary)', padding: '16px', borderRadius: '0' }}>
                       <label className={styles.formLabel}>Quick Select from Existing Products</label>
                       <select 
                         className={styles.formInput} 
                         onChange={handleProductSelect}
                         defaultValue=""
+                        style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                       >
-                        <option value="" disabled>-- Select a product to autofill fields --</option>
+                        <option value="" disabled style={{ background: 'var(--bg-primary)' }}>-- Select a product to autofill fields --</option>
                         {products.map(p => (
-                          <option key={p._id} value={p.slug}>{p.title} (${p.price})</option>
+                          <option key={p._id} value={p.slug} style={{ background: 'var(--bg-primary)' }}>{p.title} (${p.price})</option>
                         ))}
                       </select>
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
