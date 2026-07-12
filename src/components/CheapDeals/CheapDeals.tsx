@@ -9,7 +9,8 @@ const CheapDeals = async () => {
 
   const dbProducts = await Product.find({
     status: 'Active',
-    isSwappable: false
+    isSwappable: false,
+    price: { $lte: 1000 } // Only target cheap products under 1000
   }).sort({ price: 1 }).limit(5);
 
   if (dbProducts.length === 0) {
