@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Phone, User, Truck, CheckCircle, PackageOpen, Loader2, Map as MapIcon, Navigation } from "lucide-react";
+import { MapPin, Phone, User, Truck, CheckCircle, PackageOpen, Loader2, Map as MapIcon, Navigation, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./DeliveryDashboard.module.css";
 import DeliveryMap from "./DeliveryMap";
@@ -11,13 +11,26 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
   const [filter, setFilter] = useState("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [expandedMapId, setExpandedMapId] = useState<string | null>(null);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredOrders = orders.filter(order => {
     if (filter === "shipped") return order.orderStatus === "shipped";
     if (filter === "processing") return order.orderStatus === "processing";
     if (filter === "delivered") return order.orderStatus === "delivered";
     return true;
+  }).filter(order => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const orderIdStr = order._id.toLowerCase();
+    const customerName = (order.shippingDetails?.fullName || "Guest Customer").toLowerCase();
+    return orderIdStr.includes(q) || customerName.includes(q);
   });
+
+  const processingCount = orders.filter(o => o.orderStatus === "processing").length;
+  const shippedCount = orders.filter(o => o.orderStatus === "shipped").length;
+  const deliveredCount = orders.filter(o => o.orderStatus === "delivered").length;
+  const totalCount = orders.length;
 
   const handleUpdateStatus = async (orderId: string, newStatus: string, customerPhone?: string) => {
     setUpdatingId(orderId);
@@ -57,7 +70,47 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
         </div>
       </div>
 
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer} style={{backgroundColor: 'rgba(234, 179, 8, 0.1)'}}>
+              <PackageOpen size={18} className={styles.statIcon} style={{color: '#ca8a04'}} />
+            </div>
+            <h3 className={styles.statLabel}>Ready for Pickup</h3>
+          </div>
+          <p className={styles.statValue}>{processingCount}</p>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer} style={{backgroundColor: 'rgba(59, 130, 246, 0.1)'}}>
+              <Truck size={18} className={styles.statIcon} style={{color: '#2563eb'}} />
+            </div>
+            <h3 className={styles.statLabel}>Out for Delivery</h3>
+          </div>
+          <p className={styles.statValue}>{shippedCount}</p>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statHeader}>
+            <div className={styles.iconContainer} style={{backgroundColor: 'rgba(34, 197, 94, 0.1)'}}>
+              <CheckCircle size={18} className={styles.statIcon} style={{color: '#16a34a'}} />
+            </div>
+            <h3 className={styles.statLabel}>Completed</h3>
+          </div>
+          <p className={styles.statValue}>{deliveredCount}</p>
+        </div>
+      </div>
+
       <div className={styles.controls}>
+        <div className={styles.searchContainer}>
+          <Search size={18} className={styles.searchIcon} />
+          <input 
+            type="text" 
+            placeholder="Search Order ID or Customer..." 
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <select 
           className={styles.filterSelect}
           value={filter}
@@ -91,6 +144,10 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
             const lng = order.shippingDetails?.lng ? parseFloat(order.shippingDetails.lng) : null;
             const hasLocation = lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng);
 
+            const steps = ["processing", "shipped", "delivered"];
+            const currentStepIndex = steps.indexOf(order.orderStatus);
+            const isExpanded = expandedCardId === order._id;
+
             return (
               <motion.div 
                 key={order._id} 
@@ -99,16 +156,34 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
               >
-                <div className={styles.cardHeader}>
+                <div 
+                  className={styles.cardHeader} 
+                  style={{ cursor: 'pointer', paddingBottom: isExpanded ? '16px' : '0', borderBottom: isExpanded ? '1px solid var(--border-primary)' : 'none' }}
+                  onClick={() => setExpandedCardId(isExpanded ? null : order._id)}
+                >
                   <div>
                     <div className={styles.orderId}>Order #{order._id.slice(-8).toUpperCase()}</div>
                     <div className={styles.orderDate}>
                       {new Date(order.createdAt).toLocaleString()}
                     </div>
                   </div>
-                  {getStatusBadge(order.orderStatus)}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {getStatusBadge(order.orderStatus)}
+                    <button style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}>
+                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
+                  </div>
                 </div>
 
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      style={{ overflow: "hidden" }}
+                    >
+                    
                 <div className={styles.customerInfo}>
                   <div className={styles.infoRow}>
                     <div className={styles.iconWrapper}><User size={16} /></div>
@@ -204,12 +279,15 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
                     </button>
                   )}
 
-                  {isDelivered && (
-                    <button className={styles.btnPrimary} disabled style={{ backgroundColor: "#16a34a" }}>
-                      <CheckCircle size={16} /> Completed
-                    </button>
-                  )}
-                </div>
+                      {isDelivered && (
+                        <button className={styles.btnPrimary} disabled style={{ backgroundColor: "#16a34a" }}>
+                          <CheckCircle size={16} /> Completed
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                 )}
+                </AnimatePresence>
               </motion.div>
             );
           })

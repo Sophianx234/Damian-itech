@@ -144,6 +144,7 @@
   border-top: 1px solid var(--border-primary);
 }
 
+
 .btnPrimary {
   background-color: var(--primary-color);
   color: #ffffff;
@@ -212,4 +213,115 @@
   border-radius: 16px;
   text-align: center;
   color: var(--text-muted);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+  border-radius: 12px;
+}
+
+.statCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.05);
+}
+
+.statHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: var(--primary-color);
+}
+
+.progressContainer {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.progressStep {
+  height: 4px;
+  flex: 1;
+  background-color: var(--border-primary);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.progressStepActive {
+  background-color: var(--primary-color);
 }
