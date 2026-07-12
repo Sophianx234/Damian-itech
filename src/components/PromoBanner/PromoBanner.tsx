@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import styles from './PromoBanner.module.css';
 
 const promos = [
@@ -10,21 +11,24 @@ const promos = [
     title: "Boost Your Productivity",
     subtitle: "Essential Accessories for Work & Play",
     cta: "Browse Now",
-    image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    link: "/search?q=accessories"
   },
   {
     id: 2,
     title: "Level Up Your Setup",
     subtitle: "Premium gear for the ultimate experience",
     cta: "Shop Gear",
-    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    link: "/search?q=gaming"
   },
   {
     id: 3,
     title: "On-the-Go Audio",
     subtitle: "Never compromise on sound quality again",
     cta: "Listen Now",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    link: "/search?q=audio"
   }
 ];
 
@@ -71,14 +75,15 @@ const PromoBanner = () => {
                 >
                   {promos[currentIndex].subtitle}
                 </motion.p>
-                <motion.button 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
-                  className="btn-primary"
                 >
-                  {promos[currentIndex].cta}
-                </motion.button>
+                  <Link href={promos[currentIndex].link} className="btn-primary" style={{ display: 'inline-block' }}>
+                    {promos[currentIndex].cta}
+                  </Link>
+                </motion.div>
               </div>
             </motion.div>
           </AnimatePresence>
