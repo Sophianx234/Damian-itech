@@ -3,6 +3,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import Link from 'next/link';
 import styles from './TrendingGadgets.module.css';
 
 const devices = [
@@ -57,14 +58,14 @@ const TrendingGadgets = () => {
             <div className={styles.emblaContainer}>
               {devices.map(device => (
                 <div key={device.id} className={styles.emblaSlide}>
-                  <div className={styles.cardWrapper}>
+                  <Link href={`/search?q=${encodeURIComponent(device.name)}`} className={styles.cardWrapper} style={{ display: 'block', cursor: 'pointer' }}>
                     <div className={styles.card}>
                       <div className={styles.cardInner}>
                         <img src={device.image} alt={device.name} className={styles.image} />
                       </div>
                     </div>
                     <h3 className={styles.deviceName}>{device.name}</h3>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
