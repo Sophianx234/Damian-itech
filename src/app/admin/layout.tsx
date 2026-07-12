@@ -199,7 +199,7 @@ export default function AdminLayout({
             return true;
           }).map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') && item.href !== '/admin');
             return (
               <Link
                 key={item.href}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Sun, Moon, User, Package, Heart, LogOut } from "lucide-react";
 import styles from "./Header.module.css";
@@ -15,6 +16,7 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
   const { cartCount } = useCart();
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -46,6 +48,14 @@ const Header = () => {
     setIsUserMenuOpen(false);
   };
 
+  const navLinks = [
+    { name: "Shop", href: "/shop" },
+    { name: "New Arrivals", href: "/new-arrivals" },
+    { name: "Best Sellers", href: "/best-sellers" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
   return (
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
@@ -71,21 +81,18 @@ const Header = () => {
         </Link>
 
         <nav className={styles.nav}>
-          <a href="#" className={styles.navLink}>
-            Shop
-          </a>
-          <a href="#" className={styles.navLink}>
-            New Arrivals
-          </a>
-          <a href="#" className={styles.navLink}>
-            Best Sellers
-          </a>
-          <a href="#" className={styles.navLink}>
-            About
-          </a>
-          <Link href="/contact" className={styles.navLink}>
-            Contact
-          </Link>
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            return (
+              <Link 
+                key={link.name} 
+                href={link.href} 
+                className={`${styles.navLink} ${isActive ? styles.activeNavLink : ''}`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className={styles.icons}>

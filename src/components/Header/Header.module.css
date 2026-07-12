@@ -66,6 +66,14 @@
   color: var(--primary-color);
 }
 
+.activeNavLink {
+  color: var(--primary-color);
+  font-weight: 600;
+  position: relative;
+}
+
+
+
 .icons {
   display: flex;
   align-items: center;

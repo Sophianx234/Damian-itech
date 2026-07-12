@@ -1,0 +1,302 @@
+.aboutContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.heroSection {
+  padding: 160px 0 120px;
+  background-color: var(--card-bg);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.85)), url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2000&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  text-align: center;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.heroTitle {
+  font-size: 64px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 24px 0;
+  color: #FFFFFF; /* Force white for contrast over dark background */
+}
+
+.highlight {
+  color: var(--primary-color);
+}
+
+.heroSubtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85); /* Slightly muted white */
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding: 100px 0 80px;
+  }
+  .heroTitle {
+    font-size: 40px;
+  }
+  .heroSubtitle {
+    font-size: 16px;
+    padding: 0 20px;
+  }
+}
+
+/* Story Section */
+.storySection {
+  padding: 100px 0;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.storyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .storyGrid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
+
+.storyImageWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.storyImageContainer {
+  position: relative;
+  aspect-ratio: 4/5;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  /* box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1); */
+  border: 1px solid var(--border-primary);
+}
+
+.storyImage {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.storyImageContainer:hover .storyImage {
+  transform: scale(1.03);
+}
+
+.storyContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 36px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  margin: 0 0 32px 0;
+  letter-spacing: -0.02em;
+}
+
+.storyText {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 48px;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Values Section */
+.valuesSection {
+  padding: 100px 0;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.valuesHeader {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.valuesSubtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+@media (max-width: 1024px) {
+  .valuesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.valueCard {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  padding: 40px 32px;
+  border-radius: 8px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.valueCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+}
+
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background-color: rgba(139, 92, 246, 0.1);
+  margin-bottom: 24px;
+}
+
+.valueIcon {
+  color: var(--primary-color);
+}
+
+.valueTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.valueDescription {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: 100px 0;
+}
+
+.ctaBox {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-primary);
+  padding: 80px 40px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-size: 32px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  margin: 0 0 16px 0;
+}
+
+.ctaSubtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin: 0 0 40px 0;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .ctaButtons {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+}
+
+.primaryBtn {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 16px 40px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--text-primary);
+}
+
+.primaryBtn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.secondaryBtn {
+  background-color: transparent;
+  color: var(--text-primary);
+  padding: 16px 40px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-primary);
+}
+
+.secondaryBtn:hover {
+  border-color: var(--text-primary);
+}
