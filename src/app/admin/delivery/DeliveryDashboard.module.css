@@ -1,5 +1,4 @@
 .pageContainer {
-  padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -324,4 +323,27 @@
 
 .progressStepActive {
   background-color: var(--primary-color);
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.itemRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 14px;
+}
+
+.itemQuantity {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.itemName {
+  color: var(--text-primary);
 }

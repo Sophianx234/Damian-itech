@@ -25,6 +25,8 @@ export default function DeliveryMap({ lat, lng }: DeliveryMapProps) {
       center: [lng, lat],
       zoom: 15,
       interactive: true,
+      attributionControl: false,
+      logoControl: false,
     });
     
     map.current = mapInstance;
@@ -40,16 +42,25 @@ export default function DeliveryMap({ lat, lng }: DeliveryMapProps) {
   }, [lat, lng]);
 
   return (
-    <div 
-      ref={mapContainer} 
-      style={{ 
-        height: '250px', 
-        width: '100%', 
-        borderRadius: '12px', 
-        border: '1px solid var(--border-primary)', 
-        overflow: 'hidden', 
-        marginTop: '16px' 
-      }} 
-    />
+    <div style={{ position: 'relative', marginTop: '16px' }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .maplibregl-ctrl-bottom-left,
+        .maplibregl-ctrl-bottom-right,
+        .maptiler-logo,
+        .maptiler-attribution {
+          display: none !important;
+        }
+      `}} />
+      <div 
+        ref={mapContainer} 
+        style={{ 
+          height: '250px', 
+          width: '100%', 
+          borderRadius: '12px', 
+          border: '1px solid var(--border-primary)', 
+          overflow: 'hidden'
+        }} 
+      />
+    </div>
   );
 }

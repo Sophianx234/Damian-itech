@@ -63,12 +63,7 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.headerActions}>
-        <div>
-          <h1 className={styles.pageTitle}>Delivery Dashboard</h1>
-          <p className={styles.pageSubtitle}>Manage and update active deliveries in real-time.</p>
-        </div>
-      </div>
+      
 
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
@@ -183,15 +178,41 @@ export default function DeliveryDashboard({ initialOrders }: { initialOrders: an
                       exit={{ height: 0, opacity: 0 }}
                       style={{ overflow: "hidden" }}
                     >
-                    
-                <div className={styles.customerInfo}>
-                  <div className={styles.infoRow}>
-                    <div className={styles.iconWrapper}><User size={16} /></div>
-                    <div className={styles.infoText}>
-                      <span className={styles.infoLabel}>Customer</span>
-                      <span className={styles.infoValue}>{customerName}</span>
-                    </div>
-                  </div>
+                      <div className={styles.progressContainer}>
+                        {steps.map((step, i) => (
+                          <div key={step} className={`${styles.progressStep} ${i <= currentStepIndex ? styles.progressStepActive : ""}`} />
+                        ))}
+                      </div>
+
+                      <div className={styles.customerInfo}>
+                        {/* Order Items */}
+                        <div className={styles.infoRow}>
+                          <div className={styles.iconWrapper}><PackageOpen size={16} /></div>
+                          <div className={styles.infoText}>
+                            <span className={styles.infoLabel}>Order Items</span>
+                            <div className={styles.itemList}>
+                              {order.items && order.items.length > 0 ? (
+                                order.items.map((item: any, i: number) => (
+                                  <div key={i} className={styles.itemRow}>
+                                    <span className={styles.itemQuantity}>{item.quantity}x</span>
+                                    <span className={styles.itemName}>{item.name}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <span className={styles.infoValue}>No items found</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Customer Information */}
+                        <div className={styles.infoRow}>
+                          <div className={styles.iconWrapper}><User size={16} /></div>
+                          <div className={styles.infoText}>
+                            <span className={styles.infoLabel}>Customer</span>
+                            <span className={styles.infoValue}>{customerName}</span>
+                          </div>
+                        </div>
                   
                   <div className={styles.infoRow}>
                     <div className={styles.iconWrapper}><MapPin size={16} /></div>
