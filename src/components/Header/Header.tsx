@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Sun, Moon, User, Package, Heart, LogOut, Search, X } from "lucide-react";
+import { Sun, Moon, User, Package, Heart, LogOut, Search, X, Menu } from "lucide-react";
 import styles from "./Header.module.css";
 import { useCart } from "../../context/CartContext";
 
@@ -19,6 +19,7 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [headerProducts, setHeaderProducts] = useState<any[]>([]);
@@ -96,6 +97,14 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.headerInner}`}>
+        <button 
+          className={styles.mobileMenuBtn}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle Menu"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
         <Link href="/" className={styles.logo}>
           <Image
             src="/imgs/logo-1.png"
@@ -242,6 +251,70 @@ const Header = () => {
           </Link>
         </div>
       </div>
+
+      {/* Mobile Nav Dropdown */}
+      {isMobileMenuOpen && (
+        <div className={styles.mobileNav}>
+          {navLinks.map((link) => {
+            let isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            if (link.name === "Shop" && (pathname?.startsWith('/product/') || pathname?.startsWith('/products/'))) {
+              isActive = true;
+            }
+            return (
+              <Link 
+                key={link.name} 
+                href={link.href} 
+                className={`${styles.mobileNavLink} ${isActive ? styles.activeMobileNavLink : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+          
+          <div className={styles.mobileNavDivider}></div>
+          
+          {user ? (
+            <>
+              <Link href="/account" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <User size={18} className={styles.mobileNavIcon} /> My Account
+              </Link>
+              <Link href="/orders" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <Package size={18} className={styles.mobileNavIcon} /> Orders
+              </Link>
+              <Link href="/wishlist" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <Heart size={18} className={styles.mobileNavIcon} /> Wishlist
+              </Link>
+              <button 
+                className={styles.mobileNavLinkBtn} 
+                onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+              >
+                <LogOut size={18} className={styles.mobileNavIcon} /> Logout
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className={styles.mobileNavLink} onClick={() => setIsMobileMenuOpen(false)}>
+              <User size={18} className={styles.mobileNavIcon} /> Log In / Register
+            </Link>
+          )}
+
+          <div className={styles.mobileNavDivider}></div>
+
+          <button
+            className={styles.mobileNavLinkBtn}
+            onClick={() => {
+              setTheme(theme === "dark" ? "light" : "dark");
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            {mounted && theme === "dark" ? (
+              <><Sun size={18} className={styles.mobileNavIcon} /> Light Mode</>
+            ) : (
+              <><Moon size={18} className={styles.mobileNavIcon} /> Dark Mode</>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Full Screen Search Overlay */}
       {isSearchOpen && (
