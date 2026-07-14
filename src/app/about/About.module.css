@@ -22,22 +22,25 @@
 }
 
 .heroTitle {
-  font-size: 64px;
   font-family: 'Poppins', sans-serif;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin: 0 0 24px 0;
-  color: #FFFFFF; /* Force white for contrast over dark background */
+  font-size: 48px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.highlight {
-  color: var(--primary-color);
+/* Sub-Headline Section */
+.subHeadlinePanel {
+  background-color: var(--card-bg);
+  padding: 48px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-primary);
 }
 
-.heroSubtitle {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.85); /* Slightly muted white */
+.subHeadlineText {
+  font-size: 16px;
+  color: var(--text-primary);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -48,11 +51,10 @@
     height: 300px;
   }
   .heroTitle {
-    font-size: 40px;
+    font-size: 32px;
   }
-  .heroSubtitle {
-    font-size: 16px;
-    padding: 0 20px;
+  .subHeadlineText {
+    font-size: 15px;
   }
 }
 

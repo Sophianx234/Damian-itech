@@ -51,16 +51,19 @@ export default function AboutPage() {
       <div className={styles.aboutContainer}>
         {/* Hero Section */}
         <section className={styles.heroSection}>
-          <div className="container">
+          <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <h1 className={styles.heroTitle}>
-              Elevating your digital <br />
-              <span className={styles.highlight}>lifestyle.</span>
+              About • Our Story • Damian iTech
             </h1>
-            <p className={styles.heroSubtitle}>
-              Damian iTech was founded with a singular, uncompromising vision: to provide a seamless, premium gateway to the world's most advanced technology.
-            </p>
           </div>
         </section>
+        
+        {/* Central Sub-Headline */}
+        <div className={styles.subHeadlinePanel}>
+          <p className={styles.subHeadlineText}>
+            Damian iTech was founded with a singular, uncompromising vision: to provide a seamless, premium gateway to the world's most advanced technology.
+          </p>
+        </div>
 
         {/* Story Section */}
         <section className={styles.storySection}>
