@@ -36,4 +36,50 @@
   width: 1px;
   height: 24px;
   background-color: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.mobileOnlyDivider {
+  display: none;
+}
+
+.duplicateItem {
+  display: none !important;
+}
+
+.featuresContainer {
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .featuresContainer {
+    padding: 0; /* Remove container padding so marquee reaches edges */
+  }
+
+  .featuresInner {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: max-content;
+    gap: 24px;
+    padding-left: 24px;
+    animation: marquee 15s linear infinite;
+  }
+
+  .mobileOnlyDivider {
+    display: block;
+  }
+
+  .duplicateItem {
+    display: flex !important;
+  }
+
+  .featureItem {
+    flex-shrink: 0;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 12px)); } /* 50% of the total width including gap */
 }
