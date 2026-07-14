@@ -191,18 +191,15 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
             </div>
             <span className={styles.reviewsCount}>(0 reviews)</span>
           </div>
-          {!product.isSwappable ? (
-            <div className={styles.price}>
-              {formattedPrice}
-              {product.oldPrice && <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '1.2rem', marginLeft: '12px' }}>₵{Number(product.oldPrice).toLocaleString()}</span>}
-            </div>
-          ) : (
+          <div className={styles.price}>
+            {formattedPrice}
+            {product.oldPrice && <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '1.2rem', marginLeft: '12px' }}>₵{Number(product.oldPrice).toLocaleString()}</span>}
+          </div>
+          
+          {product.isSwappable && (
             <div className={styles.swapInfo} style={{ margin: '8px 0 32px 0', border: 'none', padding: '0', backgroundColor: 'transparent' }}>
-              <div style={{ marginBottom: '12px', fontSize: '1.1rem', color: 'var(--text-muted)' }}>
-                Estimated Value: <span style={{ fontSize: '2rem', fontWeight: '700', marginLeft: '8px', color: 'var(--text-primary)' }}>₵{Number(product.estValue || product.price).toLocaleString()}</span>
-              </div>
               <div style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>
-                Looking for: <span style={{ fontSize: '1.2rem', fontWeight: '500', marginLeft: '8px', color: 'var(--text-primary)' }}>{product.lookingFor || 'Open to offers'}</span>
+                Swap Target: <span style={{ fontSize: '1.2rem', fontWeight: '500', marginLeft: '8px', color: 'var(--text-primary)' }}>{product.lookingFor || 'Open to offers'}</span>
               </div>
             </div>
           )}
@@ -210,47 +207,48 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
           <div className={styles.divider} />
 
           {/* Call to Action */}
-          <div className={styles.ctaRow}>
-            {!product.isSwappable && (
-              <div className={styles.quantitySelector}>
-                <button onClick={decrementQty} className={styles.qtyBtn} disabled={quantity <= 1}>-</button>
-                <span className={styles.qtyValue}>{quantity}</span>
-                <button onClick={incrementQty} className={styles.qtyBtn} disabled={product.stock !== undefined && quantity >= product.stock}>+</button>
-              </div>
-            )}
+          <div className={styles.ctaRow} style={{ flexWrap: 'wrap', gap: '16px' }}>
+            <div className={styles.quantitySelector}>
+              <button onClick={decrementQty} className={styles.qtyBtn} disabled={quantity <= 1}>-</button>
+              <span className={styles.qtyValue}>{quantity}</span>
+              <button onClick={incrementQty} className={styles.qtyBtn} disabled={product.stock !== undefined && quantity >= product.stock}>+</button>
+            </div>
             
-            {product.stock !== undefined && !product.isSwappable && (
+            {product.stock !== undefined && (
             <div style={{ marginTop: '12px', display:'flex',alignItems: 'center', flexDirection: 'column', fontSize: '0.8rem', color: product.stock > 0 ? 'var(--brand-primary)' : 'red', fontWeight: 500 }}>
               {product.stock > 0 ? `${product.stock}` : 'Out of stock'}
               <span>
                 {product.stock > 0 && `in stock` }
               </span>
             </div>
-          )}
+            )}
             
-            {!product.isSwappable ? (
+            <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
               <motion.button 
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className={styles.addToCartBtn}
                 onClick={handleAddToCart}
                 disabled={isAdded || (product.stock !== undefined && product.stock === 0) || product.status !== 'Active'}
-                style={{ backgroundColor: isAdded ? 'var(--brand-primary)' : '', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ flex: 1, backgroundColor: isAdded ? 'var(--brand-primary)' : '', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {!isAdded && product.status === 'Active' && product.stock !== 0 && <ShoppingBag size={20} />}
                 {product.status !== 'Active' ? 'Not Available' : isAdded ? "Added ✓" : (product.stock === 0 ? "Out of Stock" : "Add to Cart")}
               </motion.button>
-            ) : (
-              <motion.button 
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className={styles.swapBtn}
-                onClick={() => setIsSwapModalOpen(true)}
-                disabled={product.status !== 'Active'}
-              >
-                {product.status !== 'Active' ? 'Unavailable' : 'Propose Swap'}
-              </motion.button>
-            )}
+              
+              {product.isSwappable && (
+                <motion.button 
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  className={styles.swapBtn}
+                  onClick={() => setIsSwapModalOpen(true)}
+                  disabled={product.status !== 'Active'}
+                  style={{ flex: 1 }}
+                >
+                  {product.status !== 'Active' ? 'Unavailable' : 'Propose Swap'}
+                </motion.button>
+              )}
+            </div>
           </div>
 
           {/* Secondary Actions */}

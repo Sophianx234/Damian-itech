@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ShieldCheck, Lock, Loader2, ArrowLeft } from 'lucide-react';
+import { Check, ShieldCheck, Lock, Loader2, ArrowLeft, Truck, Store, CreditCard } from 'lucide-react';
 import { usePaystackPayment } from 'react-paystack';
 import dynamic from 'next/dynamic';
 
@@ -211,39 +211,33 @@ export default function CheckoutPage() {
                 <h2 className={styles.sectionTitle}>
                   <span className={styles.stepNumber}>2</span> Payment Method
                 </h2>
-                <div className={styles.cardGrid}>
+                <div className={styles.paymentSwitch}>
                   
                   <div 
-                    className={`${styles.deliveryCard} ${paymentMethod === 'delivery' ? styles.deliveryCardActive : ''}`}
+                    className={`${styles.paymentOption} ${paymentMethod === 'delivery' ? styles.paymentOptionActive : ''}`}
                     onClick={() => setPaymentMethod('delivery')}
                   >
-                    <div className={styles.cardTitle}>
-                      <span>Pay on Delivery</span>
-                      <div className={styles.radioCircle} />
-                    </div>
-                    <div className={styles.cardDesc}>Pay with cash or mobile money upon delivery.</div>
+                    <Truck size={24} />
+                    <span className={styles.paymentTitle}>Pay on Delivery</span>
+                    <span className={styles.paymentDesc}>Cash or Momo on arrival</span>
                   </div>
 
                   <div 
-                    className={`${styles.deliveryCard} ${paymentMethod === 'pickup' ? styles.deliveryCardActive : ''}`}
+                    className={`${styles.paymentOption} ${paymentMethod === 'pickup' ? styles.paymentOptionActive : ''}`}
                     onClick={() => setPaymentMethod('pickup')}
                   >
-                    <div className={styles.cardTitle}>
-                      <span>Pay on Pickup</span>
-                      <div className={styles.radioCircle} />
-                    </div>
-                    <div className={styles.cardDesc}>Pay at our physical store when you pick up.</div>
+                    <Store size={24} />
+                    <span className={styles.paymentTitle}>Pay on Pickup</span>
+                    <span className={styles.paymentDesc}>Pay at our store</span>
                   </div>
 
                   <div 
-                    className={`${styles.deliveryCard} ${paymentMethod === 'paystack' ? styles.deliveryCardActive : ''}`}
+                    className={`${styles.paymentOption} ${paymentMethod === 'paystack' ? styles.paymentOptionActive : ''}`}
                     onClick={() => setPaymentMethod('paystack')}
                   >
-                    <div className={styles.cardTitle}>
-                      <span>Pay via Momo / Card</span>
-                      <div className={styles.radioCircle} />
-                    </div>
-                    <div className={styles.cardDesc}>Securely online using Mobile Money or Card.</div>
+                    <CreditCard size={24} />
+                    <span className={styles.paymentTitle}>Pay Online</span>
+                    <span className={styles.paymentDesc}>Mobile Money or Card</span>
                   </div>
 
                 </div>

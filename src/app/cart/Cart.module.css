@@ -216,8 +216,8 @@
 .checkoutBtn {
   width: 100%;
   padding: 16px;
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
+  background-color: var(--primary-color);
+  color: white;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
