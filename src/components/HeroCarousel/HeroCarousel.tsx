@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import Link from 'next/link';
@@ -34,7 +34,10 @@ const slides = [
 ];
 
 const HeroCarousel = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: false })
+  );
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [plugin.current]);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const scrollTo = useCallback((index: number) => {
