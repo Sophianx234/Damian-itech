@@ -190,12 +190,11 @@ export default function AdminLayout({
 
         <nav className={styles.nav}>
           {navItems.filter(item => {
-            if (!user) return false;
             // Riders only see Delivery
-            if (user.role === 'rider' || user.role === 'delivery') {
+            if (user && (user.role === 'rider' || user.role === 'delivery')) {
               return item.label === 'Delivery';
             }
-            // Admins/Managers see everything, or filter as needed
+            // Admins/Managers or unauthenticated/loading state see everything
             return true;
           }).map((item) => {
             const Icon = item.icon;

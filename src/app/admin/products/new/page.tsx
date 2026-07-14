@@ -185,6 +185,12 @@ export default function NewProductPage() {
               </select>
             </div>
           </div>
+          <div className={styles.row}>
+            <div className={styles.formGroup}>
+              <label htmlFor="vendorName" className={styles.label}>Vendor Name</label>
+              <input type="text" id="vendorName" name="vendorName" className={styles.input} placeholder="e.g. Tech Haven (Optional)" />
+            </div>
+          </div>
           <div className={styles.formGroup}>
             <label htmlFor="description" className={styles.label}>Description</label>
             <textarea id="description" name="description" required className={styles.textarea} placeholder="Detailed product description..." rows={4}></textarea>

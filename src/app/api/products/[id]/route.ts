@@ -29,7 +29,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     // Extract standard fields if they exist
     const fields = [
       "title", "slug", "brand", "description", "productType", 
-      "condition", "category", "status", "tag", "tagType", "lookingFor"
+      "condition", "category", "status", "tag", "tagType", "lookingFor", "vendorName"
     ];
     
     fields.forEach(field => {

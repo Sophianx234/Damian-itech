@@ -14,6 +14,7 @@ interface Product {
   title: string;
   brand: string;
   category: string;
+  vendorName?: string;
   productType: "Store" | "Used";
   condition?: string;
   isSwappable: boolean;
@@ -51,6 +52,7 @@ export default function AdminProductsPage() {
             title: p.title,
             brand: p.brand,
             category: p.category,
+            vendorName: p.vendorName,
             productType: p.productType,
             condition: p.condition,
             isSwappable: p.isSwappable,
@@ -296,6 +298,7 @@ export default function AdminProductsPage() {
                       <div className={styles.productInfo}>
                         <h4 className={styles.productTitle}>{product.title}</h4>
                         <p className={styles.productBrand}>{product.brand}</p>
+                        {product.vendorName && <p className={styles.productBrand} style={{ marginTop: '2px', color: 'var(--brand-primary)', fontWeight: 500 }}>Vendor: {product.vendorName}</p>}
                       </div>
                     </div>
                   </td>

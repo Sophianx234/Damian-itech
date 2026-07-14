@@ -24,6 +24,7 @@ const ProductSchema = new mongoose.Schema({
   estValue: { type: Number },
   lookingFor: { type: String },
   category: { type: String, required: true },
+  vendorName: { type: String },
   
   // Hardcoded standard specs
   batteryHealth: { type: Number },

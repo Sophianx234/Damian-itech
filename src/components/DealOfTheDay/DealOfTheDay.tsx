@@ -15,9 +15,6 @@ const DealOfTheDay = () => {
   });
 
   useEffect(() => {
-    const hasSeenDeal = localStorage.getItem('hasSeenFlashDeal');
-    if (hasSeenDeal) return;
-
     // Fetch dynamic deal settings from DB
     fetch("/api/admin/settings")
       .then(res => res.json())
@@ -31,6 +28,11 @@ const DealOfTheDay = () => {
               return; // Sale has expired, do not show
             }
           }
+
+          // Check if THIS specific deal has been seen
+          // Using title or endtime to make it unique per deal
+          const dealKey = `hasSeenFlashDeal_${data.settings.flashSaleTitle || 'default'}_${data.settings.flashSaleEndTime || 'notime'}`;
+          if (localStorage.getItem(dealKey)) return;
           
           setDealData(data.settings);
           const showTimer = setTimeout(() => {
@@ -68,7 +70,10 @@ const DealOfTheDay = () => {
 
   const handleClose = () => {
     setIsVisible(false);
-    localStorage.setItem('hasSeenFlashDeal', 'true');
+    if (dealData) {
+      const dealKey = `hasSeenFlashDeal_${dealData.flashSaleTitle || 'default'}_${dealData.flashSaleEndTime || 'notime'}`;
+      localStorage.setItem(dealKey, 'true');
+    }
   };
 
   if (!isVisible || !dealData) return null;

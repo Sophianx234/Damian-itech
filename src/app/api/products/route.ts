@@ -24,6 +24,7 @@ export async function POST(req: Request) {
     const estValue = formData.get("estValue") ? Number(formData.get("estValue")) : undefined;
     const lookingFor = formData.get("lookingFor") || undefined;
     const category = formData.get("category");
+    const vendorName = formData.get("vendorName") || undefined;
     
     const batteryHealth = formData.get("batteryHealth");
     const ram = formData.get("ram");
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
       estValue,
       lookingFor,
       category,
+      vendorName,
       batteryHealth: batteryHealth ? Number(batteryHealth) : undefined,
       ram: ram || undefined,
       storage: storage || undefined,

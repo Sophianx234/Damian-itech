@@ -245,6 +245,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </select>
             </div>
           </div>
+          <div className={styles.row}>
+            <div className={styles.formGroup}>
+              <label htmlFor="vendorName" className={styles.label}>Vendor Name</label>
+              <input type="text" id="vendorName" name="vendorName" className={styles.input} placeholder="e.g. Tech Haven (Optional)" defaultValue={initialData?.vendorName} />
+            </div>
+          </div>
           <div className={styles.formGroup}>
             <label htmlFor="description" className={styles.label}>Description</label>
             <textarea id="description" name="description" required className={styles.textarea} defaultValue={initialData?.description} rows={4}></textarea>
