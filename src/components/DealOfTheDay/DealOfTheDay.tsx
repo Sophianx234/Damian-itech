@@ -23,6 +23,15 @@ const DealOfTheDay = () => {
       .then(res => res.json())
       .then(data => {
         if (data.success && data.settings && data.settings.flashSaleActive) {
+          // Check if expired
+          if (data.settings.flashSaleEndTime) {
+            const expireTime = new Date(data.settings.flashSaleEndTime).getTime();
+            const now = new Date().getTime();
+            if (expireTime <= now) {
+              return; // Sale has expired, do not show
+            }
+          }
+          
           setDealData(data.settings);
           const showTimer = setTimeout(() => {
             setIsVisible(true);
@@ -45,6 +54,7 @@ const DealOfTheDay = () => {
       if (distance < 0) {
         clearInterval(timer);
         setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+        setIsVisible(false);
       } else {
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
