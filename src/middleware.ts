@@ -8,6 +8,7 @@ export async function middleware(req: NextRequest) {
   
   const isAdminPage = pathname.startsWith('/admin');
   const isAdminApi = pathname.startsWith('/api/admin');
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
   const isProtectedApi = 
     pathname.startsWith('/api/orders') || 
     pathname.startsWith('/api/products') || 
@@ -20,7 +21,7 @@ export async function middleware(req: NextRequest) {
     // Actually, it's safer to enforce here if we want to be perfect.
   }
 
-  if (!isAdminPage && !isAdminApi && !isProtectedApi) {
+  if (!isAdminPage && !isAdminApi && !isProtectedApi && !isAuthPage) {
     return NextResponse.next();
   }
 
@@ -36,11 +37,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get session token
   const sessionToken = req.cookies.get('session')?.value;
   if (!sessionToken) {
     if (isAdminPage) return NextResponse.redirect(new URL('/login', req.url));
     if (isAdminApi || isProtectedApi) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.next(); // Allow access to /login if no token
   }
 
   // Verify token
@@ -48,9 +49,23 @@ export async function middleware(req: NextRequest) {
   if (!payload || !payload.role) {
     if (isAdminPage) return NextResponse.redirect(new URL('/login', req.url));
     if (isAdminApi || isProtectedApi) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.next(); // Allow access to /login if token invalid
   }
 
   const role = payload.role as string;
+
+  // If authenticated user tries to access login/signup, redirect based on role
+  if (isAuthPage) {
+    if (role === 'admin' || role === 'manager') {
+      return NextResponse.redirect(new URL('/admin', req.url));
+    } else if (role === 'support') {
+      return NextResponse.redirect(new URL('/admin/support', req.url));
+    } else if (role === 'delivery') {
+      return NextResponse.redirect(new URL('/admin/delivery', req.url));
+    } else {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
 
   // Protect Admin UI Pages
   if (isAdminPage) {
@@ -103,6 +118,8 @@ export const config = {
     '/api/admin/:path*',
     '/api/orders/:path*',
     '/api/products/:path*',
-    '/api/support/:path*'
+    '/api/support/:path*',
+    '/login',
+    '/signup'
   ],
 };

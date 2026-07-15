@@ -60,7 +60,16 @@ export default function LoginPage() {
         throw new Error(data.error || "Failed to log in");
       }
 
-      router.push("/"); // Change to your desired dashboard route later
+      const role = data.user?.role;
+      if (role === 'admin' || role === 'manager') {
+        router.push("/admin");
+      } else if (role === 'support') {
+        router.push("/admin/support");
+      } else if (role === 'delivery') {
+        router.push("/admin/delivery");
+      } else {
+        router.push("/");
+      }
     } catch (err: any) {
       setApiError(err.message);
     } finally {
