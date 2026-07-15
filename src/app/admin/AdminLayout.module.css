@@ -72,8 +72,8 @@
 }
 
 .navItemActive {
-  color: var(--text-primary);
-  background-color: rgba(139, 92, 246, 0.1); /* Primary color background */
+  color: white;
+  background-color: var(--primary-color); /* Primary color background */
   font-weight: 600;
 }
 
