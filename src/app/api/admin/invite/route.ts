@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     // Send to WhatsApp microservice
     try {
       const clientIp = req.headers.get("x-forwarded-for") || "127.0.0.1";
-      const response = await fetch("http://localhost:3001/send-otp", {
+      const response = await fetch(`${process.env.WHATSAPP_MICROSERVICE_URL || "http://localhost:3001"}/send-otp`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
