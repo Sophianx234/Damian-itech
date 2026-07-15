@@ -114,6 +114,8 @@ export default function AdminLayout({
     if (user && !hasPermission(user.role, 'access_page', pathname)) {
       if (user.role === 'delivery') {
         router.push('/admin/delivery');
+      } else if (user.role === 'support') {
+        router.push('/admin/support');
       } else {
         router.push('/admin');
       }

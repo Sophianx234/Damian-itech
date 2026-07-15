@@ -834,42 +834,46 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '16px 0' }} />
+              {hasPermission(user?.role, 'manage_security_policies') && (
+                <>
+                  <div style={{ height: '1px', backgroundColor: 'var(--border-primary)', margin: '16px 0' }} />
 
-              <div>
-                <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Security Policies</h3>
-                
-                <div className={styles.toggleGroup}>
-                  <div className={styles.toggleInfo}>
-                    <span className={styles.toggleLabel}>Require 2FA</span>
-                    <span className={styles.toggleDesc}>Force all staff to use an authenticator app</span>
+                  <div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Security Policies</h3>
+                    
+                    <div className={styles.toggleGroup}>
+                      <div className={styles.toggleInfo}>
+                        <span className={styles.toggleLabel}>Require 2FA</span>
+                        <span className={styles.toggleDesc}>Force all staff to use an authenticator app</span>
+                      </div>
+                      <label className={styles.switch}>
+                        <input type="checkbox" checked={settings.require2FA} onChange={(e) => handleUpdateSetting('require2FA', e.target.checked)} />
+                        <span className={styles.slider}></span>
+                      </label>
+                    </div>
+
+                    <div className={styles.toggleGroup}>
+                      <div className={styles.toggleInfo}>
+                        <span className={styles.toggleLabel}>Strict session timeout</span>
+                        <span className={styles.toggleDesc}>Log out inactive admins after 30 minutes</span>
+                      </div>
+                      <label className={styles.switch}>
+                        <input type="checkbox" checked={settings.sessionTimeout} onChange={(e) => handleUpdateSetting('sessionTimeout', e.target.checked)} />
+                        <span className={styles.slider}></span>
+                      </label>
+                    </div>
+
+                    <div style={{ marginTop: '32px' }}>
+                      <button className={styles.btnDanger}>
+                        Force logout all devices
+                      </button>
+                      <p className={styles.sectionSubtitle} style={{ marginTop: '12px' }}>
+                        Instantly log out every active session across all devices except your current one.
+                      </p>
+                    </div>
                   </div>
-                  <label className={styles.switch}>
-                    <input type="checkbox" checked={settings.require2FA} onChange={(e) => handleUpdateSetting('require2FA', e.target.checked)} />
-                    <span className={styles.slider}></span>
-                  </label>
-                </div>
-
-                <div className={styles.toggleGroup}>
-                  <div className={styles.toggleInfo}>
-                    <span className={styles.toggleLabel}>Strict session timeout</span>
-                    <span className={styles.toggleDesc}>Log out inactive admins after 30 minutes</span>
-                  </div>
-                  <label className={styles.switch}>
-                    <input type="checkbox" checked={settings.sessionTimeout} onChange={(e) => handleUpdateSetting('sessionTimeout', e.target.checked)} />
-                    <span className={styles.slider}></span>
-                  </label>
-                </div>
-
-                <div style={{ marginTop: '32px' }}>
-                  <button className={styles.btnDanger}>
-                    Force logout all devices
-                  </button>
-                  <p className={styles.sectionSubtitle} style={{ marginTop: '12px' }}>
-                    Instantly log out every active session across all devices except your current one.
-                  </p>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           )}
 

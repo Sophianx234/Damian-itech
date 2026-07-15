@@ -12,7 +12,9 @@ export const hasPermission = (userRole: string | undefined, action: string, data
         case 'access_page':
           return true;
         case 'access_settings_tab':
-          return data !== 'security';
+          return true; // Access all tabs
+        case 'manage_security_policies':
+          return false; // Cannot manage global security toggles
         case 'invite_role':
           return ['support', 'delivery'].includes(data);
         case 'change_role':
@@ -29,10 +31,10 @@ export const hasPermission = (userRole: string | undefined, action: string, data
     case 'support':
       switch (action) {
         case 'access_page':
-          return true; // Can access all pages
+          return ['/admin/support', '/admin/settings'].includes(data);
         case 'access_settings_tab':
           // Except store details, flash sale, shipping, security, notifications
-          return ['profile', 'payments'].includes(data);
+          return data === 'profile';
         case 'invite_role':
         case 'change_role':
         case 'create':
