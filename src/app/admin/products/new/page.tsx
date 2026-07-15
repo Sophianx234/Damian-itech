@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useActionState, startTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, UploadCloud, X } from "lucide-react";
 import styles from "./NewProduct.module.css";
+import { createProductAction, ActionState } from "./actions";
 
 function slugify(text: string) {
   return text
@@ -24,6 +25,12 @@ export default function NewProductPage() {
   const [images, setImages] = useState<File[]>([]);
   const [customSpecs, setCustomSpecs] = useState<{ key: string; value: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [state, dispatch] = useActionState(createProductAction, {
+    errors: {},
+    message: "",
+    success: undefined
+  });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,7 +103,7 @@ export default function NewProductPage() {
         uploadedImageUrls.push(cloudinaryData.secure_url);
       }
 
-      // 3. Pass data to Backend API
+      // 3. Dispatch to Server Action instead of raw fetch
       const productData = new FormData(form);
       productData.set("slug", slug);
       productData.set("isSwappable", String(isSwappable));
@@ -113,16 +120,11 @@ export default function NewProductPage() {
         productData.delete("lookingFor");
       }
 
-      const res = await fetch("/api/products", {
-        method: "POST",
-        body: productData,
+      startTransition(() => {
+        dispatch(productData);
+        setIsSubmitting(false); // form will re-enable, but server action is processing
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to save product to database");
-      }
-
-      router.push("/admin/products");
+      
     } catch (error) {
       console.error("Submission failed", error);
       setIsSubmitting(false);
@@ -149,7 +151,14 @@ export default function NewProductPage() {
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="title" className={styles.label}>Product Title</label>
-            <input type="text" id="title" name="title" required className={styles.input} placeholder="e.g. iPhone 15 Pro Max" />
+            <input 
+              type="text" 
+              id="title" 
+              name="title" 
+              className={`${styles.input} ${state.errors?.title ? styles.inputError : ""}`} 
+              placeholder="e.g. iPhone 15 Pro Max" 
+            />
+            {state.errors?.title && <span className={styles.errorText}>{state.errors.title[0]}</span>}
           </div>
           <div className={styles.row}>
             {!isSwappable && (
@@ -172,11 +181,24 @@ export default function NewProductPage() {
           <div className={styles.row}>
             <div className={styles.formGroup}>
               <label htmlFor="brand" className={styles.label}>Brand</label>
-              <input type="text" id="brand" name="brand" required className={styles.input} placeholder="e.g. Apple" />
+              <input 
+                type="text" 
+                id="brand" 
+                name="brand" 
+                className={`${styles.input} ${state.errors?.brand ? styles.inputError : ""}`} 
+                placeholder="e.g. Apple" 
+              />
+              {state.errors?.brand && <span className={styles.errorText}>{state.errors.brand[0]}</span>}
             </div>
             <div className={styles.formGroup}>
               <label htmlFor="category" className={styles.label}>Category</label>
-              <select id="category" name="category" required className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+              <select 
+                id="category" 
+                name="category" 
+                className={`${styles.select} ${state.errors?.category ? styles.inputError : ""}`} 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)}
+              >
                 <option value="" disabled>Select Category</option>
                 <option value="Phone">Phone</option>
                 <option value="Laptop">Laptop</option>
@@ -193,7 +215,14 @@ export default function NewProductPage() {
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="description" className={styles.label}>Description</label>
-            <textarea id="description" name="description" required className={styles.textarea} placeholder="Detailed product description..." rows={4}></textarea>
+            <textarea 
+              id="description" 
+              name="description" 
+              className={`${styles.textarea} ${state.errors?.description ? styles.inputError : ""}`} 
+              placeholder="Detailed product description..." 
+              rows={4}
+            ></textarea>
+            {state.errors?.description && <span className={styles.errorText}>{state.errors.description[0]}</span>}
           </div>
         </div>
 

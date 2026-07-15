@@ -387,3 +387,13 @@
     width: 100%;
   }
 }
+
+.inputError {
+  border-color: var(--text-primary) !important;
+}
+
+.errorText {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import dbConnect from "@/lib/mongodb";
 import Product from "@/models/Product";
+import { verifySession } from "@/lib/session";
+import { hasPermission } from "@/lib/rbac";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -84,6 +87,24 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  // Defense-in-Depth: Always retrieve session explicitly in the handler
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('session')?.value;
+  if (!sessionToken) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // Verify the JWT signature and payload
+  const session = await verifySession(sessionToken);
+  if (!session || !session.role) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // Dynamic RBAC enforcement
+  if (!hasPermission(session.role as string, 'delete')) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
   try {
     const { id } = await params;
     await dbConnect();
