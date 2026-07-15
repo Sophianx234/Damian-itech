@@ -4,18 +4,48 @@ import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 import { verifySession } from '@/lib/session';
+import { z } from 'zod';
+
+const OrderSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().optional(),
+    productId: z.string().optional(),
+    _id: z.string().optional(),
+    quantity: z.number().min(1),
+    image: z.string().optional(),
+  })).min(1),
+  paymentMethod: z.enum(['pickup', 'delivery', 'paystack']),
+  pickupLocation: z.string().optional(),
+  reference: z.string().optional(),
+  shippingDetails: z.object({
+    email: z.string().email().optional().or(z.literal("")),
+    phone: z.string().optional(),
+    fullName: z.string().optional(),
+    region: z.string().optional(),
+    streetAddress: z.string().optional(),
+    additionalInfo: z.string().optional(),
+    lat: z.string().optional(),
+    lng: z.string().optional(),
+  }).optional()
+});
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
+    
+    const validatedBody = OrderSchema.safeParse(body);
+    if (!validatedBody.success) {
+      return NextResponse.json({ success: false, message: 'Invalid payload', errors: validatedBody.error.errors }, { status: 400 });
+    }
+
     const { 
       items, 
       paymentMethod, 
       shippingDetails, 
       pickupLocation, 
       reference 
-    } = body;
+    } = validatedBody.data;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ success: false, message: 'Cart is empty' }, { status: 400 });
