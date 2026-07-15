@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   BarChart,
   Bar,
@@ -308,7 +309,12 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                 {lowStockAlerts.length > 0 ? (
                   lowStockAlerts.map((item: any) => (
                     <tr key={item.id}>
-                      <td>{item.product}</td>
+                      <td style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--border-primary)' }}>
+                          <Image src={item.image} alt={item.product} fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <span style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.product}</span>
+                      </td>
                       <td className={item.stock === 0 ? styles.dangerText : styles.warningText} style={{ textAlign: 'right' }}>
                         {item.stock} left
                       </td>

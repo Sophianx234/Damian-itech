@@ -115,7 +115,8 @@ export default async function AdminDashboardPage() {
   const lowStockAlerts = lowStockRaw.map((p: any) => ({
     id: p._id.toString(),
     product: p.title,
-    stock: p.stock
+    stock: p.stock,
+    image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop"
   }));
 
   // 7. Top Customers
