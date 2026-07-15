@@ -254,7 +254,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                     
                     return (
                       <tr key={order.id}>
-                        <td style={{ fontWeight: 500 }}>{order.customer}</td>
+                        <td style={{ fontWeight: 500 }}>
+                          <img src={order.customerImage} alt={order.customer} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
+                          {order.customer}
+                        </td>
                         <td style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--border-primary)' }}>
                             <Image src={order.image} alt={order.product} fill style={{ objectFit: 'cover' }} />
@@ -304,7 +307,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                         </div>
                         <span style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.targetProduct}</span>
                       </td>
-                      <td style={{ color: '#a1a1aa' }}>{offer.user}</td>
+                      <td style={{ color: '#a1a1aa' }}>
+                        <img src={offer.userImage} alt={offer.user} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
+                        {offer.user}
+                      </td>
                       <td style={{ color: '#a1a1aa', textAlign: 'right' }}>{offer.date}</td>
                     </tr>
                   ))
@@ -361,7 +367,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                 {topCustomers.length > 0 ? (
                   topCustomers.map((c: any, index: number) => (
                     <tr key={index}>
-                      <td style={{ color: '#a1a1aa' }}>{c.name}</td>
+                      <td style={{ color: '#a1a1aa' }}>
+                        <img src={c.image} alt={c.name} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
+                        {c.name}
+                      </td>
                       <td style={{ textAlign: 'right', fontWeight: 500, color: '#ffffff' }}>
                         {c.spent}
                       </td>

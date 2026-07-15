@@ -86,9 +86,11 @@ export default async function AdminDashboardPage() {
   const recentOrders = recentOrdersRaw.map((o: any) => {
     const mainItem = o.items[0];
     const extraCount = o.items.length - 1;
+    const customerName = o.user ? o.user.fullName : (o.shippingDetails?.fullName || "Guest");
     return {
       id: o._id.toString(),
-      customer: o.user ? o.user.fullName : (o.shippingDetails?.fullName || "Guest"),
+      customer: customerName,
+      customerImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(customerName)}&background=2a2a2a&color=fff`,
       product: extraCount > 0 ? `${mainItem?.name} + ${extraCount} more` : (mainItem?.name || "Product"),
       image: mainItem?.image || "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
       date: new Date(o.createdAt).toISOString().split("T")[0],
@@ -104,14 +106,18 @@ export default async function AdminDashboardPage() {
     .limit(6)
     .lean();
     
-  const swapOffers = swapOffersRaw.map((p: any) => ({
-    id: p._id.toString(),
-    user: "Anonymous User", // Mocked as Product doesn't store user unless we have a specific swap offer model
-    targetProduct: p.title,
-    offeredDevice: p.lookingFor || "Cash + Trade-in",
-    image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
-    date: new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-  }));
+  const swapOffers = swapOffersRaw.map((p: any) => {
+    const userName = "Anonymous User";
+    return {
+      id: p._id.toString(),
+      user: userName,
+      userImage: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=2a2a2a&color=fff`,
+      targetProduct: p.title,
+      offeredDevice: p.lookingFor || "Cash + Trade-in",
+      image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
+      date: new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    };
+  });
 
   // 6. Low Stock Alerts
   const lowStockRaw = await Product.find({ stock: { $lte: 5 }, status: "Active" })
@@ -141,12 +147,16 @@ export default async function AdminDashboardPage() {
     { $limit: 6 }
   ]);
   
-  const topCustomers = topCustomersRaw.map(c => ({
-    email: c._id || "Guest",
-    name: c.name || "Guest Customer",
-    spent: `₵${c.totalSpent.toLocaleString()}`,
-    orders: c.ordersCount
-  }));
+  const topCustomers = topCustomersRaw.map(c => {
+    const customerName = c.name || "Guest Customer";
+    return {
+      email: c._id || "Guest",
+      name: customerName,
+      image: `https://ui-avatars.com/api/?name=${encodeURIComponent(customerName)}&background=2a2a2a&color=fff`,
+      spent: `₵${c.totalSpent.toLocaleString()}`,
+      orders: c.ordersCount
+    };
+  });
 
   const initialData = {
     kpis: {
