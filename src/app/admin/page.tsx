@@ -83,14 +83,19 @@ export default async function AdminDashboardPage() {
     .populate("user", "fullName")
     .lean();
 
-  const recentOrders = recentOrdersRaw.map((o: any) => ({
-    id: o._id.toString(),
-    customer: o.user ? o.user.fullName : (o.shippingDetails?.fullName || "Guest"),
-    product: o.items.map((i: any) => i.name).join(", "),
-    date: new Date(o.createdAt).toISOString().split("T")[0],
-    type: o.paymentMethod === 'pickup' ? 'Pickup' : 'Delivery',
-    status: o.orderStatus.charAt(0).toUpperCase() + o.orderStatus.slice(1)
-  }));
+  const recentOrders = recentOrdersRaw.map((o: any) => {
+    const mainItem = o.items[0];
+    const extraCount = o.items.length - 1;
+    return {
+      id: o._id.toString(),
+      customer: o.user ? o.user.fullName : (o.shippingDetails?.fullName || "Guest"),
+      product: extraCount > 0 ? `${mainItem?.name} + ${extraCount} more` : (mainItem?.name || "Product"),
+      image: mainItem?.image || "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
+      date: new Date(o.createdAt).toISOString().split("T")[0],
+      type: o.paymentMethod === 'pickup' ? 'Pickup' : 'Delivery',
+      status: o.orderStatus.charAt(0).toUpperCase() + o.orderStatus.slice(1)
+    };
+  });
 
   // 5. Pending Swap Offers & Reservations
   // We will just fetch products that are reserved or swappable.

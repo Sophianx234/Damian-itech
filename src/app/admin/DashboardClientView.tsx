@@ -255,7 +255,12 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                     return (
                       <tr key={order.id}>
                         <td style={{ fontWeight: 500 }}>{order.customer}</td>
-                        <td>{order.product}</td>
+                        <td style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--border-primary)' }}>
+                            <Image src={order.image} alt={order.product} fill style={{ objectFit: 'cover' }} />
+                          </div>
+                          <span style={{ maxWidth: '160px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.product}</span>
+                        </td>
                         <td className={styles.textMuted}>{order.date}</td>
                         <td className={styles.textMuted}>{order.type}</td>
                         <td className={statusClass}>{order.status}</td>
