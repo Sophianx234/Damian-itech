@@ -105,10 +105,12 @@
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   width: 100%;
+  overflow-x: auto;
 }
 
 .table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -644,3 +646,47 @@ so we keep it, or adapt to the theme via variable so it doesn't look bad in ligh
 .statusDelivered { color: #10b981; font-weight: 500; }
 .statusCancelled { color: #ef4444; font-weight: 500; text-decoration: line-through; }
 
+/* --- Mobile Responsiveness --- */
+@media (max-width: 1024px) {
+  .topBar {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filterRow {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .filterSelect {
+    flex: 1;
+    min-width: calc(50% - 6px);
+  }
+
+  .resetButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .filterSelect {
+    min-width: 100%;
+  }
+}
