@@ -34,6 +34,8 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   const settings = useSettingsStore((state) => state.settings);
   const settingsLoading = useSettingsStore((state) => state.loading);
@@ -115,6 +117,8 @@ export default function CheckoutPage() {
 
   const submitOrder = async (reference?: string) => {
     setIsProcessing(true);
+    setApiError(null);
+    setValidationErrors(null);
     
     const payload = {
       items: cart,
@@ -146,11 +150,14 @@ export default function CheckoutPage() {
         setOrderSuccess(true);
         clearCart();
       } else {
-        alert("Checkout failed: " + data.message);
+        setApiError(data.message || "Checkout failed.");
+        if (data.errors) {
+          setValidationErrors(data.errors);
+        }
       }
     } catch (err) {
       console.error("Order submission error:", err);
-      alert("An error occurred while placing your order.");
+      setApiError("A network error occurred while placing your order. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -163,7 +170,7 @@ export default function CheckoutPage() {
 
   const onClose = () => {
     setIsProcessing(false);
-    console.log("Payment dialog closed");
+    setApiError("Payment window was closed before completion. Your order was not placed.");
   };
 
   const handlePlaceOrder = (e: React.FormEvent) => {
@@ -185,6 +192,19 @@ export default function CheckoutPage() {
             <Link href="/cart" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', marginBottom: '32px', textDecoration: 'none', fontWeight: 500 }}>
               <ArrowLeft size={16} /> Return to Cart
             </Link>
+          )}
+
+          {apiError && (
+            <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid #ff4444', color: '#ff4444', padding: '16px', marginBottom: '24px', fontWeight: 500 }}>
+              {apiError}
+              {validationErrors && (
+                <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '14px' }}>
+                  {Object.entries(validationErrors).map(([field, errors]: any) => (
+                    <li key={field}>{field}: {errors.join(', ')}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
 
           <form onSubmit={handlePlaceOrder} className={styles.checkoutGrid}>
