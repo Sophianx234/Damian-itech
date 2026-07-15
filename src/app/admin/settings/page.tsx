@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { User, Store, CreditCard, Truck, BellRing, Shield, Zap, Image as ImageIcon, Trash2, Plus, X, Loader2 } from "lucide-react";
+import { hasPermission } from "@/lib/rbac";
 import styles from "./Settings.module.css";
 
 type Tab = "profile" | "store" | "payments" | "shipping" | "notifications" | "security" | "flashsale";
@@ -238,6 +239,8 @@ export default function SettingsPage() {
     { id: "security", label: "Team & Security", icon: Shield },
   ];
 
+  const availableTabs = tabs.filter(tab => !user || hasPermission(user.role, 'access_settings_tab', tab.id));
+
   return (
     <div className={styles.pageContainer}>
       <div className={styles.headerActions}>
@@ -254,7 +257,7 @@ export default function SettingsPage() {
 
       <div className={styles.settingsLayout}>
         <aside className={styles.settingsSidebar}>
-          {tabs.map((tab) => {
+          {availableTabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
@@ -810,16 +813,18 @@ export default function SettingsPage() {
                           <select 
                             className={styles.formInput} 
                             value={member.role} 
-                            disabled={user && user._id === member._id} 
+                            disabled={user && (user._id === member._id || !hasPermission(user.role, 'edit'))} 
                           >
-                            <option value="admin">Super Admin</option>
-                            <option value="manager">Manager</option>
-                            <option value="support">Support</option>
-                            <option value="delivery">Delivery</option>
+                            {hasPermission(user?.role, 'change_role', 'admin') && <option value="admin">Super Admin</option>}
+                            {hasPermission(user?.role, 'change_role', 'manager') && <option value="manager">Manager</option>}
+                            {hasPermission(user?.role, 'change_role', 'support') && <option value="support">Support</option>}
+                            {hasPermission(user?.role, 'change_role', 'delivery') && <option value="delivery">Delivery</option>}
+                            {/* Fallback option so existing value doesn't break if they can't change to it */}
+                            {!hasPermission(user?.role, 'change_role', member.role) && <option value={member.role} disabled>{member.role}</option>}
                           </select>
                         </div>
                       </div>
-                      {(!user || user._id !== member._id) && (
+                      {(!user || user._id !== member._id) && hasPermission(user?.role, 'delete') && (
                         <button className={styles.iconBtnDanger} onClick={() => handleRemoveTeamMember(member._id)}>
                           <Trash2 size={18} />
                         </button>
@@ -912,10 +917,10 @@ export default function SettingsPage() {
                   className={styles.formInput} value={inviteData.role}
                   onChange={(e) => setInviteData({...inviteData, role: e.target.value})}
                 >
-                  <option value="manager">Manager</option>
-                  <option value="support">Support</option>
-                  <option value="delivery">Delivery</option>
-                  <option value="admin">Super Admin</option>
+                  {hasPermission(user?.role, 'invite_role', 'manager') && <option value="manager">Manager</option>}
+                  {hasPermission(user?.role, 'invite_role', 'support') && <option value="support">Support</option>}
+                  {hasPermission(user?.role, 'invite_role', 'delivery') && <option value="delivery">Delivery</option>}
+                  {hasPermission(user?.role, 'invite_role', 'admin') && <option value="admin">Super Admin</option>}
                 </select>
               </div>
 

@@ -25,6 +25,7 @@ import {
   Menu
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { hasPermission } from "@/lib/rbac";
 import styles from "./AdminLayout.module.css";
 
 const navItems = [
@@ -108,6 +109,16 @@ export default function AdminLayout({
       })
       .catch(err => console.error("Failed to fetch notifications", err));
   }, []);
+
+  useEffect(() => {
+    if (user && !hasPermission(user.role, 'access_page', pathname)) {
+      if (user.role === 'delivery') {
+        router.push('/admin/delivery');
+      } else {
+        router.push('/admin');
+      }
+    }
+  }, [user, pathname, router]);
 
   useEffect(() => {
     if (searchQuery.length < 2) {
@@ -198,12 +209,8 @@ export default function AdminLayout({
 
         <nav className={styles.nav}>
           {navItems.filter(item => {
-            // Riders only see Delivery
-            if (user && (user.role === 'rider' || user.role === 'delivery')) {
-              return item.label === 'Delivery';
-            }
-            // Admins/Managers or unauthenticated/loading state see everything
-            return true;
+            if (!user) return true; // Loading state
+            return hasPermission(user.role, 'access_page', item.href);
           }).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') && item.href !== '/admin');

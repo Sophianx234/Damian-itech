@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search, ChevronDown, Trash2, MoreVertical, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { hasPermission } from "@/lib/rbac";
 import styles from "./Orders.module.css";
 
 type OrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
@@ -56,6 +57,16 @@ export default function OrdersClientView({
 
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) setUserRole(data.user.role);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
     setOrders(initialOrders);
@@ -350,6 +361,7 @@ export default function OrdersClientView({
                       handleView={handleQuickView}
                       styles={styles} 
                       isLast={isLast}
+                      canDelete={hasPermission(userRole, 'delete')}
                     />
                   </td>
                 </tr>
@@ -592,7 +604,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: OrderStatu
   );
 };
 
-const ActionDropdown = ({ orderId, handleDelete, handleView, styles, isLast }: { orderId: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ orderId, handleDelete, handleView, styles, isLast, canDelete = true }: { orderId: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean, canDelete?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -628,15 +640,17 @@ const ActionDropdown = ({ orderId, handleDelete, handleView, styles, isLast }: {
           >
             <Eye size={14} /> Quick View
           </button>
-          <button 
-            onClick={() => {
-              handleDelete(orderId);
-              setIsOpen(false);
-            }} 
-            className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-          >
-            <Trash2 size={14} /> Delete Order
-          </button>
+          {canDelete && (
+            <button 
+              onClick={() => {
+                handleDelete(orderId);
+                setIsOpen(false);
+              }} 
+              className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
+            >
+              <Trash2 size={14} /> Delete Order
+            </button>
+          )}
         </div>
       )}
     </div>

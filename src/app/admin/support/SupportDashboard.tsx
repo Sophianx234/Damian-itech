@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search, X, Trash2, Eye, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { hasPermission } from "@/lib/rbac";
 import styles from './SupportDashboard.module.css';
 
 interface Ticket {
@@ -74,7 +75,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: string, on
   );
 };
 
-const ActionDropdown = ({ ticketId, handleDelete, handleView, styles, isLast }: { ticketId: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ ticketId, handleDelete, handleView, styles, isLast, canDelete = true }: { ticketId: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean, canDelete?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -111,16 +112,18 @@ const ActionDropdown = ({ ticketId, handleDelete, handleView, styles, isLast }: 
           >
             <Eye size={14} /> View Ticket
           </button>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(ticketId);
-              setIsOpen(false);
-            }} 
-            className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-          >
-            <Trash2 size={14} /> Delete Ticket
-          </button>
+          {canDelete && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(ticketId);
+                setIsOpen(false);
+              }} 
+              className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
+            >
+              <Trash2 size={14} /> Delete Ticket
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -134,6 +137,16 @@ export default function SupportDashboard({ initialTickets, totalPages, currentPa
 
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) setUserRole(data.user.role);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
     setTickets(initialTickets);
@@ -286,14 +299,18 @@ export default function SupportDashboard({ initialTickets, totalPages, currentPa
                       />
                     </td>
                     <td className={`${styles.td} ${styles.actionCell}`}>
-                      <ActionDropdown 
-                        ticketId={ticket._id}
-                        handleDelete={confirmDelete}
-                        handleView={(id) => setTicketToView(tickets.find(t => t._id === id) || null)}
-                        styles={styles}
-                        isLast={isLast}
-                      />
-                    </td>
+                        <ActionDropdown 
+                          ticketId={ticket._id}
+                          handleDelete={confirmDelete}
+                          handleView={(id) => {
+                            const t = tickets.find(x => x._id === id);
+                            if (t) setTicketToView(t);
+                          }}
+                          styles={styles}
+                          isLast={isLast}
+                          canDelete={hasPermission(userRole, 'delete')}
+                        />
+                      </td>
                   </tr>
                 );
               }) : (

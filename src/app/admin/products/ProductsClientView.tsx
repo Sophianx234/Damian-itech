@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { hasPermission } from "@/lib/rbac";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
@@ -45,7 +46,17 @@ export default function ProductsClientView({
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string>('');
   
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) setUserRole(data.user.role);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   // Sync when server data changes
   useEffect(() => {
     setProducts(initialProducts);
@@ -184,9 +195,11 @@ export default function ProductsClientView({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Link href="/admin/products/new" className={styles.addButton}>
-          <Plus size={16} /> Add New Product
-        </Link>
+        {hasPermission(userRole, 'create') && (
+          <Link href="/admin/products/new" className={styles.addButton}>
+            <Plus size={16} /> Add New Product
+          </Link>
+        )}
       </div>
 
       {/* Filter Row */}
@@ -378,6 +391,8 @@ export default function ProductsClientView({
                       handleView={handleQuickView}
                       styles={styles} 
                       isLast={isLast}
+                      canEdit={hasPermission(userRole, 'edit')}
+                      canDelete={hasPermission(userRole, 'delete')}
                     />
                   </td>
                 </tr>
@@ -587,7 +602,7 @@ const StatusDropdown = ({ value, onChange, styles, isLast }: { value: ProductSta
   );
 };
 
-const ActionDropdown = ({ productId, slug, handleDelete, handleView, styles, isLast }: { productId: string, slug: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean }) => {
+const ActionDropdown = ({ productId, slug, handleDelete, handleView, styles, isLast, canEdit = true, canDelete = true }: { productId: string, slug: string, handleDelete: (id: string) => void, handleView: (id: string) => void, styles: any, isLast?: boolean, canEdit?: boolean, canDelete?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -626,18 +641,22 @@ const ActionDropdown = ({ productId, slug, handleDelete, handleView, styles, isL
           <Link href={`/products/${slug}`} className={styles.actionMenuItem} target="_blank">
             <Eye size={14} /> View in Store
           </Link>
-          <Link href={`/admin/products/${productId}/edit`} className={styles.actionMenuItem}>
-            <Edit2 size={14} /> Edit Product
-          </Link>
-          <button 
-            onClick={() => {
-              handleDelete(productId);
-              setIsOpen(false);
-            }} 
-            className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
-          >
-            <Trash2 size={14} /> Delete Product
-          </button>
+          {canEdit && (
+            <Link href={`/admin/products/${productId}/edit`} className={styles.actionMenuItem}>
+              <Edit2 size={14} /> Edit Product
+            </Link>
+          )}
+          {canDelete && (
+            <button 
+              onClick={() => {
+                handleDelete(productId);
+                setIsOpen(false);
+              }} 
+              className={`${styles.actionMenuItem} ${styles.actionMenuItemDanger}`}
+            >
+              <Trash2 size={14} /> Delete Product
+            </button>
+          )}
         </div>
       )}
     </div>
