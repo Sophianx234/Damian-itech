@@ -5,6 +5,7 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import User from "@/models/User";
 import { verifySession } from '@/lib/session';
+import { hasPermission } from '@/lib/rbac';
 
 export async function GET() {
   try {
@@ -15,7 +16,8 @@ export async function GET() {
     const sessionToken = cookieStore.get('session')?.value;
     const session = await verifySession(sessionToken);
     
-    if (!session || session.role !== 'admin') {
+    
+    if (!session || !hasPermission(session.role, 'access_page', '/admin')) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 

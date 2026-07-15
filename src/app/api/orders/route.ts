@@ -4,6 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 import { verifySession } from '@/lib/session';
+import { hasPermission } from '@/lib/rbac';
 import { z } from 'zod';
 
 const OrderSchema = z.object({
@@ -204,7 +205,8 @@ export async function GET(request: Request) {
     const sessionToken = cookieStore.get('session')?.value;
     const session = await verifySession(sessionToken);
     
-    if (!session || session.role !== 'admin') {
+    
+    if (!session || !hasPermission(session.role, 'access_page', '/admin/orders')) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 

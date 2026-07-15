@@ -31,7 +31,7 @@ export const hasPermission = (userRole: string | undefined, action: string, data
     case 'support':
       switch (action) {
         case 'access_page':
-          return ['/admin/support', '/admin/settings'].includes(data);
+          return typeof data === 'string' && (data.startsWith('/admin/support') || data.startsWith('/admin/settings'));
         case 'access_settings_tab':
           // Except store details, flash sale, shipping, security, notifications
           return data === 'profile';
@@ -49,7 +49,7 @@ export const hasPermission = (userRole: string | undefined, action: string, data
       switch (action) {
         case 'access_page':
           // They only access delivery and settings profile
-          return ['/admin/delivery', '/admin/settings'].includes(data);
+          return typeof data === 'string' && (data.startsWith('/admin/delivery') || data.startsWith('/admin/settings'));
         case 'access_settings_tab':
           return data === 'profile';
         case 'invite_role':
