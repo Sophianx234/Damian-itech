@@ -10,7 +10,8 @@ export const metadata = {
   description: 'Your Damian iTech order receipt.',
 };
 
-export default async function ReceiptPage({ params }: { params: { id: string } }) {
+export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get('session')?.value;
   

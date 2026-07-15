@@ -49,7 +49,7 @@ export default async function AdminProductsPage(props: Props) {
     .lean();
     
   // Fetch distinct vendors
-  const distinctVendors = await Product.distinct("vendorName", { vendorName: { $ne: null, $ne: "" } });
+  const distinctVendors = await Product.distinct("vendorName", { vendorName: { $nin: [null, ""] } });
   const vendors = distinctVendors.sort();
 
   const formattedProducts = products.map((p: any) => ({

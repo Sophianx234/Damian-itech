@@ -822,7 +822,7 @@ export default function SettingsPage() {
                           <select 
                             className={styles.formInput} 
                             value={member.role} 
-                            disabled={user && (user._id === member._id || !hasPermission(user.role, 'edit'))} 
+                            disabled={Boolean(user && (user._id === member._id || !hasPermission(user.role, 'edit')))} 
                           >
                             {hasPermission(user?.role, 'change_role', 'admin') && <option value="admin">Super Admin</option>}
                             {hasPermission(user?.role, 'change_role', 'manager') && <option value="manager">Manager</option>}

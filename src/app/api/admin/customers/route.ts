@@ -16,7 +16,7 @@ export async function GET() {
     const session = await verifySession(sessionToken);
     
     
-    if (!session || !hasPermission(session.role, 'access_page', '/admin/customers')) {
+    if (!session || !hasPermission(session.role as string, 'access_page', '/admin/customers')) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
     

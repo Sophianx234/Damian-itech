@@ -25,8 +25,6 @@ export default function DeliveryMap({ lat, lng }: DeliveryMapProps) {
       center: [lng, lat],
       zoom: 15,
       interactive: true,
-      attributionControl: false,
-      logoControl: false,
     });
     
     map.current = mapInstance;

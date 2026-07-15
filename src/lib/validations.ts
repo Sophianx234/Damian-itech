@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 export const productSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title is too long"),
-  price: z.number({ invalid_type_error: "Price must be a number" }).positive("Price must be positive").optional(),
+  price: z.number().positive("Price must be positive").optional(),
   oldPrice: z.number().optional(),
   tag: z.string().optional(),
   tagType: z.string().optional(),
   brand: z.string().min(1, "Brand is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   stock: z.number().int().min(0, "Stock cannot be negative"),
-  productType: z.enum(['Store', 'Used'], { required_error: "Product type is required" }),
+  productType: z.enum(['Store', 'Used']),
   condition: z.string().optional(),
   isSwappable: z.boolean().default(false),
   estValue: z.number().optional(),
@@ -48,7 +48,7 @@ export const orderSchema = z.object({
     quantity: z.number().int().min(1, "Quantity must be at least 1"),
     image: z.string().optional(),
   })).min(1, "Cart cannot be empty"),
-  paymentMethod: z.enum(['pickup', 'delivery', 'paystack'], { required_error: "Payment method is required" }),
+  paymentMethod: z.enum(['pickup', 'delivery', 'paystack']),
   pickupLocation: z.string().optional(),
   reference: z.string().optional(),
   shippingDetails: z.object({
@@ -75,7 +75,7 @@ export const contactSchema = z.object({
 export const inviteSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name is too long"),
   phone: z.string().min(9, "Phone number is too short").max(20, "Phone number is too long"),
-  role: z.enum(['manager', 'support', 'delivery'], { required_error: "Role is required" }),
+  role: z.enum(['manager', 'support', 'delivery']),
 });
 
 export const inviteSetupSchema = z.object({
