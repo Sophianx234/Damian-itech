@@ -311,7 +311,7 @@ export default function SettingsPage() {
                   <input 
                     type="text" 
                     className={styles.formInput} 
-                    defaultValue={user?.role === "admin" ? "Super Admin" : user?.role === "manager" ? "Manager" : user?.role === "support" ? "Support Staff" : "User"} 
+                    defaultValue={user?.role === "admin" ? "Super Admin" : user?.role === "manager" ? "Manager" : user?.role === "support" ? "Support Staff" : user?.role === "delivery" ? "Delivery" : "User"} 
                     disabled
                   />
                 </div>
@@ -815,6 +815,7 @@ export default function SettingsPage() {
                             <option value="admin">Super Admin</option>
                             <option value="manager">Manager</option>
                             <option value="support">Support</option>
+                            <option value="delivery">Delivery</option>
                           </select>
                         </div>
                       </div>
@@ -913,6 +914,7 @@ export default function SettingsPage() {
                 >
                   <option value="manager">Manager</option>
                   <option value="support">Support</option>
+                  <option value="delivery">Delivery</option>
                   <option value="admin">Super Admin</option>
                 </select>
               </div>
