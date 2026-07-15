@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ArrowLeft, Loader2, UploadCloud, X } from "lucide-react";
 import styles from "../../new/NewProduct.module.css";
 
@@ -440,9 +441,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <div className={styles.imagePreviewContainer}>
               {existingImages.map((url, index) => (
                 <div key={`existing-${index}`} className={styles.imagePreview}>
-                  <img 
+                  <Image 
                     src={url} 
                     alt={`Existing Preview ${index}`} 
+                    width={80}
+                    height={80}
                     className={styles.imageThumbnail} 
                   />
                   <button 
@@ -459,9 +462,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               ))}
               {images.map((file, index) => (
                 <div key={`new-${index}`} className={styles.imagePreview}>
-                  <img 
+                  <Image 
                     src={URL.createObjectURL(file)} 
-                    alt={`New Preview ${index}`} 
+                    alt={`New Preview ${index}`}
+                    width={80}
+                    height={80}
+                    unoptimized
                     className={styles.imageThumbnail} 
                   />
                   <button 

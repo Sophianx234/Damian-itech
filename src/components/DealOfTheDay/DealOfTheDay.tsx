@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, X } from 'lucide-react';
 import styles from './DealOfTheDay.module.css';
 
@@ -101,9 +102,11 @@ const DealOfTheDay = () => {
             {discountPercent > 0 && (
               <span className={styles.badge}>Save {discountPercent}%</span>
             )}
-            <img 
+            <Image 
               src={dealData.flashSaleImage || "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=1000&auto=format&fit=crop"} 
               alt={dealData.flashSaleTitle || "Deal of the Day"} 
+              width={400}
+              height={400}
               className={styles.image}
               style={{ width: '80%', height: 'auto', objectFit: 'contain' }}
             />

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ShieldCheck, Lock, Loader2, ArrowLeft, Truck, Store, CreditCard } from 'lucide-react';
 import { usePaystackPayment } from 'react-paystack';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 
 import { useCart } from '../../context/CartContext';
@@ -329,7 +330,7 @@ export default function CheckoutPage() {
                 {cart.map((item: any) => (
                   <div key={item.id} className={styles.summaryItem}>
                     <div className={styles.summaryItemImgWrapper}>
-                      <img src={item.image} alt={item.name} className={styles.summaryItemImg} />
+                      <Image src={item.image} alt={item.name} width={60} height={60} className={styles.summaryItemImg} style={{ objectFit: 'cover' }} />
                       <div className={styles.summaryItemBadge}>{item.quantity}</div>
                     </div>
                     <div className={styles.summaryItemInfo}>

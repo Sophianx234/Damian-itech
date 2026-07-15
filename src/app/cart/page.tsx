@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Trash2, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
 
 import { useCart } from '../../context/CartContext';
@@ -76,7 +77,7 @@ export default function CartPage() {
                       className={styles.cartItem}
                     >
                       <Link href={`/products/${item.slug}`} className={styles.itemImageWrapper}>
-                        <img src={item.image} alt={item.name} className={styles.itemImage} />
+                        <Image src={item.image} alt={item.name} width={80} height={80} className={styles.itemImage} style={{ objectFit: 'cover' }} />
                       </Link>
 
                       <div className={styles.itemInfo}>
