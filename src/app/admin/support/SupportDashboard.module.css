@@ -84,10 +84,12 @@
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   width: 100%;
+  overflow-x: auto;
 }
 
 .table {
   width: 100%;
+  min-width: 800px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -561,4 +563,31 @@
 
 .statusSelect:focus {
   border-color: var(--primary-color);
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .topBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+
+  .qvGrid {
+    grid-template-columns: 1fr;
+  }
 }
