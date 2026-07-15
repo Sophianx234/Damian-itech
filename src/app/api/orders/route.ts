@@ -5,39 +5,20 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import { verifySession } from '@/lib/session';
 import { hasPermission } from '@/lib/rbac';
-import { z } from 'zod';
-
-const OrderSchema = z.object({
-  items: z.array(z.object({
-    id: z.string().optional(),
-    productId: z.string().optional(),
-    _id: z.string().optional(),
-    quantity: z.number().min(1),
-    image: z.string().optional(),
-  })).min(1),
-  paymentMethod: z.enum(['pickup', 'delivery', 'paystack']),
-  pickupLocation: z.string().optional(),
-  reference: z.string().optional(),
-  shippingDetails: z.object({
-    email: z.string().email().optional().or(z.literal("")),
-    phone: z.string().optional(),
-    fullName: z.string().optional(),
-    region: z.string().optional(),
-    streetAddress: z.string().optional(),
-    additionalInfo: z.string().optional(),
-    lat: z.string().optional(),
-    lng: z.string().optional(),
-  }).optional()
-});
+import { orderSchema } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
     
-    const validatedBody = OrderSchema.safeParse(body);
+    const validatedBody = orderSchema.safeParse(body);
     if (!validatedBody.success) {
-      return NextResponse.json({ success: false, message: 'Invalid payload', errors: validatedBody.error.errors }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Validation failed', 
+        errors: validatedBody.error.flatten().fieldErrors 
+      }, { status: 400 });
     }
 
     const { 

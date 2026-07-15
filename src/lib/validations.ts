@@ -38,3 +38,56 @@ export const productSchema = z.object({
     });
   }
 });
+
+// Checkout / Orders
+export const orderSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().optional(),
+    productId: z.string().optional(),
+    _id: z.string().optional(),
+    quantity: z.number().int().min(1, "Quantity must be at least 1"),
+    image: z.string().optional(),
+  })).min(1, "Cart cannot be empty"),
+  paymentMethod: z.enum(['pickup', 'delivery', 'paystack'], { required_error: "Payment method is required" }),
+  pickupLocation: z.string().optional(),
+  reference: z.string().optional(),
+  shippingDetails: z.object({
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    phone: z.string().min(9, "Phone number too short").optional(),
+    fullName: z.string().min(2, "Name is required").optional(),
+    region: z.string().optional(),
+    streetAddress: z.string().optional(),
+    additionalInfo: z.string().optional(),
+    lat: z.string().optional(),
+    lng: z.string().optional(),
+  }).optional()
+});
+
+// Support / Contact
+export const contactSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(9, "Phone number is too short").max(20, "Phone number is too long"),
+  subject: z.string().min(3, "Subject is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+// Admin Team Invites
+export const inviteSchema = z.object({
+  fullName: z.string().min(2, "Full name must be at least 2 characters").max(100, "Full name is too long"),
+  phone: z.string().min(9, "Phone number is too short").max(20, "Phone number is too long"),
+  role: z.enum(['manager', 'support', 'delivery'], { required_error: "Role is required" }),
+});
+
+// Authentication
+export const loginSchema = z.object({
+  identifier: z.string().min(3, "Phone or Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const signupSchema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(9, "Phone number is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});

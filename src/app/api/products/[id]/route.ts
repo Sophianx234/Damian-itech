@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { verifySession } from "@/lib/session";
 import { hasPermission } from "@/lib/rbac";
+import { productSchema } from "@/lib/validations";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -22,53 +23,64 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('session')?.value;
+  if (!sessionToken) return new Response('Unauthorized', { status: 401 });
+
+  const session = await verifySession(sessionToken);
+  if (!session || !session.role) return new Response('Unauthorized', { status: 401 });
+
+  if (!hasPermission(session.role as string, 'edit')) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
   try {
     const { id } = await params;
     await dbConnect();
     const formData = await req.formData();
     
-    const updateData: any = {};
-    
-    // Extract standard fields if they exist
-    const fields = [
-      "title", "slug", "brand", "description", "productType", 
-      "condition", "category", "status", "tag", "tagType", "lookingFor", "vendorName"
-    ];
-    
-    fields.forEach(field => {
-      const val = formData.get(field);
-      if (val !== null) updateData[field] = val;
-    });
+    // Convert FormData to object for Zod validation
+    const rawData = {
+      title: formData.get("title") as string,
+      price: formData.get("price") ? Number(formData.get("price")) : undefined,
+      oldPrice: formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined,
+      tag: formData.get("tag") as string || undefined,
+      tagType: formData.get("tagType") as string || undefined,
+      brand: formData.get("brand") as string,
+      description: formData.get("description") as string,
+      stock: Number(formData.get("stock") || 0),
+      productType: formData.get("productType") as string,
+      condition: formData.get("condition") as string || undefined,
+      isSwappable: formData.get("isSwappable") === "true",
+      estValue: formData.get("estValue") ? Number(formData.get("estValue")) : undefined,
+      lookingFor: formData.get("lookingFor") as string || undefined,
+      category: formData.get("category") as string,
+      vendorName: formData.get("vendorName") as string || undefined,
+      batteryHealth: formData.get("batteryHealth") ? Number(formData.get("batteryHealth")) : undefined,
+      ram: formData.get("ram") as string || undefined,
+      storage: formData.get("storage") as string || undefined,
+      customSpecs: JSON.parse((formData.get("customSpecs") as string) || "[]"),
+      imageUrls: JSON.parse((formData.get("imageUrls") as string) || "[]"),
+    };
 
-    // Extract numeric/boolean fields
-    if (formData.get("price") !== null) updateData.price = Number(formData.get("price"));
-    if (formData.get("oldPrice") !== null) updateData.oldPrice = formData.get("oldPrice") ? Number(formData.get("oldPrice")) : undefined;
-    if (formData.get("stock") !== null) updateData.stock = Number(formData.get("stock"));
-    if (formData.get("isSwappable") !== null) {
-      updateData.isSwappable = formData.get("isSwappable") === "true";
-      if (!updateData.isSwappable) {
-        updateData.$unset = { estValue: 1, lookingFor: 1 };
-      }
-    }
-    if (formData.get("estValue") !== null && formData.get("isSwappable") === "true") {
-      updateData.estValue = formData.get("estValue") ? Number(formData.get("estValue")) : undefined;
-    }
-    
-    if (formData.get("batteryHealth") !== null) updateData.batteryHealth = formData.get("batteryHealth") ? Number(formData.get("batteryHealth")) : undefined;
-    if (formData.get("ram") !== null) updateData.ram = formData.get("ram") || undefined;
-    if (formData.get("storage") !== null) updateData.storage = formData.get("storage") || undefined;
+    // Safe parse with Zod
+    // Note: for PUT (partial updates), we might want to use .partial() if not all fields are sent,
+    // but the edit form usually sends all fields anyway. Let's assume full update.
+    const validatedFields = productSchema.safeParse(rawData);
 
-    // Custom Specs
-    const customSpecsString = formData.get("customSpecs");
-    if (customSpecsString && typeof customSpecsString === "string") {
-      updateData.customSpecs = JSON.parse(customSpecsString);
+    if (!validatedFields.success) {
+      return NextResponse.json({ 
+        error: "Validation failed", 
+        details: validatedFields.error.flatten().fieldErrors 
+      }, { status: 400 });
     }
 
-    // Images
-    const imageUrlsString = formData.get("imageUrls");
-    if (imageUrlsString && typeof imageUrlsString === "string") {
-      updateData.images = JSON.parse(imageUrlsString);
-    }
+    const { data } = validatedFields;
+    // For Mongoose, we map imageUrls to images
+    const updateData = {
+      ...data,
+      images: data.imageUrls
+    };
 
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
     

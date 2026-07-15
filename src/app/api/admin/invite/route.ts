@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import AdminInvitation from "@/models/AdminInvitation";
 import User from "@/models/User";
+import { inviteSchema } from "@/lib/validations";
 
 // Generate a random 6-digit OTP
 function generateOTP() {
@@ -11,14 +12,17 @@ function generateOTP() {
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { fullName, phone, role } = await req.json();
+    const body = await req.json();
+    const validatedBody = inviteSchema.safeParse(body);
 
-    if (!fullName || !phone || !role) {
+    if (!validatedBody.success) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields." },
+        { success: false, error: "Validation failed", details: validatedBody.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { fullName, phone, role } = validatedBody.data;
 
     // Check if user already exists
     const existingUser = await User.findOne({ phone });
