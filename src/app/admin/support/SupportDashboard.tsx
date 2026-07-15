@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, X, Trash2, Eye, MoreVertical } from 'lucide-react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { Search, X, Trash2, Eye, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './SupportDashboard.module.css';
 
 interface Ticket {
@@ -16,6 +17,8 @@ interface Ticket {
 
 interface SupportDashboardProps {
   initialTickets: Ticket[];
+  totalPages: number;
+  currentPage: number;
 }
 
 const StatusDropdown = ({ value, onChange, styles, isLast }: { value: string, onChange: (val: string) => void, styles: any, isLast?: boolean }) => {
@@ -124,13 +127,54 @@ const ActionDropdown = ({ ticketId, handleDelete, handleView, styles, isLast }: 
   );
 };
 
-export default function SupportDashboard({ initialTickets }: SupportDashboardProps) {
+export default function SupportDashboard({ initialTickets, totalPages, currentPage }: SupportDashboardProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setTickets(initialTickets);
+    setIsLoading(false);
+  }, [initialTickets]);
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [filterStatus, setFilterStatus] = useState<string>(searchParams.get('status') || 'all');
   
   const [ticketToView, setTicketToView] = useState<Ticket | null>(null);
   const [ticketToDelete, setTicketToDelete] = useState<Ticket | null>(null);
+
+  // Debounce search update
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      updateUrl("search", searchTerm);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const updateUrl = (key: string, value: string) => {
+    setIsLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== 'all') {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    
+    // Reset to page 1 on filter change
+    if (key !== "page") {
+      params.set("page", "1");
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleFilterChange = (key: string, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(value);
+    updateUrl(key, value);
+  };
 
   const updateStatus = async (id: string, newStatus: string) => {
     try {
@@ -169,13 +213,7 @@ export default function SupportDashboard({ initialTickets }: SupportDashboardPro
     }
   };
 
-  const filteredTickets = tickets.filter(t => {
-    const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          t.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          t._id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || t.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+
 
   return (
     <div className={styles.pageContainer}>
@@ -195,7 +233,7 @@ export default function SupportDashboard({ initialTickets }: SupportDashboardPro
           <select 
             className={styles.filterSelect}
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => handleFilterChange('status', e.target.value, setFilterStatus)}
           >
             <option value="all">All Statuses</option>
             <option value="open">Open</option>
@@ -218,8 +256,8 @@ export default function SupportDashboard({ initialTickets }: SupportDashboardPro
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.length > 0 ? filteredTickets.map((ticket, index) => {
-                const isLast = index >= filteredTickets.length - 2 && filteredTickets.length > 3;
+              {tickets.length > 0 ? tickets.map((ticket, index) => {
+                const isLast = index >= tickets.length - 2 && tickets.length > 3;
                 return (
                   <tr 
                     key={ticket._id} 
@@ -267,6 +305,29 @@ export default function SupportDashboard({ initialTickets }: SupportDashboardPro
           </table>
         </div>
       </div>
+
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            className={styles.paginationBtn} 
+            disabled={currentPage <= 1}
+            onClick={() => updateUrl("page", (currentPage - 1).toString())}
+          >
+            <ChevronLeft size={16} /> Previous
+          </button>
+          <span className={styles.paginationInfo}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            className={styles.paginationBtn} 
+            disabled={currentPage >= totalPages}
+            onClick={() => updateUrl("page", (currentPage + 1).toString())}
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {ticketToDelete && (
