@@ -47,6 +47,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const formatPriceStr = (val?: string | null) => {
+    if (!val) return null;
+    const match = val.match(/^([^\d]*)([\d,.]+)([^\d]*)$/);
+    if (match) {
+      const prefix = match[1];
+      const numberPart = parseFloat(match[2].replace(/,/g, ''));
+      const suffix = match[3];
+      if (!isNaN(numberPart)) {
+        return `${prefix}${numberPart.toLocaleString("en-US", { maximumFractionDigits: 2 })}${suffix}`;
+      }
+    }
+    return val;
+  };
+
+  const formattedPrice = formatPriceStr(price);
+  const formattedOldPrice = formatPriceStr(oldPrice);
+  const formattedEstValue = formatPriceStr(estValue);
+
   return (
     <Link href={`/products/${slug}`} className={styles.card}>
       <div className={styles.imageWrapper}>
@@ -64,15 +82,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {variant === 'shop' ? (
           <>
             <div className={styles.priceRow}>
-              <span className={oldPrice ? styles.salePrice : styles.price}>{price}</span>
-              {oldPrice && <span className={styles.oldPrice}>{oldPrice}</span>}
+              <span className={formattedOldPrice ? styles.salePrice : styles.price}>{formattedPrice}</span>
+              {formattedOldPrice && <span className={styles.oldPrice}>{formattedOldPrice}</span>}
             </div>
             <button className={`btn-primary ${styles.btn}`}>Shop Now</button>
           </>
         ) : (
           <>
             <div className={styles.valueRow}>
-              {estValue && <span className={styles.valueLabel}>Est. Value: <span className={styles.price}>{estValue}</span></span>}
+              {formattedEstValue && <span className={styles.valueLabel}>Est. Value: <span className={styles.price}>{formattedEstValue}</span></span>}
               {lookingFor && <span className={styles.valueLabel}>Wants: <strong>{lookingFor}</strong></span>}
             </div>
             <button className={`btn-primary ${styles.swapBtn}`}>Propose Swap</button>

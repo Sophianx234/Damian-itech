@@ -47,10 +47,13 @@ const Header = () => {
     ).slice(0, 4);
   }, [searchQuery, headerProducts]);
 
+  const headerRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+        setIsMobileMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -95,7 +98,7 @@ const Header = () => {
   ];
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} ref={headerRef}>
       <div className={`container ${styles.headerInner}`}>
         <button 
           className={styles.mobileMenuBtn}
@@ -191,13 +194,13 @@ const Header = () => {
               <div className={styles.userDropdown}>
                 {user ? (
                   <>
-                    <Link href="/account" className={styles.dropdownItem}>
+                    <Link href="/account" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                       <User size={16} /> My Account
                     </Link>
-                    <Link href="/orders" className={styles.dropdownItem}>
+                    <Link href="/orders" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                       <Package size={16} /> Orders
                     </Link>
-                    <Link href="/wishlist" className={styles.dropdownItem}>
+                    <Link href="/wishlist" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                       <Heart size={16} /> Wishlist
                     </Link>
                     <Link
@@ -211,18 +214,18 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Link href="/login" className={styles.dropdownItemx}>
+                    <Link href="/login" className={styles.dropdownItemx} onClick={() => setIsUserMenuOpen(false)}>
                       {" "}
                       Log In
                     </Link>
                     <>
-                      <Link href="/login" className={styles.dropdownItem}>
+                      <Link href="/login" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                         <User size={16} /> My Account
                       </Link>
-                      <Link href="/login" className={styles.dropdownItem}>
+                      <Link href="/login" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                         <Package size={16} /> Orders
                       </Link>
-                      <Link href="/login" className={styles.dropdownItem}>
+                      <Link href="/login" className={styles.dropdownItem} onClick={() => setIsUserMenuOpen(false)}>
                         <Heart size={16} /> Wishlist
                       </Link>
                     </>
