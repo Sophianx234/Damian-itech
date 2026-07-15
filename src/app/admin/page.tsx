@@ -1,376 +1,163 @@
-"use client";
+import React from "react";
+import dbConnect from "@/lib/mongodb";
+import Order from "@/models/Order";
+import Product from "@/models/Product";
+import User from "@/models/User";
+import DashboardClientView from "./DashboardClientView";
 
-import React, { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from "recharts";
-import { 
-  Loader2, 
-  DollarSign, 
-  ShoppingCart, 
-  Users, 
-  CreditCard,
-  Package, 
-  Clock, 
-  XCircle, 
-  RefreshCw,
-  BarChart2,
-  PieChart as PieChartIcon
-} from "lucide-react";
-import styles from "./AdminDashboard.module.css";
+export const dynamic = "force-dynamic";
 
-const INVENTORY_COLORS = ['var(--primary-color)', 'var(--text-primary)'];
+export default async function AdminDashboardPage() {
+  await dbConnect();
 
-function DashboardSkeleton() {
-  return (
-    <div className={styles.dashboardContainer}>
-      <div className={styles.statsGrid}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className={styles.statCard}>
-            <div className={styles.statHeader}>
-              <div className={`${styles.skeleton} ${styles.skeletonIcon}`}></div>
-              <div className={`${styles.skeleton} ${styles.skeletonText}`} style={{ width: '40%', marginBottom: 0 }}></div>
-            </div>
-            <div className={`${styles.skeleton} ${styles.skeletonValue}`} style={{ width: '80%' }}></div>
-          </div>
-        ))}
-      </div>
-      <div className={styles.chartsGrid}>
-        <div className={styles.chartCard}>
-          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
-          <div className={`${styles.skeleton} ${styles.skeletonChart}`}></div>
-        </div>
-        <div className={styles.chartCard}>
-          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
-          <div className={`${styles.skeleton} ${styles.skeletonChart}`}></div>
-        </div>
-      </div>
-      <div className={styles.fullWidthTable}>
-        <div className={styles.tableCard}>
-          <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={`${styles.skeleton} ${styles.skeletonTableRow}`}></div>
-          ))}
-        </div>
-      </div>
-      <div className={styles.secondaryTablesGrid}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className={styles.tableCard}>
-            <div className={`${styles.skeleton} ${styles.skeletonTitle}`}></div>
-            {Array.from({ length: 4 }).map((_, j) => (
-              <div key={j} className={`${styles.skeleton} ${styles.skeletonTableRow}`}></div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+  // 1. Top Level KPIs
+  // Total Revenue
+  const salesResult = await Order.aggregate([
+    { $match: { orderStatus: { $ne: "cancelled" } } },
+    { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
+  ]);
+  const totalRevenue = salesResult[0]?.totalSales || 0;
 
-export default function DashboardMainContent() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  // Active Inventory (Combined Store & Used)
+  const activeInventory = await Product.countDocuments({ status: "Active" });
 
-  useEffect(() => {
-    fetch("/api/admin/dashboard")
-      .then((res) => res.json())
-      .then((resData) => {
-        if (resData.success) {
-          setData(resData.data);
-        }
-      })
-      .catch((err) => console.error("Error fetching dashboard data:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  // Orders Count
+  const totalOrdersCount = await Order.countDocuments();
+  const pendingOrdersCount = await Order.countDocuments({ orderStatus: "pending" });
+  const failedOrdersCount = await Order.countDocuments({ orderStatus: { $in: ["cancelled", "failed"] } });
 
-  if (loading) {
-    return <DashboardSkeleton />;
+  // Total Customers (unique users with role 'user')
+  const totalCustomers = await User.countDocuments({ role: "user" });
+
+  // AOV
+  const averageOrderValue = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
+
+  // Active Swap Proposals
+  const activeSwapProposals = await Product.countDocuments({ isSwappable: true, status: "Active" });
+
+  // 2. Revenue Overview (Bar Chart - Last 7 Days)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0,0,0,0);
+  
+  const rawSalesData = await Order.aggregate([
+    { $match: { createdAt: { $gte: sevenDaysAgo }, orderStatus: { $ne: "cancelled" } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        total: { $sum: "$totalAmount" },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  // Fill missing days
+  const salesData = [];
+  for(let i=0; i<7; i++) {
+    const d = new Date(sevenDaysAgo);
+    d.setDate(d.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    const found = rawSalesData.find(x => x._id === dateStr);
+    salesData.push({
+      name: d.toLocaleDateString("en-US", { weekday: 'short' }),
+      total: found ? found.total : 0,
+    });
   }
 
-  if (!data) {
-    return <div style={{ color: "red", padding: "24px" }}>Failed to load dashboard data.</div>;
-  }
+  // 3. Inventory Breakdown (Store vs Used)
+  const inventoryBreakdown = await Product.aggregate([
+    { $match: { status: "Active" } },
+    { $group: { _id: "$productType", count: { $sum: 1 } } },
+    { $project: { name: "$_id", value: "$count", _id: 0 } }
+  ]);
+  // Ensure both exist
+  const hasStore = inventoryBreakdown.find(i => i.name === 'Store');
+  const hasUsed = inventoryBreakdown.find(i => i.name === 'Used');
+  if(!hasStore) inventoryBreakdown.push({name: 'Store', value: 0});
+  if(!hasUsed) inventoryBreakdown.push({name: 'Used', value: 0});
 
-  const { kpis, salesData, inventoryBreakdown, recentOrders, swapOffers, lowStockAlerts, topCustomers } = data;
+  // 4. Recent Orders
+  const recentOrdersRaw = await Order.find()
+    .sort({ createdAt: -1 })
+    .limit(6)
+    .populate("user", "fullName")
+    .lean();
 
-  return (
-    <div className={styles.dashboardContainer}>
-      {/* 1. KPI Overview Grid */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <DollarSign size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Total Revenue</h3>
-          </div>
-          <p className={styles.statValue}>₵{kpis.totalRevenue.toLocaleString()}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <ShoppingCart size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Total Orders</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.totalOrdersCount}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <Users size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Total Customers</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.totalCustomers}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <CreditCard size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Avg Order Value</h3>
-          </div>
-          <p className={styles.statValue}>₵{kpis.averageOrderValue.toLocaleString()}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <Package size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Active Inventory</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.activeInventory}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <Clock size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Pending Orders</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.pendingOrdersCount}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <XCircle size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Failed Orders</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.failedOrdersCount}</p>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statHeader}>
-            <div className={styles.iconContainer}>
-              <RefreshCw size={18} className={styles.statIcon} />
-            </div>
-            <h3 className={styles.statLabel}>Active Swaps</h3>
-          </div>
-          <p className={styles.statValue}>{kpis.activeSwapProposals}</p>
-        </div>
-      </div>
+  const recentOrders = recentOrdersRaw.map((o: any) => ({
+    id: o._id.toString(),
+    customer: o.user ? o.user.fullName : (o.shippingDetails?.fullName || "Guest"),
+    product: o.items.map((i: any) => i.name).join(", "),
+    date: new Date(o.createdAt).toISOString().split("T")[0],
+    type: o.paymentMethod === 'pickup' ? 'Pickup' : 'Delivery',
+    status: o.orderStatus.charAt(0).toUpperCase() + o.orderStatus.slice(1)
+  }));
 
-      {/* 2. Analytics Section */}
-      <div className={styles.chartsGrid}>
-        <div className={styles.chartCard}>
-          <h2 className={styles.cardTitle}>
-            <BarChart2 size={20} color="#8B5CF6" /> Revenue Overview
-          </h2>
-          <div style={{ width: "100%", height: 300 }}>
-            {salesData.length > 0 ? (
-              <ResponsiveContainer>
-                <BarChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-primary)" />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₵${value}`} />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                    itemStyle={{ color: 'var(--text-primary)' }}
-                    cursor={{ fill: 'var(--border-primary)' }}
-                  />
-                  <Bar dataKey="total" fill="var(--primary-color)" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa' }}>
-                No revenue data available.
-              </div>
-            )}
-          </div>
-        </div>
+  // 5. Pending Swap Offers & Reservations
+  // We will just fetch products that are reserved or swappable.
+  const swapOffersRaw = await Product.find({ isSwappable: true })
+    .sort({ createdAt: -1 })
+    .limit(6)
+    .lean();
+    
+  const swapOffers = swapOffersRaw.map((p: any) => ({
+    id: p._id.toString(),
+    user: "Anonymous User", // Mocked as Product doesn't store user unless we have a specific swap offer model
+    targetProduct: p.title,
+    offeredDevice: p.lookingFor || "Cash + Trade-in"
+  }));
 
-        <div className={styles.chartCard}>
-          <h2 className={styles.cardTitle}>
-            <PieChartIcon size={20} color="#8B5CF6" /> Inventory Breakdown
-          </h2>
-          <div style={{ width: "100%", height: 300 }}>
-            {inventoryBreakdown.length > 0 ? (
-              <ResponsiveContainer>
-                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <Pie
-                    data={inventoryBreakdown}
-                    innerRadius={80}
-                    outerRadius={110}
-                    paddingAngle={2}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {inventoryBreakdown.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={INVENTORY_COLORS[index % INVENTORY_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
-                    itemStyle={{ color: 'var(--text-primary)' }}
-                  />
-                  <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px', color: 'var(--text-muted)' }}/>
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa' }}>
-                No inventory data.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+  // 6. Low Stock Alerts
+  const lowStockRaw = await Product.find({ stock: { $lte: 5 }, status: "Active" })
+    .sort({ stock: 1 })
+    .limit(6)
+    .lean();
+  
+  const lowStockAlerts = lowStockRaw.map((p: any) => ({
+    id: p._id.toString(),
+    product: p.title,
+    stock: p.stock
+  }));
 
-      {/* 3. Primary Table (Full Width) */}
-      <div className={styles.fullWidthTable}>
-        <div className={styles.tableCard}>
-          <h2 className={styles.cardTitle}>Recent Orders</h2>
-          <div style={{ overflowX: "auto" }}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>Customer</th>
-                  <th>Product</th>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.length > 0 ? (
-                  recentOrders.map((order: any) => {
-                    let statusClass = styles.statusPending;
-                    if (order.status.toLowerCase() === "completed" || order.status.toLowerCase() === "delivered") statusClass = styles.statusCompleted;
-                    if (order.status.toLowerCase() === "cancelled") statusClass = styles.statusCancelled;
-                    
-                    return (
-                      <tr key={order.id}>
-                        <td style={{ fontWeight: 500 }}>{order.customer}</td>
-                        <td>{order.product}</td>
-                        <td className={styles.textMuted}>{order.date}</td>
-                        <td className={styles.textMuted}>{order.type}</td>
-                        <td className={statusClass}>{order.status}</td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={5} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
-                      No recent orders.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+  // 7. Top Customers
+  const topCustomersRaw = await Order.aggregate([
+    { $match: { orderStatus: { $ne: "cancelled" } } },
+    { 
+      $group: { 
+        _id: "$shippingDetails.email", 
+        name: { $first: "$shippingDetails.fullName" },
+        totalSpent: { $sum: "$totalAmount" },
+        ordersCount: { $sum: 1 }
+      } 
+    },
+    { $sort: { totalSpent: -1 } },
+    { $limit: 6 }
+  ]);
+  
+  const topCustomers = topCustomersRaw.map(c => ({
+    email: c._id || "Guest",
+    name: c.name || "Guest Customer",
+    spent: `₵${c.totalSpent.toLocaleString()}`,
+    orders: c.ordersCount
+  }));
 
-      {/* 4. Secondary Tables Grid (3 Columns) */}
-      <div className={styles.secondaryTablesGrid}>
-        {/* Swap Offers */}
-        <div className={styles.tableCard}>
-          <h2 className={styles.cardTitle}>Swap Offers</h2>
-          <div className={styles.swapList}>
-            <div className={styles.swapHeader}>
-              <span>User</span>
-              <span>Target Product</span>
-            </div>
-            {swapOffers.length > 0 ? (
-              swapOffers.map((offer: any) => (
-                <div key={offer.id} className={styles.swapItem}>
-                  <div className={styles.swapUser}>{offer.user}</div>
-                  <div className={styles.swapTarget}>{offer.targetProduct}</div>
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
-                No pending swap offers.
-              </div>
-            )}
-          </div>
-        </div>
+  const initialData = {
+    kpis: {
+      totalRevenue,
+      totalOrdersCount,
+      averageOrderValue,
+      activeInventory,
+      pendingOrdersCount,
+      activeSwapProposals,
+      failedOrdersCount,
+      totalCustomers
+    },
+    salesData,
+    inventoryBreakdown,
+    recentOrders,
+    swapOffers,
+    lowStockAlerts,
+    topCustomers
+  };
 
-        {/* Low Stock */}
-        <div className={styles.tableCard}>
-          <h2 className={styles.cardTitle}>Low Stock Alerts</h2>
-          <div style={{ overflowX: "auto" }}>
-            <table className={styles.dataTable}>
-              <tbody>
-                {lowStockAlerts.length > 0 ? (
-                  lowStockAlerts.map((item: any) => (
-                    <tr key={item.id}>
-                      <td>{item.product}</td>
-                      <td className={item.stock === 0 ? styles.dangerText : styles.warningText} style={{ textAlign: 'right' }}>
-                        {item.stock} left
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
-                      Inventory looks good.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Top Customers */}
-        <div className={styles.tableCard}>
-          <h2 className={styles.cardTitle}>Top Customers</h2>
-          <div style={{ overflowX: "auto" }}>
-            <table className={styles.dataTable}>
-              <tbody>
-                {topCustomers.length > 0 ? (
-                  topCustomers.map((c: any, index: number) => (
-                    <tr key={index}>
-                      <td style={{ color: '#a1a1aa' }}>{c.name}</td>
-                      <td style={{ textAlign: 'right', fontWeight: 500, color: '#ffffff' }}>
-                        {c.spent}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={2} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
-                      No customers yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
+  return <DashboardClientView initialData={initialData} />;
 }
