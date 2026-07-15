@@ -280,23 +280,38 @@ export default function DashboardClientView({ initialData }: { initialData: any 
         {/* Swap Offers */}
         <div className={styles.tableCard}>
           <h2 className={styles.cardTitle}>Swap Offers</h2>
-          <div className={styles.swapList}>
-            <div className={styles.swapHeader}>
-              <span>User</span>
-              <span>Target Product</span>
-            </div>
-            {swapOffers.length > 0 ? (
-              swapOffers.map((offer: any) => (
-                <div key={offer.id} className={styles.swapItem}>
-                  <div className={styles.swapUser}>{offer.user}</div>
-                  <div className={styles.swapTarget}>{offer.targetProduct}</div>
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
-                No pending swap offers.
-              </div>
-            )}
+          <div style={{ overflowX: "auto" }}>
+            <table className={styles.dataTable}>
+              <thead>
+                <tr>
+                  <th style={{ paddingLeft: '0' }}>Target Product</th>
+                  <th>User</th>
+                  <th style={{ textAlign: 'right' }}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {swapOffers.length > 0 ? (
+                  swapOffers.map((offer: any) => (
+                    <tr key={offer.id}>
+                      <td style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '0' }}>
+                        <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--border-primary)' }}>
+                          <Image src={offer.image} alt={offer.targetProduct} fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <span style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.targetProduct}</span>
+                      </td>
+                      <td style={{ color: '#a1a1aa' }}>{offer.user}</td>
+                      <td style={{ color: '#a1a1aa', textAlign: 'right' }}>{offer.date}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: "center", color: "#a1a1aa", padding: "32px 0" }}>
+                      No pending swap offers.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

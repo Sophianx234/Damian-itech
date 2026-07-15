@@ -103,7 +103,9 @@ export default async function AdminDashboardPage() {
     id: p._id.toString(),
     user: "Anonymous User", // Mocked as Product doesn't store user unless we have a specific swap offer model
     targetProduct: p.title,
-    offeredDevice: p.lookingFor || "Cash + Trade-in"
+    offeredDevice: p.lookingFor || "Cash + Trade-in",
+    image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
+    date: new Date(p.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
   }));
 
   // 6. Low Stock Alerts
