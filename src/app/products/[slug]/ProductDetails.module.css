@@ -238,6 +238,12 @@
   color: var(--text-primary);
 }
 
+.actionButtonsContainer {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
 .addToCartBtn {
   flex: 1;
   background-color: var(--brand-primary, var(--primary-color));
@@ -439,7 +445,7 @@
     grid-template-columns: 1fr;
   }
   .relatedGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   .ctaRow {
     flex-direction: column;
@@ -457,5 +463,41 @@
   .specRow {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+  }
+  .price {
+    font-size: 1.6rem;
+  }
+  .relatedGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .trustBadges {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: center;
+  }
+  .trustBadge {
+    flex-direction: row;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .tabHeader {
+    gap: 16px;
+  }
+  .tabBtn {
+    font-size: 1rem;
+    padding-bottom: 8px;
+  }
+  
+  .actionButtonsContainer {
+    flex-direction: column;
+    gap: 12px;
+    padding-inline: 8px;
   }
 }

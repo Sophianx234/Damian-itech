@@ -223,7 +223,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: { pro
             </div>
             )}
             
-            <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
+            <div className={styles.actionButtonsContainer}>
               <motion.button 
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
