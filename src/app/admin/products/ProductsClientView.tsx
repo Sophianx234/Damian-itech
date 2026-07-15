@@ -31,11 +31,13 @@ interface Product {
 export default function ProductsClientView({ 
   initialProducts, 
   totalPages, 
-  currentPage 
+  currentPage,
+  vendors = []
 }: { 
   initialProducts: Product[];
   totalPages: number;
   currentPage: number;
+  vendors?: string[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -56,6 +58,7 @@ export default function ProductsClientView({
   const [productTypeFilter, setProductTypeFilter] = useState(searchParams.get("type") || "");
   const [swappableFilter, setSwappableFilter] = useState(searchParams.get("swap") || "");
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
+  const [vendorFilter, setVendorFilter] = useState(searchParams.get("vendor") || "");
   
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [productToView, setProductToView] = useState<Product | null>(null);
@@ -97,6 +100,7 @@ export default function ProductsClientView({
     setProductTypeFilter("");
     setSwappableFilter("");
     setStatusFilter("");
+    setVendorFilter("");
     setIsLoading(true);
     router.push(pathname);
   };
@@ -218,7 +222,15 @@ export default function ProductsClientView({
           <option value="Reserved">Reserved</option>
           <option value="Sold">Sold</option>
         </select>
-        {(categoryFilter || conditionFilter || productTypeFilter || swappableFilter || statusFilter || searchQuery) && (
+        {vendors && vendors.length > 0 && (
+          <select className={styles.filterSelect} value={vendorFilter} onChange={(e) => handleFilterChange("vendor", e.target.value, setVendorFilter)}>
+            <option value="">All Vendors</option>
+            {vendors.map(v => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+        )}
+        {(categoryFilter || conditionFilter || productTypeFilter || swappableFilter || statusFilter || vendorFilter || searchQuery) && (
           <button className={styles.resetButton} onClick={handleResetFilters}>
             Reset Filters
           </button>

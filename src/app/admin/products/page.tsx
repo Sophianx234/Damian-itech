@@ -21,6 +21,7 @@ export default async function AdminProductsPage(props: Props) {
   const condition = typeof searchParams.condition === "string" ? searchParams.condition : "";
   const swap = typeof searchParams.swap === "string" ? searchParams.swap : "";
   const status = typeof searchParams.status === "string" ? searchParams.status : "";
+  const vendor = typeof searchParams.vendor === "string" ? searchParams.vendor : "";
 
   const limit = 15;
   const query: any = {};
@@ -36,6 +37,7 @@ export default async function AdminProductsPage(props: Props) {
   if (condition) query.condition = condition;
   if (swap) query.isSwappable = swap === "Yes";
   if (status) query.status = status;
+  if (vendor) query.vendorName = vendor;
 
   const totalProducts = await Product.countDocuments(query);
   const totalPages = Math.ceil(totalProducts / limit) || 1;
@@ -46,6 +48,10 @@ export default async function AdminProductsPage(props: Props) {
     .limit(limit)
     .lean();
     
+  // Fetch distinct vendors
+  const distinctVendors = await Product.distinct("vendorName", { vendorName: { $ne: null, $ne: "" } });
+  const vendors = distinctVendors.sort();
+
   const formattedProducts = products.map((p: any) => ({
     id: p._id.toString(),
     slug: p.slug,
@@ -70,6 +76,7 @@ export default async function AdminProductsPage(props: Props) {
       initialProducts={formattedProducts} 
       totalPages={totalPages} 
       currentPage={page} 
+      vendors={vendors}
     />
   );
 }
