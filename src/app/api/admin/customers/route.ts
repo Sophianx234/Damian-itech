@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Order from '@/models/Order';
+import { verifySession } from '@/lib/session';
 
 export async function GET() {
   try {
     await dbConnect();
+
+    // RBAC: Verify admin session
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session')?.value;
+    const session = await verifySession(sessionToken);
+    
+    if (!session || session.role !== 'admin') {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
     
     // Fetch registered users (role: user)
     const users = await User.find({ role: 'user' }).sort({ createdAt: -1 }).lean();

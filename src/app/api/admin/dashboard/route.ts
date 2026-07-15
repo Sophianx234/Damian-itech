@@ -1,12 +1,23 @@
 import { NextResponse } from "next/server";
+import { cookies } from 'next/headers';
 import dbConnect from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import User from "@/models/User";
+import { verifySession } from '@/lib/session';
 
 export async function GET() {
   try {
     await dbConnect();
+    
+    // RBAC: Verify admin session
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session')?.value;
+    const session = await verifySession(sessionToken);
+    
+    if (!session || session.role !== 'admin') {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
 
     // 1. Top Level KPIs
     // Total Revenue

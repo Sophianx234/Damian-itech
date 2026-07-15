@@ -26,11 +26,30 @@ export async function POST(request: Request) {
     const session = await verifySession(sessionToken);
     let userId = session?.userId;
 
-    // Calculate total amount
-    const totalAmount = items.reduce((sum: number, item: any) => {
-      const price = typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : item.price;
-      return sum + (price * item.quantity);
-    }, 0);
+    // Calculate total amount securely from database
+    let totalAmount = 0;
+    const validatedItems = [];
+
+    for (const item of items) {
+      const productId = item.id || item.productId || item._id;
+      const product = await Product.findById(productId);
+      
+      if (!product) {
+        return NextResponse.json({ success: false, message: `Product not found` }, { status: 400 });
+      }
+      
+      // Use the database price, ignoring the client's payload price
+      const price = product.isSwappable ? (product.estValue || product.price) : product.price;
+      totalAmount += price * item.quantity;
+
+      validatedItems.push({
+        productId: product._id,
+        name: product.title,
+        quantity: item.quantity,
+        price: price, // Securely mapped
+        image: item.image || product.images?.[0]
+      });
+    }
 
     const deliveryFee = paymentMethod === 'pickup' ? 0 : (shippingDetails?.region === "Greater Accra" ? 20 : 50);
     const finalTotal = totalAmount + deliveryFee;
@@ -74,13 +93,7 @@ export async function POST(request: Request) {
     const newOrder = await Order.create({
       user: userId,
       guestEmail: !userId ? shippingDetails?.email : undefined,
-      items: items.map((item: any) => ({
-        productId: item.id || item.productId || item._id,
-        name: item.name,
-        quantity: item.quantity,
-        price: typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, "")) : item.price,
-        image: item.image
-      })),
+      items: validatedItems,
       totalAmount: finalTotal,
       deliveryFee,
       paymentMethod,
@@ -91,9 +104,8 @@ export async function POST(request: Request) {
     });
 
     // Update Product Inventory & Status
-    for (const item of items) {
-      const productId = item.id || item.productId || item._id;
-      const product = await Product.findById(productId);
+    for (const item of validatedItems) {
+      const product = await Product.findById(item.productId);
       
       if (product) {
         // Decrement stock, ensuring it doesn't drop below 0
@@ -122,7 +134,7 @@ export async function POST(request: Request) {
         formattedPhone = `${formattedPhone}@c.us`;
       }
 
-      const productNames = items.map((item: any) => `${item.quantity}x ${item.name}`).join(', ');
+      const productNames = validatedItems.map((item: any) => `${item.quantity}x ${item.name}`).join(', ');
 
       let message = "";
       if (paymentMethod === 'pickup') {
@@ -156,6 +168,16 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     await dbConnect();
+    
+    // RBAC: Verify admin session
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('session')?.value;
+    const session = await verifySession(sessionToken);
+    
+    if (!session || session.role !== 'admin') {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
     const orders = await Order.find().sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: orders });
   } catch (error: any) {
