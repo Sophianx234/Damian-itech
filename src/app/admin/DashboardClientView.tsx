@@ -255,8 +255,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                     return (
                       <tr key={order.id}>
                         <td style={{ fontWeight: 500 }}>
-                          <img src={order.customerImage} alt={order.customer} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
-                          {order.customer}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <img src={order.customerImage} alt={order.customer} style={{ width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0 }} />
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.customer}</span>
+                          </div>
                         </td>
                         <td style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', backgroundColor: 'var(--border-primary)' }}>
@@ -308,8 +310,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                         <span style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.targetProduct}</span>
                       </td>
                       <td style={{ color: '#a1a1aa' }}>
-                        <img src={offer.userImage} alt={offer.user} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
-                        {offer.user}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <img src={offer.userImage} alt={offer.user} style={{ width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0 }} />
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{offer.user}</span>
+                        </div>
                       </td>
                       <td style={{ color: '#a1a1aa', textAlign: 'right' }}>{offer.date}</td>
                     </tr>
@@ -368,8 +372,10 @@ export default function DashboardClientView({ initialData }: { initialData: any 
                   topCustomers.map((c: any, index: number) => (
                     <tr key={index}>
                       <td style={{ color: '#a1a1aa' }}>
-                        <img src={c.image} alt={c.name} style={{ width: '24px', height: '24px', borderRadius: '50%', verticalAlign: 'middle', marginRight: '8px' }} />
-                        {c.name}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <img src={c.image} alt={c.name} style={{ width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0 }} />
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</span>
+                        </div>
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 500, color: '#ffffff' }}>
                         {c.spent}
