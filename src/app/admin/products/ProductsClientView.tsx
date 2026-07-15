@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye, X } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { Search, Plus, ChevronDown, Edit2, Trash2, MoreVertical, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./Products.module.css";
 
 type ProductStatus = "Active" | "Reserved" | "Sold";
@@ -27,31 +28,67 @@ interface Product {
   image: string;
 }
 
-export default function ProductsClientView({ initialProducts }: { initialProducts: Product[] }) {
+export default function ProductsClientView({ 
+  initialProducts, 
+  totalPages, 
+  currentPage 
+}: { 
+  initialProducts: Product[];
+  totalPages: number;
+  currentPage: number;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [conditionFilter, setConditionFilter] = useState("");
-  const [productTypeFilter, setProductTypeFilter] = useState("");
-  const [swappableFilter, setSwappableFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  
+  // Sync when server data changes
+  useEffect(() => {
+    setProducts(initialProducts);
+    setIsLoading(false);
+  }, [initialProducts]);
+
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "");
+  const [conditionFilter, setConditionFilter] = useState(searchParams.get("condition") || "");
+  const [productTypeFilter, setProductTypeFilter] = useState(searchParams.get("type") || "");
+  const [swappableFilter, setSwappableFilter] = useState(searchParams.get("swap") || "");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
   
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [productToView, setProductToView] = useState<Product | null>(null);
 
+  // Debounce search update
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      updateUrl("search", searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
+  const updateUrl = (key: string, value: string) => {
+    setIsLoading(true);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    
+    // Reset to page 1 on filter change
+    if (key !== "page") {
+      params.set("page", "1");
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.brand.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter ? p.category === categoryFilter : true;
-    const matchesCondition = conditionFilter ? p.condition === conditionFilter : true;
-    const matchesProductType = productTypeFilter ? p.productType === productTypeFilter : true;
-    const matchesSwappable = swappableFilter ? (swappableFilter === "Yes" ? p.isSwappable : !p.isSwappable) : true;
-    const matchesStatus = statusFilter ? p.status === statusFilter : true;
-    return matchesSearch && matchesCategory && matchesCondition && matchesProductType && matchesSwappable && matchesStatus;
-  });
+  const handleFilterChange = (key: string, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(value);
+    updateUrl(key, value);
+  };
 
   const handleResetFilters = () => {
     setSearchQuery("");
@@ -60,6 +97,8 @@ export default function ProductsClientView({ initialProducts }: { initialProduct
     setProductTypeFilter("");
     setSwappableFilter("");
     setStatusFilter("");
+    setIsLoading(true);
+    router.push(pathname);
   };
 
   const handleUpdate = async (id: string, updates: Partial<Product>) => {
@@ -148,19 +187,19 @@ export default function ProductsClientView({ initialProducts }: { initialProduct
 
       {/* Filter Row */}
       <div className={styles.filterRow}>
-        <select className={styles.filterSelect} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+        <select className={styles.filterSelect} value={categoryFilter} onChange={(e) => handleFilterChange("category", e.target.value, setCategoryFilter)}>
           <option value="">Category</option>
           <option value="Phone">Phone</option>
           <option value="Laptop">Laptop</option>
           <option value="Console">Console</option>
           <option value="Audio">Audio</option>
         </select>
-        <select className={styles.filterSelect} value={productTypeFilter} onChange={(e) => setProductTypeFilter(e.target.value)}>
+        <select className={styles.filterSelect} value={productTypeFilter} onChange={(e) => handleFilterChange("type", e.target.value, setProductTypeFilter)}>
           <option value="">Type</option>
           <option value="Store">Store</option>
           <option value="Used">Used</option>
         </select>
-        <select className={styles.filterSelect} value={conditionFilter} onChange={(e) => setConditionFilter(e.target.value)}>
+        <select className={styles.filterSelect} value={conditionFilter} onChange={(e) => handleFilterChange("condition", e.target.value, setConditionFilter)}>
           <option value="">Condition</option>
           <option value="Pristine">Pristine</option>
           <option value="Excellent">Excellent</option>
@@ -168,12 +207,12 @@ export default function ProductsClientView({ initialProducts }: { initialProduct
           <option value="Open Box">Open Box</option>
           <option value="UK Used">UK Used</option>
         </select>
-        <select className={styles.filterSelect} value={swappableFilter} onChange={(e) => setSwappableFilter(e.target.value)}>
+        <select className={styles.filterSelect} value={swappableFilter} onChange={(e) => handleFilterChange("swap", e.target.value, setSwappableFilter)}>
           <option value="">Swap</option>
           <option value="Yes">Yes</option>
           <option value="No">No</option>
         </select>
-        <select className={styles.filterSelect} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className={styles.filterSelect} value={statusFilter} onChange={(e) => handleFilterChange("status", e.target.value, setStatusFilter)}>
           <option value="">Status</option>
           <option value="Active">Active</option>
           <option value="Reserved">Reserved</option>
@@ -242,8 +281,8 @@ export default function ProductsClientView({ initialProducts }: { initialProduct
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product, index) => {
-              const isLast = index >= filteredProducts.length - 2;
+            {products.map((product, index) => {
+              const isLast = index >= products.length - 2;
               // Determine status class
               let statusClass = styles.statusActive;
               if (product.status === "Reserved") statusClass = styles.statusReserved;
@@ -336,6 +375,29 @@ export default function ProductsClientView({ initialProducts }: { initialProduct
           </table>
         )}
       </div>
+
+      {/* Pagination UI */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            className={styles.paginationBtn} 
+            disabled={currentPage <= 1}
+            onClick={() => updateUrl("page", (currentPage - 1).toString())}
+          >
+            <ChevronLeft size={16} /> Previous
+          </button>
+          <span className={styles.paginationInfo}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button 
+            className={styles.paginationBtn} 
+            disabled={currentPage >= totalPages}
+            onClick={() => updateUrl("page", (currentPage + 1).toString())}
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {productToDelete && (

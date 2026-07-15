@@ -5,12 +5,47 @@ import ProductsClientView from "./ProductsClientView";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminProductsPage() {
-  await dbConnect();
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+};
 
-  // Directly query DB, eliminating the need for an intermediate API route for the initial load
-  const products = await Product.find().sort({ createdAt: -1 }).lean();
+export default async function AdminProductsPage(props: Props) {
+  await dbConnect();
   
+  const searchParams = await props.searchParams;
+
+  const page = typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : 1;
+  const search = typeof searchParams.search === "string" ? searchParams.search : "";
+  const category = typeof searchParams.category === "string" ? searchParams.category : "";
+  const type = typeof searchParams.type === "string" ? searchParams.type : "";
+  const condition = typeof searchParams.condition === "string" ? searchParams.condition : "";
+  const swap = typeof searchParams.swap === "string" ? searchParams.swap : "";
+  const status = typeof searchParams.status === "string" ? searchParams.status : "";
+
+  const limit = 15;
+  const query: any = {};
+
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { brand: { $regex: search, $options: "i" } },
+    ];
+  }
+  if (category) query.category = category;
+  if (type) query.productType = type;
+  if (condition) query.condition = condition;
+  if (swap) query.isSwappable = swap === "Yes";
+  if (status) query.status = status;
+
+  const totalProducts = await Product.countDocuments(query);
+  const totalPages = Math.ceil(totalProducts / limit) || 1;
+
+  const products = await Product.find(query)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .lean();
+    
   const formattedProducts = products.map((p: any) => ({
     id: p._id.toString(),
     slug: p.slug,
@@ -30,5 +65,11 @@ export default async function AdminProductsPage() {
     image: p.images && p.images.length > 0 ? p.images[0] : "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=100&h=100&fit=crop",
   }));
 
-  return <ProductsClientView initialProducts={formattedProducts} />;
+  return (
+    <ProductsClientView 
+      initialProducts={formattedProducts} 
+      totalPages={totalPages} 
+      currentPage={page} 
+    />
+  );
 }
