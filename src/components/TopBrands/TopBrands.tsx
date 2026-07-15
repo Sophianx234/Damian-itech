@@ -31,8 +31,8 @@ const TopBrands = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) setItemsPerView(2);
-      else if (window.innerWidth < 1024) setItemsPerView(3);
+      if (window.innerWidth < 640) setItemsPerView(3);
+      else if (window.innerWidth < 1024) setItemsPerView(4);
       else setItemsPerView(5);
     };
     

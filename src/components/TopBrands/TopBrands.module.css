@@ -166,15 +166,28 @@
   .title {
     font-size: 1.5rem;
   }
+  .slideItem {
+    padding: 0 4px;
+  }
+  .brandItem {
+    gap: 8px;
+  }
   .brandLogo {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
   }
   .brandText {
-    font-size: 1rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
   }
   .navButton {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
+  }
+  .prevButton {
+    left: 4px;
+  }
+  .nextButton {
+    right: 4px;
   }
 }

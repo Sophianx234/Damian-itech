@@ -10,7 +10,7 @@ export default function MainLayoutWrapper({ children }: { children: React.ReactN
   const pathname = usePathname();
 
   const isAdmin = pathname?.startsWith('/admin');
-  const isAuth = pathname === '/login' || pathname === '/register' || pathname?.startsWith('/admin-accept-invite');
+  const isAuth = pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/reset-password' || pathname?.startsWith('/admin-accept-invite');
 
   if (isAdmin || isAuth) {
     return <>{children}</>;

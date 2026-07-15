@@ -158,6 +158,17 @@
 
 @media (max-width: 480px) {
   .emblaSlide {
-    flex: 0 0 100%;
+    flex: 0 0 calc(50%);
+  }
+  .card {
+    height: 160px;
+    width: 95%;
+  }
+  .deviceName {
+    font-size: 0.9rem;
+    margin-top: 16px;
+  }
+  .image {
+    scale: 1.2;
   }
 }

@@ -137,3 +137,29 @@
   background-color: var(--primary-color);
   color: #fff;
 }
+
+@media (max-width: 480px) {
+  .productInfo {
+    padding: 12px;
+  }
+  .productName {
+    font-size: 0.9rem;
+    min-height: calc(0.9rem * 1.4 * 2);
+  }
+  .price, .salePrice {
+    font-size: 1rem;
+  }
+  .oldPrice {
+    font-size: 0.8rem;
+  }
+  .tag {
+    top: 8px;
+    left: 8px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+  }
+  .btn, .swapBtn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}

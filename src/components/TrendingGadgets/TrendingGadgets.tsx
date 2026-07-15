@@ -18,10 +18,14 @@ const devices = [
 ];
 
 const TrendingGadgets = () => {
+  const plugin = React.useRef(
+    Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: false })
+  );
+
   // Using Embla Carousel with Autoplay for the "slide horizontally, stop, and slide again" mechanic
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: 'center', startIndex: 3, skipSnaps: false },
-    [Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true })]
+    [plugin.current]
   );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
