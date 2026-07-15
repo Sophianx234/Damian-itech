@@ -21,7 +21,8 @@ import {
   X,
   ChevronDown,
   Truck,
-  MessageSquare
+  MessageSquare,
+  Menu
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./AdminLayout.module.css";
@@ -85,7 +86,7 @@ export default function AdminLayout({
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isNotifMenuOpen, isUserMenuOpen]);
+  }, [isNotifMenuOpen, isUserMenuOpen, searchResults]);
 
   useEffect(() => {
     setMounted(true);
@@ -159,12 +160,19 @@ export default function AdminLayout({
     router.push("/login");
   };
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // Instead of returning null and breaking the layout's rendering of children,
   // we just handle the mounted state gracefully for theme icons.
   return (
     <div className={styles.adminLayout}>
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className={styles.sidebarOverlay} onClick={() => setIsSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside className={styles.sidebar}>
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.logoContainer}>
           <Link href="/admin">
             <Image
@@ -206,6 +214,7 @@ export default function AdminLayout({
                 className={`${styles.navItem} ${
                   isActive ? styles.navItemActive : ""
                 }`}
+                onClick={() => setIsSidebarOpen(false)}
               >
                 <Icon size={18} />
                 {item.label}
@@ -220,6 +229,13 @@ export default function AdminLayout({
         {/* Top Header */}
         <header className={styles.header}>
           <div className={styles.headerLeft}>
+            <button 
+              className={styles.mobileMenuBtn} 
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu size={24} />
+            </button>
             <h1 className={styles.greeting}>
               Hello, {user ? user.fullName.split(" ")[0] : "Admin"}
             </h1>
