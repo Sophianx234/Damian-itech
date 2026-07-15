@@ -12,6 +12,7 @@ export default function ContactPage() {
   });
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,6 +22,7 @@ export default function ContactPage() {
     e.preventDefault();
     setLoading(true);
     setStatusMsg({ text: '', type: '' });
+    setValidationErrors(null);
 
     try {
       const res = await fetch('/api/support', {
@@ -34,6 +36,7 @@ export default function ContactPage() {
         setStatusMsg({ text: 'Message sent successfully. Our Tech Support team will contact you shortly.', type: 'success' });
         setFormData({ name: '', email: '', phone: '', message: '' });
       } else {
+        if (data.errors) setValidationErrors(data.errors);
         setStatusMsg({ text: data.message || 'Something went wrong. Please try again.', type: 'error' });
       }
     } catch (err) {
@@ -77,6 +80,13 @@ export default function ContactPage() {
                 border: `1px solid ${statusMsg.type === 'success' ? '#10b981' : '#ef4444'}`
               }}>
                 {statusMsg.text}
+                {validationErrors && (
+                  <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                    {Object.entries(validationErrors).map(([field, errs]: any) => (
+                      <li key={field}>{field}: {errs.join(', ')}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 

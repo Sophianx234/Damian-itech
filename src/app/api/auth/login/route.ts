@@ -3,17 +3,25 @@ import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { createSession } from '@/lib/session';
+import { loginSchema } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
-    const { phone, password } = await request.json();
+    const body = await request.json();
+    const validatedBody = loginSchema.safeParse({ identifier: body.phone, password: body.password });
 
-    if (!phone || !password) {
+    if (!validatedBody.success) {
       return NextResponse.json(
-        { error: 'Please provide both phone number and password' },
+        { 
+          success: false,
+          error: 'Validation failed', 
+          errors: validatedBody.error.flatten().fieldErrors 
+        },
         { status: 400 }
       );
     }
+
+    const { identifier: phone, password } = validatedBody.data;
 
     await dbConnect();
 

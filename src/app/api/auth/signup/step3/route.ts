@@ -3,19 +3,23 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { createSession } from '@/lib/session';
+import { signupStep3Schema } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const { phone, password } = await request.json();
-
-    if (!phone || !password) {
-      return NextResponse.json({ success: false, error: "Phone and password are required." }, { status: 400 });
+    const body = await request.json();
+    const validatedBody = signupStep3Schema.safeParse(body);
+    
+    if (!validatedBody.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Validation failed", 
+        errors: validatedBody.error.flatten().fieldErrors 
+      }, { status: 400 });
     }
 
-    if (password.length < 6) {
-      return NextResponse.json({ success: false, error: "Password must be at least 6 characters long." }, { status: 400 });
-    }
+    const { phone, password } = validatedBody.data;
 
     const user = await User.findOne({ phone });
     if (!user) {

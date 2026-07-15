@@ -67,8 +67,7 @@ export const orderSchema = z.object({
 export const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(9, "Phone number is too short").max(20, "Phone number is too long"),
-  subject: z.string().min(3, "Subject is required"),
+  phone: z.string().min(9, "Phone number is too short").max(20, "Phone number is too long").optional().or(z.literal("")),
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
@@ -79,6 +78,12 @@ export const inviteSchema = z.object({
   role: z.enum(['manager', 'support', 'delivery'], { required_error: "Role is required" }),
 });
 
+export const inviteSetupSchema = z.object({
+  inviteId: z.string().min(1, "Invite ID is required"),
+  otp: z.string().length(6, "OTP must be exactly 6 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 // Authentication
 export const loginSchema = z.object({
   identifier: z.string().min(3, "Phone or Email is required"),
@@ -87,7 +92,16 @@ export const loginSchema = z.object({
 
 export const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Invalid email address"),
   phone: z.string().min(9, "Phone number is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const signupStep3Schema = z.object({
+  phone: z.string().min(9, "Phone number is required"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const resetPasswordSchema = z.object({
+  phone: z.string().min(9, "Phone number is required"),
+  otp: z.string().length(6, "OTP must be exactly 6 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });

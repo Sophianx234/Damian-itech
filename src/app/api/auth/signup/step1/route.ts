@@ -2,15 +2,23 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { signupSchema } from '@/lib/validations';
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const { fullName, phone } = await request.json();
-
-    if (!fullName || !phone) {
-      return NextResponse.json({ success: false, error: "Full name and phone number are required." }, { status: 400 });
+    const body = await request.json();
+    const validatedBody = signupSchema.safeParse(body);
+    
+    if (!validatedBody.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Validation failed", 
+        errors: validatedBody.error.flatten().fieldErrors 
+      }, { status: 400 });
     }
+
+    const { fullName, phone } = validatedBody.data;
 
     let user = await User.findOne({ phone });
     if (user && user.isVerified) {

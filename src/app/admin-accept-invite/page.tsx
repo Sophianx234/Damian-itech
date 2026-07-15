@@ -17,6 +17,7 @@ function InviteForm() {
   const [step, setStep] = useState<"otp" | "password" | "success">("otp");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
@@ -105,6 +106,7 @@ function InviteForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        if (data.errors) setValidationErrors(data.errors);
         throw new Error(data.error || "Failed to verify OTP.");
       }
 
@@ -139,6 +141,7 @@ function InviteForm() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        if (data.errors) setValidationErrors(data.errors);
         throw new Error(data.error || "Failed to set password.");
       }
 
@@ -256,7 +259,18 @@ function InviteForm() {
                   )}
                 </button>
 
-                {apiError && <div className={styles.errorMessage}>{apiError}</div>}
+                {apiError && (
+                  <div className={styles.errorMessage}>
+                    {apiError}
+                    {validationErrors && (
+                      <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                        {Object.entries(validationErrors).map(([field, errs]: any) => (
+                          <li key={field}>{field}: {errs.join(', ')}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </form>
             </>
           )}
@@ -336,7 +350,18 @@ function InviteForm() {
                   )}
                 </button>
 
-                {apiError && <div className={styles.errorMessage}>{apiError}</div>}
+                {apiError && (
+                  <div className={styles.errorMessage}>
+                    {apiError}
+                    {validationErrors && (
+                      <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                        {Object.entries(validationErrors).map(([field, errs]: any) => (
+                          <li key={field}>{field}: {errs.join(', ')}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </form>
             </>
           )}

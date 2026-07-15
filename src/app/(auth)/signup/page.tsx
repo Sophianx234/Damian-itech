@@ -33,6 +33,7 @@ export default function SignupPage() {
   });
 
   const [apiError, setApiError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   const carouselImages = [
     "/imgs/person-10.jpeg",
@@ -123,6 +124,7 @@ export default function SignupPage() {
       if (res.success) {
         setStep(2);
       } else {
+        if (res.errors) setValidationErrors(res.errors);
         setApiError(res.error || "Something went wrong.");
       }
     } catch (error) {
@@ -146,6 +148,7 @@ export default function SignupPage() {
       if (res.success) {
         setStep(3);
       } else {
+        if (res.errors) setValidationErrors(res.errors);
         setApiError(res.error || "Something went wrong.");
       }
     } catch (error) {
@@ -163,6 +166,7 @@ export default function SignupPage() {
 
     setIsSubmitting(true);
     setApiError(null);
+    setValidationErrors(null);
 
     try {
       const response = await fetch("/api/auth/signup/step3", {
@@ -175,6 +179,7 @@ export default function SignupPage() {
         alert("Account created successfully! Redirecting to home...");
         router.push("/");
       } else {
+        if (res.errors) setValidationErrors(res.errors);
         setApiError(res.error || "Something went wrong.");
       }
     } catch (error) {
@@ -291,7 +296,16 @@ export default function SignupPage() {
                     )}
                   </button>
                   {apiError && (
-                    <div className={styles.errorMessage}>{apiError}</div>
+                    <div className={styles.errorMessage}>
+                      {apiError}
+                      {validationErrors && (
+                        <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                          {Object.entries(validationErrors).map(([field, errs]: any) => (
+                            <li key={field}>{field}: {errs.join(', ')}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   )}
                 </form>
               </motion.div>
@@ -508,7 +522,16 @@ export default function SignupPage() {
                     )}
                   </button>
                   {apiError && (
-                    <div className={styles.errorMessage}>{apiError}</div>
+                    <div className={styles.errorMessage}>
+                      {apiError}
+                      {validationErrors && (
+                        <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                          {Object.entries(validationErrors).map(([field, errs]: any) => (
+                            <li key={field}>{field}: {errs.join(', ')}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   )}
                 </form>
               </motion.div>

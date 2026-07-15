@@ -1,13 +1,23 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { SupportTicket } from '@/models/SupportTicket';
+import { contactSchema } from '@/lib/validations';
 
 export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
+    const validatedBody = contactSchema.safeParse(body);
     
-    const ticket = await SupportTicket.create(body);
+    if (!validatedBody.success) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Validation failed", 
+        errors: validatedBody.error.flatten().fieldErrors 
+      }, { status: 400 });
+    }
+    
+    const ticket = await SupportTicket.create(validatedBody.data);
     
     return NextResponse.json(
       { success: true, data: ticket, message: 'Message sent successfully.' },

@@ -3,15 +3,23 @@ import dbConnect from "@/lib/mongodb";
 import AdminInvitation from "@/models/AdminInvitation";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { inviteSetupSchema } from "@/lib/validations";
 
 export async function POST(req: Request) {
   try {
     await dbConnect();
-    const { inviteId, otp, password } = await req.json();
+    const body = await req.json();
+    const validatedBody = inviteSetupSchema.safeParse(body);
 
-    if (!inviteId || !otp || !password) {
-      return NextResponse.json({ success: false, error: "Missing required fields." }, { status: 400 });
+    if (!validatedBody.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Validation failed", 
+        errors: validatedBody.error.flatten().fieldErrors 
+      }, { status: 400 });
     }
+
+    const { inviteId, otp, password } = validatedBody.data;
 
     const invite = await AdminInvitation.findById(inviteId);
     if (!invite) {

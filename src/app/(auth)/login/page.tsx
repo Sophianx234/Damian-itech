@@ -17,6 +17,7 @@ export default function LoginPage() {
     password: "",
   });
   const [apiError, setApiError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
 
   const carouselImages = ["/imgs/person-11.jpg", "/imgs/person-13.jpg"];
   const [activeImage, setActiveImage] = useState(0);
@@ -43,6 +44,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setApiError(null);
+    setValidationErrors(null);
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -57,6 +59,9 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        if (data.errors) {
+          setValidationErrors(data.errors);
+        }
         throw new Error(data.error || "Failed to log in");
       }
 
@@ -181,7 +186,18 @@ export default function LoginPage() {
               )}
             </button>
 
-            {apiError && <div className={styles.errorMessage}>{apiError}</div>}
+            {apiError && (
+              <div className={styles.errorMessage}>
+                {apiError}
+                {validationErrors && (
+                  <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                    {Object.entries(validationErrors).map(([field, errs]: any) => (
+                      <li key={field}>{field}: {errs.join(', ')}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </form>
 
           <div className={styles.footer}>

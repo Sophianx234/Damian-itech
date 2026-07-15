@@ -17,6 +17,7 @@ function ResetPasswordForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<any>(null);
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -64,6 +65,7 @@ function ResetPasswordForm() {
 
     setIsSubmitting(true);
     setApiError(null);
+    setValidationErrors(null);
 
     try {
       const response = await fetch("/api/auth/reset-password", {
@@ -80,6 +82,7 @@ function ResetPasswordForm() {
         alert("Password reset successfully! Redirecting to home...");
         router.push("/");
       } else {
+        if (res.errors) setValidationErrors(res.errors);
         setApiError(res.error || "Failed to reset password");
       }
     } catch (error) {
@@ -208,8 +211,18 @@ function ResetPasswordForm() {
                 "Update Password"
               )}
             </button>
-
-            {apiError && <div className={styles.errorMessage}>{apiError}</div>}
+            {apiError && (
+              <div className={styles.errorMessage}>
+                {apiError}
+                {validationErrors && (
+                  <ul style={{ marginTop: '8px', paddingLeft: '20px', fontSize: '13px', textAlign: 'left' }}>
+                    {Object.entries(validationErrors).map(([field, errs]: any) => (
+                      <li key={field}>{field}: {errs.join(', ')}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </form>
 
           <div className={styles.footer} style={{ marginTop: "24px" }}>
