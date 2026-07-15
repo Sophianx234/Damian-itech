@@ -156,9 +156,14 @@ export async function POST(request: Request) {
       }
 
       try {
+        const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
         const response = await fetch("http://localhost:3001/send-otp", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
+            "x-forwarded-for": clientIp
+          },
           body: JSON.stringify({ phone: formattedPhone, message }),
         });
 

@@ -30,9 +30,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const message = `Hello ${order.shippingDetails.fullName || 'Customer'}! Your Damian iTech order containing:\n*${productNames}*\n\n(Order #${order._id.toString().slice(-8).toUpperCase()}) has just been successfully delivered to your location! 🎉\n\nThank you for shopping with us. We hope you enjoy your purchase!`;
 
       try {
+        const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
         const response = await fetch("http://localhost:3001/send-otp", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
+            "x-forwarded-for": clientIp
+          },
           body: JSON.stringify({ phone: formattedPhone, message }),
         });
 

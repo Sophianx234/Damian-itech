@@ -49,6 +49,14 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product'
   }],
+  loginAttempts: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  lockUntil: {
+    type: Date,
+  },
 }, { timestamps: true });
 
 // Check if the model exists before creating a new one (prevents overwrite errors in hot reloading)

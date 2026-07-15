@@ -58,9 +58,14 @@ export async function POST(request: Request) {
     const resetMessage = `Hi ${user.fullName.split(" ")[0]}, your Damian iTech account password has been successfully reset! 🔒\n\nIf you did not make this change, please contact our support team immediately.\n\nContinue shopping: ${process.env.WEBSITE_LINK}`;
 
     try {
+      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
       fetch("http://localhost:3001/send-otp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
+          "x-forwarded-for": clientIp
+        },
         body: JSON.stringify({ phone: formattedPhone, message: resetMessage }),
       }).catch(err => console.error("Failed to send reset confirmation:", err));
     } catch (e) {

@@ -46,9 +46,14 @@ export async function POST(request: Request) {
     const welcomeMessage = `Akwaaba ${user.fullName.split(" ")[0]}, welcome to Damian iTech! 🎉\n\nYour account has been successfully created. We're thrilled to have you on board. You can now start exploring and shopping the best latest gadgets at affordable prices!\n\nSee the latest tech products: ${process.env.WEBSITE_LINK}`;
 
     try {
+      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
       fetch("http://localhost:3001/send-otp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
+          "x-forwarded-for": clientIp
+        },
         body: JSON.stringify({ phone: formattedPhone, message: welcomeMessage }),
       }).catch((err) => console.error("Failed to send welcome message:", err));
     } catch (e) {
