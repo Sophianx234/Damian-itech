@@ -13,8 +13,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Missing CLOUDINARY_API_SECRET" }, { status: 500 });
     }
 
-    // Cloudinary signature requires parameters to be sorted alphabetically
-    const signatureStr = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    // Hardcoded security parameters to prevent malicious file uploads
+    const allowedFormats = "jpg,png,jpeg,webp";
+
+    // Parameters MUST be alphabetically sorted for Cloudinary signature
+    // a -> allowed_formats, f -> folder, t -> timestamp
+    const signatureStr = `allowed_formats=${allowedFormats}&folder=${folder}&timestamp=${timestamp}${apiSecret}`;
     
     const signature = crypto.createHash('sha1')
       .update(signatureStr)
@@ -24,6 +28,7 @@ export async function GET(req: Request) {
       timestamp, 
       signature, 
       folder,
+      allowed_formats: allowedFormats,
       apiKey: process.env.CLOUDINARY_API_KEY, 
       cloudName: process.env.CLOUDINARY_CLOUD_NAME 
     });

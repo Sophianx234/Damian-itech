@@ -36,7 +36,11 @@ export default function NewProductPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
+      const newFiles = Array.from(e.target.files).filter(file => {
+        const isValid = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type);
+        if (!isValid) alert(`File ${file.name} is not a valid image format (jpg, png, webp).`);
+        return isValid;
+      });
       setImages(prev => {
         const combined = [...prev, ...newFiles];
         return combined.slice(0, 5); // Limit to max 5 images
@@ -81,7 +85,7 @@ export default function NewProductPage() {
       // 1. Fetch Cloudinary Signature
       const signRes = await fetch("/api/cloudinary/sign");
       if (!signRes.ok) throw new Error("Failed to get upload signature");
-      const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
+      const { timestamp, signature, apiKey, cloudName, folder, allowed_formats } = await signRes.json();
 
       // 2. Upload Images to Cloudinary client-side
       const uploadedImageUrls: string[] = [];
@@ -92,6 +96,7 @@ export default function NewProductPage() {
         uploadData.append("timestamp", timestamp);
         uploadData.append("signature", signature);
         uploadData.append("folder", folder);
+        uploadData.append("allowed_formats", allowed_formats); // MUST match the backend signed string
 
         const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
           method: "POST",

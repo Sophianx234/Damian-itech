@@ -7,10 +7,10 @@ import { ShoppingBag, Truck, ShieldCheck, Lock } from 'lucide-react';
 import ProductCard from '../../../components/ProductCard/ProductCard';
 import SwapProposalModal from '../../../components/SwapProposalModal/SwapProposalModal';
 import styles from './ProductDetails.module.css';
-import { useCart } from '../../../context/CartContext';
+import { useCartStore } from '@/store/useCartStore';
 
 export default function ProductDetailsClient({ product, relatedProducts }: { product: any, relatedProducts: any[] }) {
-  const { addToCart } = useCart();
+  const addToCart = useCartStore((state) => state.addToCart);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');

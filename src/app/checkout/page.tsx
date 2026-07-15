@@ -10,8 +10,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
 
-import { useCart } from '../../context/CartContext';
-import { useSettings } from '../../context/SettingsContext';
+import { useCartStore } from '@/store/useCartStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 import styles from './Checkout.module.css';
 
 const LocationMap = dynamic(() => import('../../components/Map/LocationMap'), {
@@ -27,12 +27,16 @@ const LocationMap = dynamic(() => import('../../components/Map/LocationMap'), {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, cartTotal, clearCart } = useCart();
+  const cart = useCartStore((state) => state.cart);
+  const cartTotal = useCartStore((state) => state.getCartTotal());
+  const clearCart = useCartStore((state) => state.clearCart);
+  
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  const { settings, loading: settingsLoading } = useSettings();
+  const settings = useSettingsStore((state) => state.settings);
+  const settingsLoading = useSettingsStore((state) => state.loading);
 
   // Form State
   const [email, setEmail] = useState("");

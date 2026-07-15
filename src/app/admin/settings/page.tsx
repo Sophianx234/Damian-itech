@@ -127,6 +127,14 @@ export default function SettingsPage() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
     const file = e.target.files[0];
+    
+    // Client-side validation
+    const isValid = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type);
+    if (!isValid) {
+      alert("Invalid file format. Only JPG, PNG, and WebP are allowed.");
+      return;
+    }
+
     setPendingImage(file);
     const objectUrl = URL.createObjectURL(file);
     handleUpdateSetting('flashSaleImage', objectUrl);
@@ -142,7 +150,7 @@ export default function SettingsPage() {
       if (pendingImage) {
         const signRes = await fetch("/api/cloudinary/sign");
         if (!signRes.ok) throw new Error("Failed to get upload signature");
-        const { timestamp, signature, apiKey, cloudName, folder } = await signRes.json();
+        const { timestamp, signature, apiKey, cloudName, folder, allowed_formats } = await signRes.json();
 
         const uploadData = new FormData();
         uploadData.append("file", pendingImage);
@@ -150,6 +158,7 @@ export default function SettingsPage() {
         uploadData.append("timestamp", timestamp);
         uploadData.append("signature", signature);
         uploadData.append("folder", folder);
+        uploadData.append("allowed_formats", allowed_formats);
 
         const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
           method: "POST",

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "../components/ThemeProvider";
-import { CartProvider } from "../context/CartContext";
-import { SettingsProvider } from "../context/SettingsContext";
 import MainLayoutWrapper from "../components/MainLayoutWrapper/MainLayoutWrapper";
 import "./globals.css";
 
@@ -19,13 +17,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-          <SettingsProvider>
-            <CartProvider>
-              <MainLayoutWrapper>
-                {children}
-              </MainLayoutWrapper>
-            </CartProvider>
-          </SettingsProvider>
+          <MainLayoutWrapper>
+            {children}
+          </MainLayoutWrapper>
         </ThemeProvider>
       </body>
     </html>

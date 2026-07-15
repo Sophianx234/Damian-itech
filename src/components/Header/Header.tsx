@@ -7,14 +7,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Sun, Moon, User, Package, Heart, LogOut, Search, X, Menu } from "lucide-react";
 import styles from "./Header.module.css";
-import { useCart } from "../../context/CartContext";
+import { useCartStore } from "@/store/useCartStore";
 
 const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<{ fullName: string } | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { cartCount } = useCart();
+  const cartCount = useCartStore((state) => state.getCartCount());
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();

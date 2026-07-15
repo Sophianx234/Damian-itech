@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { useSettings } from "../../context/SettingsContext";
+import { useSettingsStore } from "@/store/useSettingsStore";
 import styles from "./Footer.module.css";
 import { Loader2 } from "lucide-react";
 
 const Footer = () => {
-  const { settings } = useSettings();
+  const settings = useSettingsStore((state) => state.settings);
   const storeName = settings?.storeName || "Damian iTech";
 
   const [email, setEmail] = React.useState('');

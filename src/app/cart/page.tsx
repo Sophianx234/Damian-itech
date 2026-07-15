@@ -7,11 +7,14 @@ import { ShoppingBag, Trash2, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 
 
-import { useCart } from '../../context/CartContext';
+import { useCartStore } from '@/store/useCartStore';
 import styles from './Cart.module.css';
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const cart = useCartStore((state) => state.cart);
+  const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const cartTotal = useCartStore((state) => state.getCartTotal());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
