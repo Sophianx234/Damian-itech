@@ -41,3 +41,30 @@
     gap: 12px;
   }
 }
+
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.loadMoreBtn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.loadMoreBtn:hover:not(:disabled) {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.loadMoreBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
