@@ -57,6 +57,16 @@ const UserSchema = new mongoose.Schema({
   lockUntil: {
     type: Date,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
 }, { timestamps: true });
 
 // Check if the model exists before creating a new one (prevents overwrite errors in hot reloading)

@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   CheckCircle2,
+  Mail,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,7 @@ export default function SignupPage() {
 
   const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phone: "",
     otp: "",
     password: "",
@@ -118,7 +120,7 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/signup/step1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName: formData.fullName, phone: formData.phone }),
+        body: JSON.stringify({ fullName: formData.fullName, email: formData.email, phone: formData.phone }),
       });
       const res = await response.json();
       if (res.success) {
@@ -256,6 +258,25 @@ export default function SignupPage() {
                   </div>
 
                   <div className={styles.inputGroup}>
+                    <label htmlFor="email" className={styles.label}>
+                      Email Address
+                    </label>
+                    <div className={styles.inputWrapper}>
+                      <Mail className={styles.inputIcon} size={18} />
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        className={`${styles.input} ${styles.inputWithIcon}`}
+                        placeholder="eg. john@example.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.inputGroup}>
                     <label htmlFor="phone" className={styles.label}>
                       Phone Number
                     </label>
@@ -321,10 +342,9 @@ export default function SignupPage() {
                 style={{ width: "100%" }}
               >
                 <div className={styles.header}>
-                  <h1 className={styles.title}>Verify WhatsApp</h1>
+                  <h1 className={styles.title}>Verify Email</h1>
                   <p className={styles.subtitle}>
-                    Please check your WhatsApp for a 6-digit verification code
-                    sent to {formData.phone}.
+                    Please check your email ({formData.email}) for a 6-digit verification code.
                   </p>
                 </div>
                 <form className={styles.form} onSubmit={handleStep2}>

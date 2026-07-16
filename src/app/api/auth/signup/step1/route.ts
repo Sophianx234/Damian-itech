@@ -3,6 +3,9 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { signupSchema } from '@/lib/validations';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -18,11 +21,11 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const { fullName, phone } = validatedBody.data;
+    const { fullName, email, phone } = validatedBody.data;
 
-    let user = await User.findOne({ phone });
+    let user = await User.findOne({ $or: [{ phone }, { email }] });
     if (user && user.isVerified) {
-      return NextResponse.json({ success: false, error: "An account with this phone number already exists and is verified." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "An account with this email or phone number already exists and is verified." }, { status: 400 });
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -31,50 +34,40 @@ export async function POST(request: Request) {
 
     if (user) {
       user.fullName = fullName;
+      user.email = email;
+      user.phoneNumber = phone;
       user.signupOTP = hashedOtp;
       user.signupOTPExpires = new Date(Date.now() + 5 * 60 * 1000);
       await user.save();
     } else {
       user = await User.create({
         fullName,
+        email,
         phone,
+        phoneNumber: phone,
         isVerified: false,
         signupOTP: hashedOtp,
         signupOTPExpires: new Date(Date.now() + 5 * 60 * 1000),
       });
     }
 
-    let formattedPhone = phone.replace(/\D/g, "");
-    if (formattedPhone.startsWith("0")) {
-      formattedPhone = "233" + formattedPhone.substring(1);
-    }
-    if (!formattedPhone.includes("@c.us")) {
-      formattedPhone = `${formattedPhone}@c.us`;
-    }
-
-    const message = `Your Damian iTech signup verification code is ${otpCode}. It is valid for 5 minutes. Do not share this code with anyone.`;
-
     try {
-      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
-      const response = await fetch(`${process.env.WHATSAPP_MICROSERVICE_URL || "http://localhost:3001"}/send-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
-          "x-forwarded-for": clientIp
-        },
-        body: JSON.stringify({ phone: formattedPhone, message }),
+      const { error } = await resend.emails.send({
+        from: 'Damian iTech <onboarding@resend.dev>',
+        to: [email],
+        subject: 'Your Verification Code',
+        html: `<p>Your verification code is <strong>${otpCode}</strong></p>`,
       });
 
-      if (!response.ok) {
-        throw new Error("Microservice returned an error");
+      if (error) {
+        throw new Error(error.message);
       }
     } catch (error) {
-      console.error("WhatsApp Microservice Error:", error);
-      return NextResponse.json({ success: false, error: "Failed to send WhatsApp verification message. Please ensure the microservice is running." }, { status: 500 });
+      console.error("Resend Email Error:", error);
+      return NextResponse.json({ success: false, error: "Failed to send verification email. Please try again later." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "Verification code sent via WhatsApp." });
+    return NextResponse.json({ success: true, message: "Verification code sent via Email." });
   } catch (error: any) {
     console.error("Signup Step 1 Error:", error);
     return NextResponse.json({ success: false, error: "Internal server error." }, { status: 500 });

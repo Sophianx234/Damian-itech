@@ -92,6 +92,7 @@ export const loginSchema = z.object({
 
 export const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
+  email: z.string().email("Invalid email address"),
   phone: z.string().min(9, "Phone number is required"),
 });
 
