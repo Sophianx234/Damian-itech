@@ -3,9 +3,16 @@ import { cookies } from 'next/headers';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
+import User from '@/models/User';
 import { verifySession } from '@/lib/session';
 import { hasPermission } from '@/lib/rbac';
 import { orderSchema } from '@/lib/validations';
+import { Resend } from 'resend';
+import * as React from 'react';
+import { render } from '@react-email/render';
+import OrderConfirmationEmail from '@/components/email/OrderConfirmationEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -37,6 +44,29 @@ export async function POST(request: Request) {
     const sessionToken = cookieStore.get('session')?.value;
     const session = await verifySession(sessionToken);
     let userId = session?.userId;
+
+    if (userId && shippingDetails?.phone) {
+      const userToUpdate = await User.findById(userId);
+      if (userToUpdate) {
+        let saveRequired = false;
+        if (!userToUpdate.phoneNumber || userToUpdate.phoneNumber !== shippingDetails.phone) {
+          userToUpdate.phoneNumber = shippingDetails.phone;
+          saveRequired = true;
+        }
+        if (userToUpdate.phone && userToUpdate.phone.startsWith('tmp_')) {
+          // Wrap in try-catch in case another user used this phone already (though unlikely for valid ones)
+          userToUpdate.phone = shippingDetails.phone;
+          saveRequired = true;
+        }
+        if (saveRequired) {
+          try {
+            await userToUpdate.save();
+          } catch (err) {
+            console.error("Could not update user phone during checkout due to validation/unique constraints", err);
+          }
+        }
+      }
+    }
 
     // Calculate total amount securely from database
     let totalAmount = 0;
@@ -171,11 +201,37 @@ export async function POST(request: Request) {
           console.error("WhatsApp Microservice returned an error:", response.statusText);
         }
       } catch (error) {
-        console.error("WhatsApp Microservice Error:", error);
+        console.error("WhatsApp Notification Error:", error);
       }
     }
 
-    return NextResponse.json({ success: true, orderId: newOrder._id });
+    // Send Email notification
+    const customerEmail = shippingDetails?.email || (userId ? (await User.findById(userId))?.email : null);
+    if (customerEmail) {
+      try {
+        const emailHtml = await render(
+          React.createElement(OrderConfirmationEmail, {
+            userName: shippingDetails?.fullName || 'Customer',
+            orderId: newOrder._id.toString(),
+            items: validatedItems,
+            total: totalAmount,
+            deliveryFee: deliveryFee,
+            paymentMethod: paymentMethod,
+          })
+        );
+
+        await resend.emails.send({
+          from: 'Damian iTech <orders@resend.dev>',
+          to: [customerEmail],
+          subject: 'Order Confirmation - Damian iTech',
+          html: emailHtml,
+        });
+      } catch (emailError) {
+        console.error("Email Notification Error:", emailError);
+      }
+    }
+
+    return NextResponse.json({ success: true, orderId: newOrder._id, message: 'Order placed successfully' });
   } catch (error: any) {
     console.error('Order creation error:', error);
     return NextResponse.json({ success: false, message: error.message || 'Internal server error' }, { status: 500 });

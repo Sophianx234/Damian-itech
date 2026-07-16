@@ -93,16 +93,15 @@ export const loginSchema = z.object({
 export const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(9, "Phone number is required"),
 });
 
 export const signupStep3Schema = z.object({
-  phone: z.string().min(9, "Phone number is required"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export const resetPasswordSchema = z.object({
-  phone: z.string().min(9, "Phone number is required"),
+  email: z.string().email("Invalid email address"),
   otp: z.string().length(6, "OTP must be exactly 6 digits"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });

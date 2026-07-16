@@ -28,7 +28,6 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: "",
     otp: "",
     password: "",
     confirmPassword: "",
@@ -120,7 +119,7 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/signup/step1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName: formData.fullName, email: formData.email, phone: formData.phone }),
+        body: JSON.stringify({ fullName: formData.fullName, email: formData.email }),
       });
       const res = await response.json();
       if (res.success) {
@@ -144,7 +143,7 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/signup/step2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formData.phone, otp: formData.otp }),
+        body: JSON.stringify({ email: formData.email, otp: formData.otp }),
       });
       const res = await response.json();
       if (res.success) {
@@ -174,11 +173,10 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/signup/step3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formData.phone, password: formData.password }),
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
       const res = await response.json();
       if (res.success) {
-        alert("Account created successfully! Redirecting to home...");
         router.push("/");
       } else {
         if (res.errors) setValidationErrors(res.errors);
@@ -198,7 +196,6 @@ export default function SignupPage() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        {/* Left: Form Section */}
         <div className={styles.formSection}>
           <Link href="/" className={styles.logoWrapper}>
             <Image
@@ -250,7 +247,7 @@ export default function SignupPage() {
                         name="fullName"
                         required
                         className={`${styles.input} ${styles.inputWithIcon}`}
-                        placeholder="eg. John Francisco"
+                        placeholder="Enter full name"
                         value={formData.fullName}
                         onChange={handleChange}
                       />
@@ -269,27 +266,8 @@ export default function SignupPage() {
                         name="email"
                         required
                         className={`${styles.input} ${styles.inputWithIcon}`}
-                        placeholder="eg. john@example.com"
+                        placeholder="Enter email address"
                         value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label htmlFor="phone" className={styles.label}>
-                      Phone Number
-                    </label>
-                    <div className={styles.inputWrapper}>
-                      <Phone className={styles.inputIcon} size={18} />
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        required
-                        className={`${styles.input} ${styles.inputWithIcon}`}
-                        placeholder="eg. 024 123 4567"
-                        value={formData.phone}
                         onChange={handleChange}
                       />
                     </div>
@@ -344,7 +322,7 @@ export default function SignupPage() {
                 <div className={styles.header}>
                   <h1 className={styles.title}>Verify Email</h1>
                   <p className={styles.subtitle}>
-                    Please check your email ({formData.email}) for a 6-digit verification code.
+                    Please check your email for a 6-digit verification code sent to {formData.email}.
                   </p>
                 </div>
                 <form className={styles.form} onSubmit={handleStep2}>

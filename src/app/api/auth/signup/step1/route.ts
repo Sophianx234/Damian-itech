@@ -4,6 +4,9 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { signupSchema } from '@/lib/validations';
 import { Resend } from 'resend';
+import * as React from 'react';
+import { render } from '@react-email/render';
+import VerificationEmail from '@/components/email/VerificationEmail';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,21 +24,18 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const { fullName, email, phone } = validatedBody.data;
+    const { fullName, email } = validatedBody.data;
 
-    let user = await User.findOne({ $or: [{ phone }, { email }] });
+    let user = await User.findOne({ email });
     if (user && user.isVerified) {
-      return NextResponse.json({ success: false, error: "An account with this email or phone number already exists and is verified." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "An account with this email already exists and is verified." }, { status: 400 });
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const salt = await bcrypt.genSalt(10);
     const hashedOtp = await bcrypt.hash(otpCode, salt);
-
     if (user) {
       user.fullName = fullName;
-      user.email = email;
-      user.phoneNumber = phone;
       user.signupOTP = hashedOtp;
       user.signupOTPExpires = new Date(Date.now() + 5 * 60 * 1000);
       await user.save();
@@ -43,8 +43,7 @@ export async function POST(request: Request) {
       user = await User.create({
         fullName,
         email,
-        phone,
-        phoneNumber: phone,
+        phone: `tmp_${Date.now()}_${email}`, // Dummy phone to bypass mongoose required constraint
         isVerified: false,
         signupOTP: hashedOtp,
         signupOTPExpires: new Date(Date.now() + 5 * 60 * 1000),
@@ -52,11 +51,15 @@ export async function POST(request: Request) {
     }
 
     try {
+      const emailHtml = await render(
+        React.createElement(VerificationEmail, { userName: fullName, otpCode: otpCode })
+      );
+
       const { error } = await resend.emails.send({
         from: 'Damian iTech <onboarding@resend.dev>',
         to: [email],
         subject: 'Your Verification Code',
-        html: `<p>Your verification code is <strong>${otpCode}</strong></p>`,
+        html: emailHtml,
       });
 
       if (error) {

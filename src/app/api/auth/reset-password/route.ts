@@ -4,6 +4,12 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { createSession } from '@/lib/session';
 import { resetPasswordSchema } from '@/lib/validations';
+import { Resend } from 'resend';
+import * as React from 'react';
+import { render } from '@react-email/render';
+import PasswordChangedEmail from '@/components/email/PasswordChangedEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -19,9 +25,9 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const { phone, otp, password } = validatedBody.data;
+    const { email, otp, password } = validatedBody.data;
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ success: false, error: "User not found." }, { status: 400 });
     }
@@ -47,27 +53,17 @@ export async function POST(request: Request) {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    let formattedPhone = phone.replace(/\D/g, "");
-    if (formattedPhone.startsWith("0")) {
-      formattedPhone = "233" + formattedPhone.substring(1);
-    }
-    if (!formattedPhone.includes("@c.us")) {
-      formattedPhone = `${formattedPhone}@c.us`;
-    }
-
-    const resetMessage = `Hi ${user.fullName.split(" ")[0]}, your Damian iTech account password has been successfully reset! 🔒\n\nIf you did not make this change, please contact our support team immediately.\n\nContinue shopping: ${process.env.WEBSITE_LINK}`;
-
     try {
-      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
-      fetch(`${process.env.WHATSAPP_MICROSERVICE_URL || "http://localhost:3001"}/send-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
-          "x-forwarded-for": clientIp
-        },
-        body: JSON.stringify({ phone: formattedPhone, message: resetMessage }),
-      }).catch(err => console.error("Failed to send reset confirmation:", err));
+      const emailHtml = await render(
+        React.createElement(PasswordChangedEmail, { userName: user.fullName })
+      );
+
+      await resend.emails.send({
+        from: 'Damian iTech <security@resend.dev>',
+        to: [email],
+        subject: 'Your Password Has Been Changed',
+        html: emailHtml,
+      });
     } catch (e) {
       console.error("Reset confirmation dispatch error:", e);
     }
@@ -80,7 +76,7 @@ export async function POST(request: Request) {
       user: {
         id: user._id.toString(),
         fullName: user.fullName,
-        phone: user.phone,
+        email: user.email,
         isVerified: user.isVerified,
       },
     });

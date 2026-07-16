@@ -6,13 +6,13 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const { phone, otp } = await request.json();
+    const { email, otp } = await request.json();
 
-    if (!phone || !otp) {
-      return NextResponse.json({ success: false, error: "Phone and OTP are required." }, { status: 400 });
+    if (!email || !otp) {
+      return NextResponse.json({ success: false, error: "Email and OTP are required." }, { status: 400 });
     }
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ success: false, error: "User not found." }, { status: 400 });
     }

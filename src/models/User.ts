@@ -65,9 +65,14 @@ const UserSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true,
+    required: false,
+    sparse: true,
   },
 }, { timestamps: true });
 
-// Check if the model exists before creating a new one (prevents overwrite errors in hot reloading)
+// Force schema recompilation in development
+if (process.env.NODE_ENV !== 'production') {
+  delete mongoose.models.User;
+}
+
 export default mongoose.models.User || mongoose.model('User', UserSchema);

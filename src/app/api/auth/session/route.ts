@@ -18,7 +18,7 @@ export async function GET() {
     }
 
     await dbConnect();
-    const user = await User.findById(payload.userId).select('fullName phone isVerified role');
+    const user = await User.findById(payload.userId).select('fullName phone phoneNumber email isVerified role');
     
     if (!user) {
       return NextResponse.json({ user: null });
@@ -28,7 +28,8 @@ export async function GET() {
       user: {
         id: user._id.toString(),
         fullName: user.fullName,
-        phone: user.phone,
+        email: user.email,
+        phone: user.phoneNumber || (user.phone && !user.phone.startsWith('tmp_') ? user.phone : ''),
         isVerified: user.isVerified,
         role: user.role,
       }

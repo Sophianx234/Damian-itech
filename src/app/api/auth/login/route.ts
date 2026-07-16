@@ -8,7 +8,7 @@ import { loginSchema } from '@/lib/validations';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const validatedBody = loginSchema.safeParse({ identifier: body.phone, password: body.password });
+    const validatedBody = loginSchema.safeParse({ identifier: body.identifier, password: body.password });
 
     if (!validatedBody.success) {
       return NextResponse.json(
@@ -21,14 +21,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const { identifier: phone, password } = validatedBody.data;
+    const { identifier, password } = validatedBody.data;
 
     await dbConnect();
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ 
+      $or: [{ email: identifier }, { phone: identifier }] 
+    });
+    
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid phone number or password' },
+        { error: 'Invalid email/phone or password' },
         { status: 401 }
       );
     }

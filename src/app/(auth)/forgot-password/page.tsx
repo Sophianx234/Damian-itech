@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Phone, Sun, Moon, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, Sun, Moon, CheckCircle2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import styles from "./ForgotPassword.module.css";
 
@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    phone: "",
+    email: "",
     otp: "",
   });
 
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
 
   const handleStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.phone) return;
+    if (!formData.email) return;
 
     setIsSubmitting(true);
     setApiError(null);
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
       const response = await fetch("/api/auth/forgot-password/step1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formData.phone }),
+        body: JSON.stringify({ email: formData.email }),
       });
       const res = await response.json();
       if (res.success) {
@@ -125,12 +125,12 @@ export default function ForgotPasswordPage() {
       const response = await fetch("/api/auth/forgot-password/step2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formData.phone, otp: formData.otp }),
+        body: JSON.stringify({ email: formData.email, otp: formData.otp }),
       });
       const res = await response.json();
       if (res.success) {
         router.push(
-          `/reset-password?phone=${encodeURIComponent(formData.phone)}&otp=${encodeURIComponent(formData.otp)}`,
+          `/reset-password?email=${encodeURIComponent(formData.email)}&otp=${encodeURIComponent(formData.otp)}`,
         );
       } else {
         setApiError(res.error || "Invalid verification code");
@@ -184,7 +184,7 @@ export default function ForgotPasswordPage() {
                 <div className={styles.header}>
                   <h1 className={styles.title}>Forgot Password?</h1>
                   <p className={styles.subtitle}>
-                    Enter your phone number to receive a reset code.
+                    Enter your email address to receive a reset code.
                   </p>
                 </div>
 
@@ -194,19 +194,19 @@ export default function ForgotPasswordPage() {
                   style={{ marginTop: "24px" }}
                 >
                   <div className={styles.inputGroup}>
-                    <label htmlFor="phone" className={styles.label}>
-                      Phone Number
+                    <label htmlFor="email" className={styles.label}>
+                      Email Address
                     </label>
                     <div className={styles.inputWrapper}>
-                      <Phone className={styles.inputIcon} size={18} />
+                      <Mail className={styles.inputIcon} size={18} />
                       <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
+                        type="email"
+                        id="email"
+                        name="email"
                         required
                         className={`${styles.input} ${styles.inputWithIcon}`}
-                        placeholder="eg. 024 123 4567"
-                        value={formData.phone}
+                        placeholder="john@example.com"
+                        value={formData.email}
                         onChange={handleChange}
                       />
                     </div>
@@ -250,10 +250,10 @@ export default function ForgotPasswordPage() {
                 style={{ width: "100%" }}
               >
                 <div className={styles.header}>
-                  <h1 className={styles.title}>Verify WhatsApp</h1>
+                  <h1 className={styles.title}>Verify Email</h1>
                   <p className={styles.subtitle}>
-                    Please check your WhatsApp for a 6-digit reset code sent to{" "}
-                    {formData.phone}.
+                    Please check your email for a 6-digit reset code sent to{" "}
+                    {formData.email}.
                   </p>
                 </div>
 

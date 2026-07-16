@@ -13,7 +13,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    phone: "",
+    identifier: "",
     password: "",
   });
   const [apiError, setApiError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: formData.phone,
+          identifier: formData.identifier,
           password: formData.password,
         }),
       });
@@ -116,25 +116,25 @@ export default function LoginPage() {
           <div className={styles.header}>
             <h1 className={styles.title}>Log In to Your Account</h1>
             <p className={styles.subtitle}>
-              Enter your phone number and password to access your account.
+              Enter your email or phone number and password to access your account.
             </p>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label htmlFor="phone" className={styles.label}>
-                Phone Number
+              <label htmlFor="identifier" className={styles.label}>
+                Email or Phone Number
               </label>
               <div className={styles.inputWrapper}>
                 <Phone className={styles.inputIcon} size={18} />
                 <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
+                  type="text"
+                  id="identifier"
+                  name="identifier"
                   required
                   className={`${styles.input} ${styles.inputWithIcon}`}
-                  placeholder="eg. 024 123 4567"
-                  value={formData.phone}
+                  placeholder="Enter email or phone number"
+                  value={formData.identifier}
                   onChange={handleChange}
                 />
               </div>

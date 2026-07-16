@@ -4,6 +4,12 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { createSession } from '@/lib/session';
 import { signupStep3Schema } from '@/lib/validations';
+import { Resend } from 'resend';
+import * as React from 'react';
+import { render } from '@react-email/render';
+import WelcomeMail from '@/components/email/WelcomeMail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
@@ -19,15 +25,15 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const { phone, password } = validatedBody.data;
+    const { email, password } = validatedBody.data;
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ success: false, error: "User not found." }, { status: 400 });
     }
 
     if (!user.isVerified) {
-      return NextResponse.json({ success: false, error: "User phone number is not verified." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "User email address is not verified." }, { status: 400 });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -36,26 +42,17 @@ export async function POST(request: Request) {
     user.password = hashedPassword;
     await user.save();
 
-    let formattedPhone = phone.replace(/\D/g, "");
-    if (formattedPhone.startsWith("0")) {
-      formattedPhone = "233" + formattedPhone.substring(1);
-    }
-    if (!formattedPhone.includes("@c.us")) {
-      formattedPhone = `${formattedPhone}@c.us`;
-    }
-    const welcomeMessage = `Akwaaba ${user.fullName.split(" ")[0]}, welcome to Damian iTech! 🎉\n\nYour account has been successfully created. We're thrilled to have you on board. You can now start exploring and shopping the best latest gadgets at affordable prices!\n\nSee the latest tech products: ${process.env.WEBSITE_LINK}`;
-
     try {
-      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
-      fetch(`${process.env.WHATSAPP_MICROSERVICE_URL || "http://localhost:3001"}/send-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
-          "x-forwarded-for": clientIp
-        },
-        body: JSON.stringify({ phone: formattedPhone, message: welcomeMessage }),
-      }).catch((err) => console.error("Failed to send welcome message:", err));
+      const emailHtml = await render(
+        React.createElement(WelcomeMail, { userName: user.fullName })
+      );
+
+      await resend.emails.send({
+        from: 'Damian iTech <welcome@resend.dev>',
+        to: [email],
+        subject: 'Welcome to Damian iTech!',
+        html: emailHtml,
+      });
     } catch (e) {
       console.error("Welcome message dispatch error:", e);
     }
@@ -68,7 +65,7 @@ export async function POST(request: Request) {
       user: {
         id: user._id.toString(),
         fullName: user.fullName,
-        phone: user.phone,
+        email: user.email,
         isVerified: user.isVerified,
       },
     });

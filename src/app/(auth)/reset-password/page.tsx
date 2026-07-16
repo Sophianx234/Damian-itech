@@ -12,7 +12,7 @@ import styles from "./ResetPassword.module.css";
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const phoneParam = searchParams.get("phone") || "";
+  const emailParam = searchParams.get("email") || "";
   const otpParam = searchParams.get("otp") || "";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +56,7 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (!phoneParam || !otpParam) {
+    if (!emailParam || !otpParam) {
       setApiError(
         "Authorization token is missing. Please restart the password reset process.",
       );
@@ -72,14 +72,13 @@ function ResetPasswordForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: phoneParam,
+          email: emailParam,
           otp: otpParam,
           password: formData.password,
         }),
       });
       const res = await response.json();
       if (res.success) {
-        alert("Password reset successfully! Redirecting to home...");
         router.push("/");
       } else {
         if (res.errors) setValidationErrors(res.errors);

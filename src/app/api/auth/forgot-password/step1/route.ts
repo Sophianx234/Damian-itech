@@ -2,19 +2,25 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import { Resend } from 'resend';
+import * as React from 'react';
+import { render } from '@react-email/render';
+import PasswordResetEmail from '@/components/email/PasswordResetEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
-    const { phone } = await request.json();
+    const { email } = await request.json();
 
-    if (!phone) {
-      return NextResponse.json({ success: false, error: "Phone number is required." }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ success: false, error: "Email address is required." }, { status: 400 });
     }
 
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ success: false, error: "No account associated with this phone number." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "No account associated with this email address." }, { status: 400 });
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -25,37 +31,27 @@ export async function POST(request: Request) {
     user.resetPasswordExpires = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
 
-    let formattedPhone = phone.replace(/\D/g, "");
-    if (formattedPhone.startsWith("0")) {
-      formattedPhone = "233" + formattedPhone.substring(1);
-    }
-    if (!formattedPhone.includes("@c.us")) {
-      formattedPhone = `${formattedPhone}@c.us`;
-    }
-
-    const message = `Your Damian iTech password reset code is ${otpCode}. It is valid for 5 minutes. Do not share this code with anyone.`;
-
     try {
-      const clientIp = request.headers.get("x-forwarded-for") || "127.0.0.1";
-      const response = await fetch(`${process.env.WHATSAPP_MICROSERVICE_URL || "http://localhost:3001"}/send-otp`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "x-api-key": process.env.WHATSAPP_MICROSERVICE_KEY || "",
-          "x-forwarded-for": clientIp
-        },
-        body: JSON.stringify({ phone: formattedPhone, message }),
+      const emailHtml = await render(
+        React.createElement(PasswordResetEmail, { userName: user.fullName, otpCode: otpCode })
+      );
+
+      const { error } = await resend.emails.send({
+        from: 'Damian iTech <security@resend.dev>',
+        to: [email],
+        subject: 'Your Password Reset Code',
+        html: emailHtml,
       });
 
-      if (!response.ok) {
-        throw new Error("Microservice returned an error");
+      if (error) {
+        throw new Error(error.message);
       }
     } catch (error) {
-      console.error("WhatsApp Microservice Error:", error);
-      return NextResponse.json({ success: false, error: "Failed to send WhatsApp message. Please ensure the notification service is running." }, { status: 500 });
+      console.error("Email Service Error:", error);
+      return NextResponse.json({ success: false, error: "Failed to send reset code. Please try again later." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: "OTP sent successfully via WhatsApp." });
+    return NextResponse.json({ success: true, message: "OTP sent successfully via email." });
   } catch (error: any) {
     console.error("Forgot Password Step 1 Error:", error);
     return NextResponse.json({ success: false, error: "Internal server error." }, { status: 500 });
