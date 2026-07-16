@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifySession } from '@/lib/session';
 import { hasPermission } from '@/lib/rbac';
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   
   const isAdminPage = pathname.startsWith('/admin');
@@ -29,6 +29,12 @@ export async function proxy(req: NextRequest) {
   if (pathname.startsWith('/api/products') && req.method === 'GET') {
     return NextResponse.next();
   }
+  
+  // Allow public GET for store settings (needed for checkout page)
+  if (pathname === '/api/admin/settings' && req.method === 'GET') {
+    return NextResponse.next();
+  }
+  
   if (pathname.startsWith('/api/support') && req.method === 'POST') {
     return NextResponse.next(); // Public can create tickets
   }
